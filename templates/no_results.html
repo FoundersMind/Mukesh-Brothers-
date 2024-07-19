@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block body %}
+<head>
+    <meta charset="utf-8">
+    <!-- Include Bootstrap CSS if not already included in base.html -->
+   
+    <style>
+        /* Style for each item */
+        .results-item {
+            border: 1px solid #333; /* Darker border color */
+            padding: 1rem; /* Padding inside each item */
+            border-radius: 0.5rem; /* Rounded corners */
+            background-color: #f9f9f9; /* Background color */
+            text-align: center; /* Center text */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Slight shadow for better visibility */
+            margin-bottom: 1rem; /* Space below each item */
+        }
+    </style>
+</head>
+
+    <div class="container-fluid">
+        <h1>Search Results for "{{ query }}"</h1>
+        
+        {% if search_type == 'product' and products %}
+            <h2>Categories</h2>
+            <div class="row">
+                {% for product in products %}
+                    <div class="col-md-2 col-sm-4 col-6 mb-4">
+                        <div class="results-item">{{ product.name }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif search_type == 'subproduct' and subproduct_data %}
+            <h2>Products</h2>
+            <div class="row">
+                {% for subproduct in subproduct_data %}
+                    <div class="col-md-2 col-sm-4 col-6 mb-4">
+                        <div class="results-item">{{ subproduct.subproduct.name }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-results-container">
+                <p>No results found. Please try a different search.</p>
+                
+                <h3>Categories you might be interested in:</h3>
+                <div class="row">
+                    {% for product in all_products %}
+                        <div class="col-md-2 col-sm-4 col-6 mb-4">
+                            <div class="results-item">{{ product.name }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <h3>products you might be interested in:</h3>
+                <div class="row">
+                    {% for subproduct in all_subproducts %}
+                        <div class="col-md-2 col-sm-4 col-6 mb-4">
+                            <div class="results-item">{{ subproduct.name }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

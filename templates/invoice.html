@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Invoice</title>
+    <style>
+        /* Add your CSS styles for the invoice here */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .invoice {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        .invoice h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .invoice p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .invoice table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .invoice th, .invoice td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice">
+        <h1>Invoice</h1>
+        <p><strong>Customer Details:</strong></p>
+        <p>Name: {{ first_name }} {{ last_name }}</p>
+        <p>Billing Address: {{ billing_address }}, {{ city_town }}, {{ postcode }}</p>
+        <p>Phone: {{ phone }}</p>
+        <p>Email: {{ email }}</p>
+        <p>GST Number: {{ gst_number }}</p>
+        <p>Delivery Address: {{ delivery_address }}</p>
+
+        <hr>
+        
+        <h2>Order Items</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through items and display them -->
+                <!-- Example: Replace with your logic to display order items -->
+                <tr>
+                    <td>Product Name</td>
+                    <td>Quantity</td>
+                    <td>Unit Price</td>
+                    <td>Total Price</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr>
+
+        <p><strong>Total Amount: ₹ {{ total_amount }}</strong></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,475 @@
+
+
+ {% extends 'base.html' %}
+
+{% block body %} 
+<head>
+     {% load i18n %}
+     {% load l10n %}
+     <meta charset="utf-8">
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .row {
+        display: flex;
+       
+    }
+    .left-section {
+        flex: 0 0 45%;
+        padding-right: 20px;
+        display: flex;
+        flex-direction: column;
+        margin-left:20px;
+    }
+    .right-section {
+        flex: 0 0 45%;
+        padding-left: 20px;
+    }
+   
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        padding: 10px 20px;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    /* Right Section: Order Items */
+    .right-section {
+        background-color: #ffffff; /* Pure white background */
+        padding: 1em;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+    
+    .order-items-section h3 {
+        color: #000000; /* Proper black text color */
+        font-weight: bold;
+    }
+    
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1em;
+    }
+    
+    .order-table th,
+    .order-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center; /* Center-align text in table cells */
+    }
+    
+    .order-table th {
+        background-color: #f7f7f7;
+        font-weight: bold;
+    }
+    
+    .order-table td img {
+        max-width: 100px;
+        height: auto;
+        display: block;
+        margin: auto;
+    }
+    .order-item img {
+        max-width: 100px;
+        border-radius:5px;
+    }
+    .order-item td p {
+        color: #000000; /* Proper black text color */
+    }
+    
+   
+    
+
+    /* Animation for form elements */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* General styles for form layout */
+    .left-section {
+        display: flex;
+        flex-direction: column;
+        background-color: #ffffff; /* Pure white background */
+    }
+    
+    .billing-checkout-section {
+        width: 100%;
+        background-color: #ffffff; /* Pure white background */
+    }
+    
+    .form-group {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 1em;
+        border:None;
+        border-radius: 10px;
+        height: 50px;
+        background-color: #ffffff; /* Pure white background */
+    }
+    
+    .order_confirm-form-group {
+        padding: 0.5em;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        height: 50px;
+        background-color: #ffffff; /* Pure white background */
+    }
+    
+    .half-width {
+        width: 48%;
+        margin-right: 2%;
+    }
+    
+    .half-width:last-child {
+        margin-right: 0;
+    }
+    
+    .full-width {
+        width: 100%;
+    }
+    
+    /* Ensure input and textarea borders are visible */
+    input, textarea {
+        width: 100%;
+        padding: 0.5em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: black;
+       
+       
+       
+    }
+    
+    input:focus, textarea:focus {
+        border-color:black;
+        outline: none;
+    }
+    
+    textarea {
+        height: 80px;
+    }
+    .price-item {
+        color: green; /* Green color for all price items */
+        font-weight: bold; /* Optionally bold */
+    }
+    
+    
+    
+    /* Style for buttons */
+    button {
+        margin-top: 1em;
+        padding: 0.75em 1.5em;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+    
+    button:hover {
+        background-color: #0056b3;
+    }
+    
+</style>
+</head>
+<form id="languageForm" method="post">
+    {% csrf_token %}
+    <div class="dropdown ml-auto">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Select Language
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+            <li><button type="button" class="dropdown-item" data-language-code="en">English</button></li>
+            <li><button type="button" class="dropdown-item" data-language-code="hi">हिन्दी</button></li>
+            <!-- Add more languages as needed -->
+        </ul>
+        
+    </div>
+</form>
+<form style="width:99%; height:100%;" method="post" action="{% url 'submit_order' %}">
+    {% csrf_token %}
+    <div>
+        <h2>{% trans "Order Confirmation" %}</h2>
+        <div class="row">
+            <div class="left-section">
+                <!-- Left Section: Billing and Checkout Information -->
+                <div class="billing-checkout-section">
+                    <h3>{% trans "Billing and Checkout Information" %}</h3>
+
+                    <!-- Billing Details Form -->
+                    <div class="form-group">
+                        <div class="order_confirm-form-group half-width">
+                            <input type="text" style="color:black;" id="first-name" name="first_name" placeholder="{% trans 'First Name *' %}" required>
+                        </div>
+                        <div class="order_confirm-form-group half-width">
+                            <input type="text" style="color:black;" id="last-name" name="last_name" placeholder="{% trans 'Last Name *' %}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="order_confirm-form-group full-width">
+                            <input type="text" style="color:black;" id="billing-address" name="billing_address" placeholder="{% trans 'Billing Address *' %}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="order_confirm-form-group half-width">
+                            <input type="text" style="color:black;" id="city-town" name="city_town" placeholder="{% trans 'City/Town *' %}" required>
+                        </div>
+                        <div class="order_confirm-form-group half-width">
+                            <input type="text" style="color:black;" id="firm-name" name="firm_name" placeholder="{% trans 'Firm Name' %}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="order_confirm-form-group half-width">
+                            <input type="text" style="color:black;" id="postcode" name="postcode" placeholder="{% trans 'Postcode *' %}" required>
+                        </div>
+                        <div class="order_confirm-form-group half-width">
+                            <input type="text" style="color:black;" id="phone" name="phone" placeholder="{% trans 'Phone *' %}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="order_confirm-form-group full-width">
+                            <input type="email" style="color:black;" id="email" name="email" placeholder="{% trans 'Email *' %}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="order_confirm-form-group full-width">
+                            <input type="text" style="color:black;" id="gst-number" name="gst_number" placeholder="{% trans 'Enter GST No. (if any)' %}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="order_confirm-form-group full-width" style="border: none;">
+                            <textarea id="delivery-address" name="delivery_address" placeholder="{% trans 'Delivery Address (if different)' %}"></textarea>
+                       
+                </div>
+            </div>
+             <div class="form-group">
+                        <div class="order_confirm-form-group full-width">
+                            <label for="payment-method" style="color:black; font-weight:bold;">{% trans "Payment Method *" %}</label>
+                            <select id="payment-method" name="payment_method" style="color:black;" required>
+                                <option value="cash">{% trans "Cash" %}</option>
+                                <option value="online">{% trans "Online" %}</option>
+                            </select>
+                        </div>
+                    </div>
+        </div>
+    </div>
+</form>
+
+        <!-- Right Section: Order Items -->
+        <div class="right-section">
+            <div class="order-items-section">
+                <h3>{% trans "Order Items" %}</h3>
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Image" %}</th>
+                            <th>{% trans "Product" %}</th>
+                            <th>{% trans "Unit Price" %}</th>
+                            <th>{% trans "Quantity" %}</th>
+                            <th>{% trans "Total Price" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr class="order-item">
+                            <td>
+                                {% if item.subproduct.image %}
+                                <img src="{{ item.subproduct.image.url }}" alt="{{ item.subproduct.name }}">
+                                {% else %}
+                                <p>{% trans "No Image Available" %}</p>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.subproduct.name }} {{ item.unit }}</td>
+                            <td>₹ {{ item.unit_price }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>₹ {{ item.total_price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p>{% trans "Total Items" %}: {{ total_items }}</p>
+            </div>
+
+            <!-- Right Section: Price -->
+            <div class="price-section">
+                <p>{% trans "Price" %} ₹ <span id="total-price" class="price-item">{{ total_price }}</span></p>
+                <p>{% trans "Bucket Discount" %}: ₹ <span id="bucket-discount" class="price-item bucket-discount">-{{ bucket_discount }}</span></p>
+                <p id="discount-amount" class="d-none">{% trans "Coupon Discount Applied" %}: ₹ - <span id="discounted-amount" class="price-item">0.00</span></p>
+                <p>{% trans "Total Amount" %}: ₹ <span id="discounted-total-amount" class="price-item">{{ discounted_total_amount }}</span></p>
+
+                <div id="coupon-section" class="coupon-section">
+                    <input type="text" style="color: black; border: 1px solid #ccc; padding: 8px; width:30%" id="coupon-code" name="coupon_code" placeholder="{% trans 'Enter Coupon Code' %}">
+                    <button type="button" id="apply-coupon-btn" style="margin-left:5px;" class="btn btn-warning mt-0">{% trans 'Apply Coupon' %}</button>
+                    <button type="button" id="remove-coupon-btn" style="margin-left:5px;" class="btn btn-danger mt-0 d-none">{% trans 'Remove Coupon' %}</button>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">{% trans "Submit Order" %}</button>
+
+
+<script>
+    // -*- coding: utf-8 -*-
+    document.addEventListener('DOMContentLoaded', function() {
+        
+       
+        const applyCouponBtn = document.getElementById('apply-coupon-btn');
+        const removeCouponBtn = document.getElementById('remove-coupon-btn');
+        const totalPriceElem = document.getElementById('total-price');
+        const discountedTotalAmountElem = document.getElementById('discounted-total-amount');
+        const discountAmountElem = document.getElementById('discount-amount');
+        const discountedAmountSpan = document.getElementById('discounted-amount');
+        const couponSection = document.getElementById('coupon-section');
+        const couponCodeInput = document.getElementById('coupon-code');
+        
+        let originalTotalPrice = parseFloat('{{ discounted_total_amount }}');
+        let currentTotalPrice = originalTotalPrice;
+        let couponApplied = '{{ request.session.coupon_applied|default:"" }}';
+        let couponCode = '{{ request.session.coupon_code|default:"" }}';
+        let couponDiscount = parseFloat('{{ request.session.coupon_discount|default:"0" }}');
+        let totalPriceAfterCoupon = parseFloat('{{ request.session.total_price_after_coupon_discount|default:"0" }}');
+    
+        // Initialize UI based on session data
+        if (couponApplied) {
+            couponCodeInput.value = couponCode;
+            applyCouponBtn.classList.add('d-none');
+            removeCouponBtn.classList.remove('d-none');
+            discountAmountElem.classList.remove('d-none');
+            discountedAmountSpan.innerText = couponDiscount.toFixed(2);
+            currentTotalPrice = totalPriceAfterCoupon;
+            updateTotalAmount();
+        }
+    
+        applyCouponBtn.addEventListener('click', function() {
+            const couponCode = couponCodeInput.value;
+            if (couponCode.trim() !== '') {
+                applyCoupon(couponCode, currentTotalPrice);
+            }
+        });
+    
+        removeCouponBtn.addEventListener('click', function() {
+            removeCoupon();
+        });
+    
+        function applyCoupon(couponCode, totalCartPrice) {
+            fetch("{% url 'apply_coupon' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'coupon_code=' + encodeURIComponent(couponCode) + '&total_cart_price=' + totalCartPrice
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let couponDiscount = parseFloat(data.coupon_discount);
+                    discountedAmountSpan.innerText = couponDiscount.toFixed(2);
+                    discountAmountElem.classList.remove('d-none');
+                    removeCouponBtn.classList.remove('d-none');
+                    applyCouponBtn.classList.add('d-none');
+                    currentTotalPrice = parseFloat(data.total_price_after_coupon_discount);
+                    updateTotalAmount();  // Update the total amount after applying coupon
+                    // Update session-like variables
+                    couponApplied = true;
+                    couponCode = couponCode;
+                    couponDiscount = couponDiscount;
+                    totalPriceAfterCoupon = currentTotalPrice;
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    
+        function removeCoupon() {
+            fetch("{% url 'remove_coupon_discount' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: ''
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    discountedAmountSpan.innerText = '0.00';
+                    discountAmountElem.classList.add('d-none');
+                    removeCouponBtn.classList.add('d-none');
+                    applyCouponBtn.classList.remove('d-none');
+                    currentTotalPrice = originalTotalPrice;  // Reset to original total price
+                    updateTotalAmount();  // Update the total amount after removing coupon
+                    // Update session-like variables
+                    couponApplied = false;
+                    couponCode = '';
+                    couponDiscount = 0;
+                    totalPriceAfterCoupon = originalTotalPrice;
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    
+        function updateTotalAmount() {
+            const finalTotalAmount = currentTotalPrice - parseFloat(discountedAmountSpan.innerText);
+            discountedTotalAmountElem.innerText = finalTotalAmount.toFixed(2);
+        }
+       
+        var languageButtons = document.querySelectorAll('.dropdown-menu .dropdown-item');
+    
+        languageButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                var languageCode = button.getAttribute('data-language-code');
+                if (languageCode) {
+                    var formData = new FormData();
+                    formData.append('language', languageCode);
+            
+                    fetch("{% url 'set_language' %}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Accept': 'application/json',
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload(); // Reload page after language change
+                        } else {
+                            console.error('Failed to change language');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error changing language:', error);
+                    });
+                }
+            });
+        });
+});
+</script>
+
+
+{% endblock body %}
+

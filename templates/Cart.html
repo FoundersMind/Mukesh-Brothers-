@@ -1,0 +1,409 @@
+
+
+{% extends 'base.html' %}
+
+{% block title %}
+  Your Cart - Mukesh & Brothers
+{% endblock title %}
+{% block body %}
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+    <!-- Add your existing head content here -->
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+   
+</head>
+{% block content %}
+    
+{% endblock content %}
+
+{% block cart %}
+
+{% endblock cart %}
+
+<div class="container-fluid">
+  <h1 class="text-center">Your Cart</h1>
+  <div class="row" style="margin-top: 10px;">
+    <!-- Product Display Section (Left Side) -->
+    <div class="col-md-9" style="margin-right: 10px; margin-left: 10px;">
+      <div class="row justify-content-start;">
+        {% for cart_item in cart_items %}
+        <div class="col-md-12" style="margin-top: 40px;">
+          <div class="row" style="border-radius: 50px;">
+            <div class="col-md-5">
+              <div class="image-container" style="position: relative; height: 100%;">
+                <img src="{{ cart_item.image_url }}" alt="{{ cart_item.subproduct.name }}" class="img-fluid" style="width: 50%; height: 70%; border-radius: 15px;">
+                {% if cart_item.subproduct.tag %}
+                <div class="product-tag" style="position: absolute; top: 10px; left: 10px; background-color: #ff5722; color: white; padding: 5px 10px; border-radius: 3px; font-size: 12px; font-weight: bold;">{{ cart_item.subproduct.get_tag_display }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="cart-item-details">
+                <h4>{{ cart_item.subproduct.name }}</h4>
+                <p id="unit-display_{{ cart_item.id }}" data-cart-id="{{ cart_item.cart_id }}" data-cart-item-id="{{ cart_item.id }}">Unit: {{ cart_item.unit.unit }} Price: ₹ {{ cart_item.unit.unit_price }}</p>
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="input-group">
+                      <button class="btn btn-dark quantity-btn custom-btn" data-cart-id="{{ cart_item.cart_id }}" data-cart-item-id="{{ cart_item.id }}" data-operation="decrement" data-selected-unit="{{ cart_item.selected_unit }}" data-subproduct-id="{{ cart_item.subproduct.id }}" data-unit-price="{{ cart_item.unit.unit_price }}">
+                        <i class="fas fa-minus"></i>
+                      </button>
+                      <span id="cart-quantity-display-{{ cart_item.id }}" class="mx-2" style="margin-top:7px;">{{ cart_item.quantity }}</span>
+                      <button class="btn btn-dark quantity-btn custom-btn" data-cart-id="{{ cart_item.cart_id }}" data-cart-item-id="{{ cart_item.id }}" data-operation="increment" data-selected-unit="{{ cart_item.selected_unit }}" data-subproduct-id="{{ cart_item.subproduct.id }}" data-unit-price="{{ cart_item.unit.unit_price }}">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <p id="total-price-display-{{ cart_item.id }}">Total Price: ₹ {{ cart_item.total_price|floatformat:"2" }}</p>
+                  </div>
+                  <div class="col-md-4">
+                    <form method="post" action="{% url 'remove_from_cart' cart_item.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger">Remove</button>
+                    </form>
+                  </div>
+                </div>
+                <!-- Checkbox for adding to bucket -->
+                {% if cart_item.subproduct.tag == 'combo' %}
+                <div class="form-check">
+                  <input class="form-check-input combo-checkbox" type="checkbox" value="{{ cart_item.id }}" id="combo-checkbox-{{ cart_item.id }}">
+                  <label class="form-check-label" for="combo-checkbox-{{ cart_item.id }}">
+                    Add to bucket
+                  </label>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="row">
+        <div class="col-md-12 mt-5" style="border: 2px solid black; border-radius:30px;">
+          <h4 style="margin-top:12px;">Selected Bucket</h4>
+          {% if request.session.selected_bucket %}
+          <div class="selected-bucket-item">
+            <img src="/static/bucket.png" class="card-img-top" alt="{{ bucket.get_size_display }}">
+            <p>Size: {{ request.session.selected_bucket.size }} - Discount: {{ request.session.selected_bucket.discount }}%</p>
+          </div>
+        
+            <div id="discount-info" style="border-radius: 4px;"></div>
+            <div id="weight-info"style="border-radius: 4px;"></div> <!-- Added this line to display weight information -->
+          
+          
+          {% else %}
+          <p>No bucket selected.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Discount Section -->
+
+    <!-- Checkout Details Section -->
+    <div class="col-md-12 mt-4" data-cart-id="{{ cart_id }}">
+      <div class="checkout-details">
+        <h4>Checkout Details</h4>
+        <p id="total-cart-price">Total Cart Price: ₹ {{ total_price_all|floatformat:"2" }} incl. GST</p>
+        <div id="discount-message" style="display:none; color: green;"></div>
+        <button id="checkout-btn" class="btn btn-primary">Checkout</button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h4>Related Products</h4>
+      <!-- Example: Display related products based on current cart items -->
+      <!-- Adjust content and styling based on your specific design -->
+      <div class="row">
+        <div class="col-md-4">
+          <div class="related-product">
+            <img src="/static/product1.png" alt="Related Product 1" class="img-fluid">
+            <p>Product Name 1</p>
+            <p>Price: ₹ 100.00</p>
+            <button class="btn btn-outline-primary btn-sm">Add to Cart</button>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="related-product">
+            <img src="/static/product2.png" alt="Related Product 2" class="img-fluid">
+            <p>Product Name 2</p>
+            <p>Price: ₹ 120.00</p>
+            <button class="btn btn-outline-primary btn-sm">Add to Cart</button>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="related-product">
+            <img src="/static/product3.png" alt="Related Product 3" class="img-fluid">
+            <p>Product Name 3</p>
+            <p>Price: ₹ 150.00</p>
+            <button class="btn btn-outline-primary btn-sm">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h4>Promotions and Offers</h4>
+      <!-- Example: Display promotional banners or offers -->
+      <div class="promotion-banner">
+        <img src="/static/promotion_banner.png" alt="Promotion Banner" class="img-fluid">
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h4>Customer Support</h4>
+      <!-- Example: Provide customer support information or live chat -->
+      <p>Have questions? Contact us at support@example.com or use our live chat.</p>
+      <button class="btn btn-outline-primary">Live Chat</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const quantityButtons = document.querySelectorAll('.quantity-btn');
+
+    quantityButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        const cartItemId = this.getAttribute('data-cart-item-id');
+        const subproductId = this.getAttribute('data-subproduct-id');
+        const specialproductId = this.getAttribute('data-special_product-id');
+        const operation = this.getAttribute('data-operation');
+        const quantityDisplay = document.getElementById(`cart-quantity-display-${cartItemId}`);
+        const totalPriceDisplay = document.getElementById(`total-price-display-${cartItemId}`);
+        const totalPriceText = totalPriceDisplay.textContent;
+        let totalPriceValueItem = parseFloat(totalPriceText.split('₹ ')[1]); 
+        const totalCartPriceDisplay = document.getElementById('total-cart-price');
+        const totalCartPriceText = totalCartPriceDisplay.textContent;
+        let totalPriceValue = parseFloat(totalCartPriceText.split('₹ ')[1]);
+    
+        const unitPrice = parseFloat(this.getAttribute('data-unit-price'));
+    
+        // Create URLs array conditionally
+        let urls = [
+          `/update_cart_item_quantity/${cartItemId}/?operation=${operation}&subproduct_id=${subproductId}`
+        ];
+    
+        // Add second URL only if specialproductId is not null
+        if (specialproductId) {
+          urls.push(`/update_cart_item_quantity_index/${cartItemId}/?operation=${operation}&subproduct_id=${subproductId}&special_product_id=${specialproductId}`);
+        }
+    
+        urls.forEach(url => {
+          fetch(url)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then(data => {
+              if (data.error) {
+                alert(data.error); // or handle error in another way
+                return;
+              }
+    
+              quantityDisplay.innerText = data.new_quantity;
+              const newQuantity = parseInt(data.new_quantity);
+              let newTotalPrice = newQuantity * unitPrice;
+              
+              totalPriceDisplay.innerText = `Total Price: ₹ ${newTotalPrice.toFixed(2)}`;
+              totalPriceValue = totalPriceValue + newTotalPrice - totalPriceValueItem;
+              totalCartPriceDisplay.innerText = `Total Cart Price: ₹ ${totalPriceValue.toFixed(2)} incl. GST`;
+              updateTotalPrice(totalPriceValue, "updated");
+    
+              // Check if checkbox exists and is checked
+              const checkbox = document.getElementById(`combo-checkbox-${cartItemId}`);
+              if (checkbox && checkbox.checked) {
+                handleSubproductSelection();
+              }
+            })
+            .catch(error => {
+              console.error('Error updating quantity:', error);
+            });
+        });
+      });
+    });
+    
+    
+    let originalTotalPrice = parseFloat('{{ total_price_all }}'); // Initial total price from server
+    let accumulatedDiscount = 0; // Accumulated discount from all sources
+  
+    function updateTotalPrice(newTotalPrice, message) {
+      const totalCartPriceDisplay = document.getElementById('total-cart-price');
+      totalCartPriceDisplay.innerText = `Total Cart Price: ₹ ${newTotalPrice.toFixed(2)} incl. GST`;
+      const discountMessage = document.getElementById('discount-message');
+      discountMessage.innerText = message;
+      discountMessage.style.display = 'block';
+    }
+  
+   
+    document.getElementById('checkout-btn').addEventListener('click', function() {
+      const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value; // Fetch CSRF token
+  
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '{% url "checkout_view" %}';
+  
+      // Create CSRF token input field
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = 'csrfmiddlewaretoken';
+      csrfInput.value = csrftoken;
+      form.appendChild(csrfInput);
+  
+      // Calculate total price
+      const totalCartPriceDisplay = document.getElementById('total-cart-price');
+      let totalPriceValue = parseFloat(totalCartPriceDisplay.textContent.split('₹ ')[1]);
+  
+      // Check if discount info exists
+      const discountInfoElement = document.getElementById('discount-info');
+      if (discountInfoElement && discountInfoElement.innerText.trim() !== '') {
+          // Discount applied: subtract the discount amount from total price
+          const discountPercent = parseFloat(discountInfoElement.innerText.split(':')[1].trim());
+          const bucketdiscount = (totalPriceValue * (discountPercent / 100)).toFixed(2);
+          totalPriceValue -= parseFloat(bucketdiscount);
+  
+          // Create discounted_amount input field
+          const bucketdiscountInput = document.createElement('input');
+          bucketdiscountInput.type = 'hidden';
+          bucketdiscountInput.name = 'bucket_discount';
+          bucketdiscountInput.value = bucketdiscount;
+          form.appendChild(bucketdiscountInput);
+      }
+  
+      // Create discounted_total_amount input field
+      const discountedTotalInput = document.createElement('input');
+      discountedTotalInput.type = 'hidden';
+      discountedTotalInput.name = 'discounted_total_amount';
+      discountedTotalInput.value = totalPriceValue.toFixed(2);
+      form.appendChild(discountedTotalInput);
+  
+      document.body.appendChild(form);
+      form.submit();
+  });
+  
+    
+     // Function to handle subproduct selection
+  const checkboxes = document.querySelectorAll('.combo-checkbox');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', handleSubproductSelection);
+  });
+ 
+  function handleSubproductSelection() {
+    const selectedCheckboxes = document.querySelectorAll('.combo-checkbox:checked');
+    
+    // Check if any checkbox is checked without a selected bucket
+    if (selectedCheckboxes.length > 0 && !document.querySelector('.selected-bucket-item')) {
+      alert('Please select a bucket before adding items.');
+      selectedCheckboxes.forEach(checkbox => {
+        checkbox.checked = false; // Uncheck the checkbox
+      });
+      return;
+    }
+  
+    // Proceed with sending selected items to the server
+    const selectedItems = Array.from(selectedCheckboxes).map(checkbox => {
+      const cartItemId = checkbox.value;
+      const quantityElement = document.getElementById(`cart-quantity-display-${cartItemId}`);
+      const unitElement = document.getElementById(`unit-display_${cartItemId}`);
+  
+      if (quantityElement && unitElement) {
+        const quantity = parseInt(quantityElement.textContent.trim());
+        const unitText = unitElement.textContent.trim();
+        const unitIndex = unitText.indexOf('Unit:') + 'Unit:'.length;
+        const priceIndex = unitText.indexOf('Price: ₹') + 'Price: ₹'.length;
+  
+        const unit = unitText.substring(unitIndex, priceIndex - ' Price: ₹'.length).trim();
+        const price = parseFloat(unitText.substring(priceIndex).trim());
+  
+        return {
+          cartItemId: cartItemId,
+          subproductName: unitElement.previousElementSibling.textContent.trim(),
+          quantity: quantity,
+          unit: unit,
+          price: price
+        };
+      } else {
+        console.error(`Element not found for cart item ID: ${cartItemId}`);
+        return null;
+      }
+    }).filter(item => item !== null);
+  
+    // Send selected items to the server for validation and processing
+    fetch('{% url "add_to_bucket" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ selectedItems: selectedItems })
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Error adding to bucket');
+      }
+    })
+    .then(data => {
+      // Log the response message to console or use it as needed
+      console.log(data.message); // Example: "Items added to bucket successfully."
+  
+      // Display total weight received from server
+      if (data.discount_percent !== null && data.discount_percent !== 0) {
+        displayDiscount(data.discount_percent);
+        displayWeight(data.total_weight);
+      } else {
+        // Handle case where no discount is applicable
+        
+        displayMessage(data.message);
+        displayWeight(data.total_weight);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while adding to the bucket.');
+    });
+  }
+     function displayDiscount(discountPercent) {
+       const discountInfo = document.getElementById('discount-info');
+       discountInfo.innerHTML = `<strong>Discount:</strong> ${discountPercent}%`;
+     }
+   
+     function displayMessage(message) {
+       const discountInfo = document.getElementById('discount-info');
+       discountInfo.innerHTML = `<strong>${message}</strong>`;
+     }
+   
+     function displayWeight(totalWeight) {
+       const weightInfo = document.getElementById('weight-info');
+       weightInfo.innerHTML = `<strong>Total Weight:</strong> ${totalWeight} kg`;
+     }
+   
+});
+  
+</script>
+
+  
+
+
+    {% endblock body %}
+    

@@ -1,0 +1,696 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    {% load static %}
+        <head>
+            <meta charset="utf-8">
+        </head>
+    {% comment %} <section class="Form mx-3 my-4 pl-4 ">
+        <div class="container1">
+            <div class="row no-gutters">
+                <div class="col-lg-5 col-md-5 d-none d-md-block">
+                    <div class="image-container">
+                        <img src="/static/cart.jpg" class="img-fluid" alt="">
+                    </div>
+                </div>
+                <div class="col-lg-7 col-md-7 col-sm-12 col-12 px-7 pt-5 rounded-form" style="background-color: #D2B48C; text-align: center;">
+                    <img src="/static/download_black_login.png" class="img-fluid  center-on-small mx-auto" alt="" width="170" height="140" style="margin-top:-40px;">
+                    <h1 style="text-align: center; margin-top:40px; font-family:Lato;">Login</h1>
+                    <form id="otp-form">
+                        {% csrf_token %}
+                        <div id="request-otp-container" style="display: flex; justify-content: center; margin-left:190px;">
+                            <div class="d-grid gap-3" style="margin-right:15px;">
+                                <input type="tel" id="mobile-number" placeholder="+91" class="form-control my-2 p-2">
+                            </div>
+                            <div class="d-grid gap-3"style="margin-left:20px;" >
+                                <button class="btn btn-primary p-2" id="request-otp-btn" type="button">Request OTP</button>
+                            </div>
+                        </div>
+                        <div id="otp-container" style="display: none; justify-content: center;margin-left:190px;"> <!-- Hide the OTP container by default -->
+                            <div class="d-grid gap-3" style="margin-left:50px;">
+                                <input type="text" id="otp" placeholder="Enter OTP" class="form-control my-2 p-2">
+                            </div>
+                            <div class="d-grid gap-3" style="margin-left:100px; width:120px;">
+                                <button class="btn btn-secondary p-1" id="submit-otp-btn" type="button">Submit OTP</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <h2 class="center-on-small" style="margin-top:60px; font-family:Lato;">or</h2>
+                    <div>
+                        <a class="btn btn-lg btn-google btn-light" style="white-space: nowrap;margin-top:;" href="{% url 'social:begin' 'google-oauth2' %}">
+                            <img src="https://img.icons8.com/color/16/000000/google-logo.png"> Sign in using Google
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> {% endcomment %}
+    <style>
+
+        @import url("https://fonts.googleapis.com/css?family=Nunito:400,600,700");
+
+        .modal-right img {
+            height: 300px;  /* Adjusted size */
+            width: 300px;   /* Adjusted size */
+            object-fit: cover;
+            top:0;
+        }
+        .btn-google {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            border: 1px solid black;
+            border-radius: 5px;
+            text-decoration: none;
+            color: black;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s;
+            margin-top: 10px;
+            margin-left:39px;
+        }
+        .btn-google img {
+            height: 24px; /* Adjust height as needed */
+            width: auto; /* Maintain aspect ratio */
+            margin-right: 10px; /* Space between image and text */
+        }
+        .btn-google:hover {
+            background-color: black;
+            color: white;
+        }
+
+        @keyframes backgroundAnimation {
+            0% {
+                background-size: 100%;
+                opacity: 0;
+            }
+            100% {
+                background-size: 100%;
+                opacity: 1;
+            }
+        }
+    
+        .container {
+            height: 600px;
+        
+            background-image: url('/static/order.jpeg');
+            background-size: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius:20px;
+            margin-top: -70px;
+            animation: backgroundAnimation 3s ease-in-out;
+        }
+        .modal {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            margin-top: 85px;
+            width: 100%;
+            height: 60px;
+            background: rgba(51, 51, 51, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.4s;
+        }
+        
+        
+        .modal-container {
+            display: flex;
+            max-width: 700px;
+            width: 100%;
+            top: 20%;
+            border-radius: 10px;
+            height: 420px;
+            overflow: hidden;
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s, transform 0.6s;
+            background: #fff;
+            transform: translateY(100px) scale(0.4);
+        }
+        
+        .centered-modal {
+            top: 20%; /* Adjust this value to match the top value in .modal-container */
+        }
+        .modal-title {
+            font-size: 24px;
+            margin: 0;
+            font-weight: 400;
+            color: #55311c;
+        }
+        
+        .modal-desc {
+            margin: 6px 0 20px 0;
+        }
+        
+        .modal-left {
+            padding: 40px 20px 20px;
+            background: #fff;
+            flex: 1.5;
+            opacity: 0;
+            transition: transform 0.5s, opacity 0.5s;
+            transform: translateY(80px);
+        }
+        
+       
+.modal-button {
+    color: darken(#8c7569, 5%);
+    font-family: "Nunito", sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    border: 0;
+    outline: 0;
+    padding: 8px 30px;
+    border-radius: 30px;
+    background: rgb(255, 255, 255);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.16);
+    transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s; /* Added opacity transition */
+}
+
+.modal-right {
+    flex: 2;
+    font-size: 0;
+    transition: transform 0.6s;
+    overflow: hidden;
+    margin-top: 50px;
+}
+
+        
+.modal-right img {
+    transform: scale(2);
+    transition: transform 1.2s;
+}
+
+.modal.is-open {
+    height: 100%;
+    background: rgba(51, 51, 51, 0.85);
+}
+
+.modal.is-open .modal-button {
+    opacity: 0;
+}
+
+        
+        .modal.is-open .modal-container {
+            opacity: 1;
+            transition-duration: 0.6s;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+        
+        .modal.is-open .modal-right img {
+            transform: scale(1);
+        }
+        
+        .modal.is-open .modal-left {
+            transform: translateY(0);
+            opacity: 1;
+            transition-delay: 0.1s;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-buttons a {
+            color: rgba(51, 51, 51, 0.6);
+            font-size: 12px;  /* Adjusted font size */
+        }
+        
+        .sign-up {
+            margin: 40px 0 0;  /* Adjusted margin */
+            font-size: 12px;   /* Adjusted font size */
+            text-align: center;
+        }
+        
+        .sign-up a {
+            color: #8c7569;
+        }
+        
+        .input-button {
+            padding: 6px 10px;  /* Adjusted padding */
+            outline: none;
+            border: 0;
+            color: #fff;
+            border-radius: 4px;
+            background: #8c7569;
+            font-family: "Nunito", sans-serif;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .message-container {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .success-message {
+            background-color: #d4edda; /* Bootstrap success color */
+            color: #155724; /* Bootstrap success text color */
+            border: 1px solid #c3e6cb; /* Bootstrap success border color */
+        }
+        
+        .error-message {
+            background-color: #f8d7da; /* Bootstrap error color */
+            color: #721c24; /* Bootstrap error text color */
+            border: 1px solid #f5c6cb; /* Bootstrap error border color */
+        }
+        
+        .input-label {
+            font-size: 12px;  /* Adjusted font size */
+            text-transform: uppercase;
+            font-family: "Nunito", sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.7px;
+            color: #8c7569;
+            transition: 0.3s;
+        }
+        .input-label::after {
+            content: '*';
+            color: red;
+            margin-left: 5px;
+        }
+        .input-required {
+            border-color: red;
+        }
+        .input-button[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .input-block {
+            display: flex;
+            flex-direction: column;
+            padding: 8px 8px 6px;  /* Adjusted padding */
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px;  /* Adjusted margin */
+            transition: 0.3s;
+        }
+        
+        .input-block input {
+            outline: 0;
+            border: 0;
+            padding: 4px 0 0;
+            font-size: 14px;
+            font-family: "Nunito", sans-serif;
+            font-weight: bold;
+            color: black; /* Set the text color to black */
+        }
+        
+        
+        .input-block input::placeholder {
+            color: #ccc;
+            opacity: 1;
+        }
+        
+        .input-block:focus-within {
+            border-color: #8c7569;
+        }
+        
+        .input-block:focus-within .input-label {
+            color: rgba(140, 117, 105, 0.8);
+        }
+        
+        .icon-button {
+            outline: 0;
+            position: absolute;
+            right: 10px;
+            top: 12px;
+            width: 24px;  /* Adjusted size */
+            height: 24px;  /* Adjusted size */
+            border: 0;
+            background: 0;
+            padding: 0;
+            cursor: pointer;
+        }
+        
+        .scroll-down {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: darken(#8c7569, 5%);
+            font-size: 24px;  /* Adjusted font size */
+            font-weight: 800;
+            transform: translate(-50%, -50%);
+        }
+        
+        .scroll-down svg {
+            margin-top: 16px;
+            width: 36px;  /* Adjusted size */
+            fill: currentColor;
+        }
+        .divider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .divider-container hr {
+            width: 2px;
+            height: 150px; /* Adjust height as needed */
+            {% comment %} margin: 5px 0; {% endcomment %}
+            background-color: black;
+            border: none;
+            margin-right:15px;
+        }
+        .divider-container span {
+           margin-right:12px;
+        }
+        .terms-condition {
+            width: 310px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+        }
+      
+            .terms-condition input {
+                width: 15px; /* Adjust the width of the checkbox */
+                height: 15px; /* Adjust the height of the checkbox if needed */
+                margin-right: 10px; /* Adjusts space between checkbox and label */
+            }
+            .logo-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100px;
+                width: 300px;
+                background-color: #f0f0f0;
+                border: 2px solid #333;
+                border-radius: 10px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-style: italic;
+                font-size: 18px;
+                color: #333;
+                text-align: center;
+                padding: 10px;
+                margin-bottom:25px;
+            }
+            .logo-title {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .logo-desc {
+                font-size: 14px;
+                margin-top: 5px;
+                font-weight: bold;
+                color: #ccc; /* Light gray color for description text */
+            }
+            .logo-text {
+                display: inline-block;
+                padding: 5px 10px;
+                background-color: #fff; /* White background for Jai Jinendra */
+                border-radius: 5px;
+                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+                color: #8B5A2B; /* Wooden brown text color */
+                text-transform: uppercase;
+                font-weight: bold;
+                font-family: 'Times New Roman', Times, serif; /* Example of a decorative font */
+                font-size: 20px; /* Adjust font size as needed */
+            }
+        @media(max-width: 750px) {
+          .modal-container {
+            width: 90%;
+          }
+          .modal-right {
+            display: none;
+          }
+        }
+    </style>
+    {% comment %} <div class="scroll-down">SCROLL DOWN
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+            <path d="M16 3C8.832031 3 3 8.832031 3 16s5.832031 13 13 13 13-5.832031 13-13S23.167969 3 16 3zm0 2c6.085938 0 11 4.914063 11 11 0 6.085938-4.914062 11-11 11-6.085937 0-11-4.914062-11-11C5 9.914063 9.914063 5 16 5zm-1 4v10.28125l-4-4-1.40625 1.4375L16 23.125l6.40625-6.40625L21 15.28125l-4 4V9z"/>
+        </svg>
+    </div> {% endcomment %}
+    {% block content %}
+    
+{% endblock content %}
+    <div class="container"></div>
+    
+    <div class="modal">
+       
+            {% csrf_token %}
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <div class="modal-container">
+            <div class="modal-left" id="initial-form">
+                <div class="logo-container">
+                    <div class="logo-title">स्वागत है! (Welcome)</div>
+                    <div class="logo-desc"><span style="color: black;">Aapki shuddhta ab hamare haatho mein.</span></div>
+                    <div class="logo-text">Jai Jinendra</div>
+                </div>
+                
+                
+                <!-- Firm or Personal Name -->
+                <div class="input-block">
+                    <label for="firm-name" class="input-label">Firm or Personal Name</label>
+                    <input type="text" id="firm-name" name="firm-name" placeholder="Enter Firm or Personal Name" required>
+                </div>
+                
+                <!-- Mobile Number -->
+                <div class="input-block">
+                    <label for="mobile-number" class="input-label">Mobile Number</label>
+                    <input type="tel" id="mobile-number" name="mobile-number" placeholder="Mobile Number" required>
+                </div>
+               
+                <div class="terms-condition">
+                    <input type="checkbox" id="terms-checkbox" required>
+                    <label for="terms-checkbox">I agree to the <a href="#">Terms and Conditions</a></label>
+                </div> 
+                    
+                <div class="modal-buttons">
+                    <button type="button" class="input-button" id="request-otp" disabled>Request OTP</button>
+                </div>
+            </div>
+    
+                <div class="modal-left" id="otp-container" style="display: none; margin-top:80px;">
+                    <!-- OTP Entry Form -->
+                <div class="input-block">
+                        <label for="otp" class="input-label">Enter OTP</label>
+                        <input type="text" id="otp" name="otp" placeholder="OTP" required>
+                    </div>
+                    
+                    <div class="modal-buttons">
+                        <button type="button" class="input-button "style="margin-left:110px;" id="submit-otp" disabled>Login</button>
+                    </div>
+                </div>
+                
+                <div class="divider-container">
+                    <hr class="left-line"/>
+                    <span>or</span>
+                    <hr class="right-line"/>
+                </div>
+
+                <div class="modal-right">
+                    <img src="/static/login_photo_2.png" alt="">
+                    <a class="btn btn-google" href="{% url 'social:begin' 'google-oauth2' %}">
+                        <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google Logo"> Sign in using Google
+                    </a>
+           
+    
+            <!-- Close Button -->
+            <button class="icon-button close-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                    <path d="M 25 3 C 12.86158 3 3 12.86158 3 25 C 3 37.13842 12.86158 47 25 47 C 37.13842 47 47 37.13842 47 25 C 47 12.86158 37.13842 3 25 3 z M 25 5 C 36.05754 5 45 13.94246 45 25 C 45 36.05754 36.05754 45 25 45 C 13.94246 45 5 36.05754 5 25 C 5 13.94246 13.94246 5 25 5 z M 16.990234 15.990234 A 1.0001 1.0001 0 0 0 16.292969 17.707031 L 23.585938 25 L 16.292969 32.292969 A 1.0001 1.0001 0 1 0 17.707031 33.707031 L 25 26.414062 L 32.292969 33.707031 A 1.0001 1.0001 0 1 0 33.707031 32.292969 L 26.414062 25 L 33.707031 17.707031 A 1.0001 1.0001 0 0 0 32.980469 15.990234 A 1.0001 1.0001 0 0 0 32.292969 16.292969 L 25 23.585938 L 17.707031 16.292969 A 1.0001 1.0001 0 0 0 16.990234 15.990234 z"></path>
+                </svg> 
+            </button> 
+             </div>
+        </div>
+       <button class="modal-button">Click here to login</button>
+    </div>
+    <div id="message-container"></div>
+
+   
+    <script>
+        // -*- coding: utf-8 -*-
+        const body = document.querySelector("body");
+        const modal = document.querySelector(".modal");
+        const closeButton = document.querySelector(".close-button");
+        const modalButton = document.querySelector(".modal-button");
+        {% comment %} const scrollDown = document.querySelector(".scroll-down"); {% endcomment %}
+        const requestOTPButton = document.getElementById("request-otp");
+        const otpContainer = document.getElementById("otp-container");
+        const messageContainer = document.getElementById("message-container");
+        
+        let isOpened = false;
+        let lastRequestTime = 0;
+        const MIN_REQUEST_INTERVAL = 60000; // Minimum interval between requests in milliseconds (1 minute)
+        
+        const openModal = () => {
+            modal.classList.add("is-open");
+            body.style.overflow = "hidden";
+            modal.querySelector(".modal-container").classList.add("centered-modal");
+            modal.querySelector(".modal-container").style.transform = "translateY(-95px) scale(1)";
+        };
+        
+        const closeModal = () => {
+            modal.classList.remove("is-open");
+            body.style.overflow = "initial";
+        };
+        
+        {% comment %} window.addEventListener("scroll", () => {
+            if (window.scrollY > window.innerHeight / 3 && !isOpened) {
+                isOpened = true;
+                scrollDown.style.display = "none";
+                openModal();
+            }
+        }); {% endcomment %}
+        
+        modalButton.addEventListener("click", openModal);
+        closeButton.addEventListener("click", closeModal);
+        
+        window.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+        
+        document.onkeydown = (evt) => {
+            evt = evt || window.event;
+            evt.keyCode === 27 ? closeModal() : false;
+        };
+        
+        // Function to check if all required fields are filled
+        function checkFields() {
+            var firmName = document.getElementById('firm-name').value.trim();
+            var mobileNumber = document.getElementById('mobile-number').value.trim();
+            var termsCheckbox = document.getElementById('terms-checkbox').checked;
+        
+            // Enable or disable request OTP button based on fields
+            if (firmName !== '' && mobileNumber !== '' && termsCheckbox) {
+                requestOTPButton.disabled = false;
+            } else {
+                requestOTPButton.disabled = true;
+            }
+        }
+        
+        // Add event listeners to input fields and checkbox
+        document.getElementById('firm-name').addEventListener('input', checkFields);
+        document.getElementById('mobile-number').addEventListener('input', checkFields);
+        document.getElementById('terms-checkbox').addEventListener('change', checkFields);
+        
+        // Function to send OTP with throttle
+        function sendOTP() {
+            var now = Date.now();
+            if (now - lastRequestTime < MIN_REQUEST_INTERVAL) {
+                console.log("Please wait before making another request.");
+                return;
+            }
+        
+            lastRequestTime = now;
+        
+            var mobileNumber = $('#mobile-number').val();
+            if (!mobileNumber.startsWith("+91")) {
+                mobileNumber = "+91" + mobileNumber;
+            }
+            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+        
+            $.ajax({
+                type: "POST",
+                url: "/send-otp/", // Replace with your actual endpoint URL
+                data: {
+                    mobile_number: mobileNumber,
+                    csrfmiddlewaretoken: csrfToken
+                },
+                success: function(response) {
+                    messageContainer.innerHTML = '<p class="success-message">OTP request sent successfully!</p>';
+                    console.log(response);
+        
+                    // Show OTP container and hide initial form
+                    document.getElementById('initial-form').style.display = 'none';
+                    document.getElementById('otp-container').style.display = 'block'; 
+                    document.getElementById('otp-container').classList.add('show'); // Ensure 'block' display
+        
+                    // Add event listener to OTP input field to enable login button when 6 digits are entered
+                    const otpInput = document.getElementById('otp');
+                    const submitOtpButton = document.getElementById('submit-otp');
+                    
+                    otpInput.addEventListener('input', function() {
+                        if (otpInput.value.length === 6) {
+                            submitOtpButton.disabled = false;
+                        } else {
+                            submitOtpButton.disabled = true;
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    messageContainer.innerHTML = '<p class="error-message">Error sending OTP request. Please try again.</p>';
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+        
+        // Function to verify OTP
+        function verifyOTP() {
+            var otp = $('#otp').val();
+            var mobileNumber = $('#mobile-number').val();
+            if (!mobileNumber.startsWith("+91")) {
+                mobileNumber = "+91" + mobileNumber;
+            }
+            var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+            
+            $.ajax({
+                type: "POST",
+                url: "/verify-otp/", // Replace with your actual endpoint URL
+                data: {
+                    otp: otp,
+                    mobile_number: mobileNumber,
+                    csrfmiddlewaretoken: csrfToken
+                },
+                success: function(response) {
+                    if (response.success) {
+                        localStorage.setItem('authenticated', 'true');
+                        if (response.user_id) {
+                            localStorage.setItem('user_id', response.user_id);
+                        }
+        
+                        if (localStorage.getItem('authenticated') === 'true') {
+                            window.location.href = "/"; // Redirect to home page after successful login
+                        }
+        
+                        setTimeout(function() {
+                            location.reload(); // Reload the page after login
+                        }, 500);
+                    } else {
+                        messageContainer.innerHTML = '<p class="error-message">Invalid OTP! Please try again.</p>';
+                    }
+                },
+                error: function(xhr, status, error) {
+                    messageContainer.innerHTML = '<p class="error-message">Error verifying OTP. Please try again.</p>';
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+        
+        // Click event listener for request OTP button
+        requestOTPButton.addEventListener('click', function() {
+            sendOTP();
+           
+        });
+        
+        // Click event listener for submit OTP button
+        document.getElementById('submit-otp').addEventListener('click', function() {
+            verifyOTP();
+        });
+  
+    
+    </script>
+
+{% endblock %}
+
+{% block footer %}
+{% endblock footer %}

@@ -1,0 +1,852 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<head>
+ <link rel="stylesheet" href="/static/style.css"> 
+
+ <meta charset="utf-8">
+
+
+</head>
+    <style>
+      
+      @media screen and (max-width: 1366px) and (min-width: 770px) {
+        .product-card img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+      }
+      .filter-section {
+          padding: 20px;
+          border-right: 1px solid #ccc;
+      }
+      .filter-section .form-group {
+          margin-bottom: 20px;
+      }
+      .product-section {
+          padding: 20px;
+      }
+      .product-tag {
+          background-color: #ffeb3b;
+          padding: 5px;
+          border-radius: 5px;
+          display: inline-block;
+      }
+      .filter-section form {
+          display: flex;
+          flex-direction: column;
+      }
+      .filter-section .d-flex {
+          flex-direction: column !important;
+      }
+      .filter-section button {
+          align-self: start;
+      }
+
+      .card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+       
+      }
+      .product-tag {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #ff5722;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 1px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      
+      
+      .card-body {
+        text-align: center;
+      }
+      .product-card {
+        margin: 10px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+       
+        transition: transform 0.2s;
+      }
+      
+      /* Style the image within the product card */
+      .product-card img {
+        width: 100%; /* Fixed width for the circular image */
+        height: 200px; /* Fixed height for the circular image */
+       
+        object-fit: cover;
+        border-radius:10px;
+        margin-bottom: 0px; /* Space between image and text */
+      }
+      
+      /* Style the title of the product */
+      .product-card .card-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      
+      /* Style the description of the product */
+      .product-card .card-text {
+        font-size: 14px;
+        margin-top: 10px;
+      }
+      
+      /* Style the price of the product */
+      .product-card .card-price {
+        font-size: 16px;
+        font-weight: bold;
+        color: #FF5722; /* Adjust the color as needed */
+        margin-top: 10px;
+      }
+      
+      /* Add a hover effect for product cards */
+      .product-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+      }
+      
+  
+     
+      .form-group {
+          margin-bottom: 20px;
+      }
+  
+      label {
+          font-weight: bold;
+      }
+  
+      button.btn-primary {
+          width: 100%;
+      }
+  
+      .card-footer {
+          text-align: center;
+          background-color: #f8f9fa;
+      }
+  
+      .btn-outline-secondary {
+          border-color: #ccc;
+      }
+  
+      .btn-outline-secondary:hover {
+          background-color: #ccc;
+      }
+      .image-div {
+        width: 100%;
+        text-align: center;
+        margin: 0;
+        background: radial-gradient(circle, #ff7e5f, #feb47b);
+        overflow: hidden; /* Ensure content doesn't overflow during animation */
+    }
+    
+    .image-div img {
+        width: 95%;
+        height: 250px;
+        border-radius: 40px;
+        padding:20px;
+        transition: transform 1s ease, opacity 1s ease;
+        animation: fadeIn 5s ease-in;
+        opacity: 1; /* Initial state for fade-in effect */
+    }
+    
+    .image-div img.show {
+      opacity: 1;
+  }
+  
+  @keyframes fadeIn {
+      0% {
+          opacity: 0;
+          transform: scale(0.9);
+      }
+      100% {
+          opacity: 1;
+          transform: scale(1);
+      }
+  }
+  .bucket-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping to accommodate multiple rows */
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.bucket-card {
+    width: 150px;
+    margin: 10px;
+    text-align: center;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.bucket-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bucket-card img {
+    max-width: 100%;
+    height: auto;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.bucket-info {
+    padding: 10px;
+}
+
+.bucket-info .card-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.bucket-info .card-text {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .bucket-card {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+  
+  #selected-bucket {
+    border: 2px solid #ccc;
+    padding: 5px;
+    margin-top: 20px; /* Adjust margin as needed */
+    min-height: 0px; /* Ensure a minimum height for visibility */
+  }
+  
+  #selected-bucket h3 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+
+
+
+    
+    }
+      @media (max-width: 768px) {
+        @keyframes fadeIn {
+          0% {
+              opacity: 0;
+              transform: scale(0.9);
+          }
+          100% {
+              opacity: 1;
+              transform: scale(1);
+          }
+      }
+      
+        .image-div {
+          width: 100%;
+          text-align: center;
+          margin: 0;
+          background: radial-gradient(circle, #ff7e5f, #feb47b);
+          overflow: hidden; /* Ensure content doesn't overflow during animation */
+      }
+      
+      .image-div img {
+          width: 95%;
+          height: 250px;
+          border-radius: 40px;
+          padding:20px;
+          transition: transform 1s ease, opacity 1s ease;
+          animation: fadeIn 5s ease-in;
+          opacity: 1; /* Initial state for fade-in effect */
+      }
+      
+      .image-div img.show {
+        opacity: 1;
+    }
+    .card-body {
+      padding: 10px;
+      text-align: center;
+    }
+  
+    .card-title {
+      font-size: 1rem;
+      margin-bottom: 5px;
+    }
+  
+    .product-tag {
+      display: inline-block;
+      background-color: #ff5722;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+  
+    .product-card {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: transform 0.2s ease-in-out;
+    }
+    .product-card img {
+      width: 100%; /* Fixed width for the circular image */
+      height: 200px; /* Fixed height for the circular image */
+     
+      
+     
+      margin-bottom: 0px; /* Space between image and text */
+    }
+    .product-card:hover {
+      transform: scale(1.05);
+    }
+  
+      }
+
+  </style>
+  <div class="countdown-timer">
+    <span class="moving-text">Sale ends in:
+      <span id="timer"></span>
+    </span>
+  </div>
+  
+  <div class="xyz">
+    <div class="line"></div>
+    <div class="left-side">
+      <div class="text">
+        <!-- Additional text/content can go here if needed -->
+      </div>
+    </div>
+    <div class="right-side">
+      <div class="slider">
+        {% for sp_data in special_data %}
+        <div class="slider-item">
+          <img class="carousel_image" src="{{ sp_data.carousel_image_url }}" alt="Product Image">
+          <div class="text">
+            <div class="product__info">
+              <div class="title">
+                <img class="sales" src="/static/sales.png" alt="ON SALE!">
+                <div class="scratch-card-container">
+                  <div class="scratch-card">
+                    <img src="/static/coupon.png" alt="ON SALE!">
+                    <img src="/static/coupon.png" alt="ON SALE!">
+                  </div>
+                  {% if sp_data.coupons.all %}
+                  {% for coupon in sp_data.coupons.all %}
+                  <h2 class="code-text">{{ coupon.code }}</h2>
+                  {% endfor %}
+                  {% else %}
+                  <h2 class="code-text">No Coupon Available</h2>
+                  {% endif %}
+                  <canvas id="scratch-{{ forloop.counter }}"></canvas>
+                </div>
+                <h3 class="highlighting-text">USE THIS COUPON</h3>
+                <div class="input-box">
+                  <input type="text" name="special_product_name" value="{{ sp_data.special_product.name }}" readonly>
+                </div>
+              </div>
+              <div class="price">
+                <span class="currency">₹</span>
+                <span class="original-price">{{ sp_data.max_price }}</span>
+                <span class="discounted-price">{{ sp_data.min_price }}</span>
+              </div>
+              <form id="add-to-cart-index-form_{{ sp_data.special_product.id }}" action="{% url 'add_to_cart_index' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="special_product_id" value="{{ sp_data.special_product.id }}">
+                <input type="hidden" name="unit" value="{{ sp_data.units.first.unit }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="buy--btn">ADD TO CART</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="carousel-btn prev-btn">&#10094;</button>
+      <button class="carousel-btn next-btn">&#10095;</button>
+    </div>
+  </div>
+  <div class="notification-container" id="notification-container-index"></div>
+  
+<div class="image-div">
+  <picture>
+    <img src="/static/dry_fruit_banner.webp" alt="Dry Fruits Banner">
+  </picture>
+</div>
+<!-- Add this section to your index.html after the product section -->
+<div class="container-fluid text-center">
+  <div class="row" style="border: 1px solid #ccc; margin-top:40px;">
+    <!-- Left Section: Static Image -->
+    <div class="col-12 col-md-3" style="margin-top:80px;">
+      <img src="/static/Bucket_avail.png" alt="bucket_avail" style="width: 100%; height:95%; auto;border-radius:20px;">
+    </div>
+    
+    <!-- Middle Section: Buckets -->
+    <div class="col-12 col-md-6">
+      <h2 style="font-family: 'Arial', sans-serif; font-weight: bold;margin-top:10px;">Choose Buckets</h2>
+      <div class="row bucket-container">
+        {% for bucket in buckets %}
+        <div class="col-4">
+          <div class="bucket-card" onclick="selectBucket('{{ bucket.get_size_display }}', '{{ bucket.discount }}', '{{ bucket.id }}', '{{ bucket.image.url }}')">
+            <div class="bucket-image">
+              <img src="{{ bucket.image.url }}" class="card-img-top" alt="{{ bucket.get_size_display }}">
+            </div>
+            <div class="bucket-info">
+              <h5 class="card-title">{{ bucket.get_size_display }}</h5>
+              <p class="card-text">Discount: {{ bucket.discount }}%</p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    
+    <!-- Right Section: Selected Buckets -->
+    <div class="col-12 col-md-3">
+      <div id="selected-bucket" class="d-flex flex-column align-items-center justify-content-center">
+        <h3 class="text-center mb-2">Selected Bucket</h3>
+        <div id="selected-bucket-list">
+          <!-- Selected bucket items will be dynamically added here -->
+        </div>
+        <button id="fix-bucket-button" class="btn btn-primary mt-3" onclick="fixSelectedBucket()">Fix this Bucket</button>
+        <div id="success-message" class="alert alert-success mt-3" style="display:none;">Your bucket has been sent to the cart!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<h1 id="products-section" align="center"></h1>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Product Section -->
+    <div class="col-md-9 product-section" id="product-section">
+      <div class="row" id="products-container">
+        {% for prod in products %}
+        <div class="col-4 col-md-4 col-lg-4 mb-3"> <!-- Adjusted column classes -->
+          <a href="{% url 'subproduct1' product_id=prod.id %}" class="card-link" style="list-style:none;text-decoration:none;">
+            <div class="card product-card">
+              <div style="height: 200px;">
+                <img src="{{ prod.image.url }}" alt="{{ prod.name }}">
+              </div>
+              <div class="card-body text-center">
+                <h5 class="card-title input-box1">{{ prod.name }}</h5>
+                {% if prod.tag %}
+                <div class="product-tag">{{ prod.tag }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        </div>
+        {% empty %}
+        <div class="col-md-12">
+          <p>No products found.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- Filter Section -->
+    <div class="col-md-3 filter-section">
+      <h5>Filter by Tag:</h5>
+      <form action="{% url 'filtered_and_special_data' %}" method="get">
+        <div class="form-group">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="new-tag" name="tag" value="new">
+            <label class="form-check-label" for="new-tag">New</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="bestseller-tag" name="tag" value="best_seller">
+            <label class="form-check-label" for="bestseller-tag">Best Seller</label>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+{% comment %} <div class="item" style="width:1264px;height:550px;"> {% endcomment %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+     
+     
+
+      {% comment %} const colors = ['#FFDDC1', '#FEC8D8', '#D4A5A5', '#E7D3D3', '#D5E1DF', '#E2F0CB', '#FFDAC1', '#FF9AA2', '#B5EAD7', '#C7CEEA'];
+      const cards = document.querySelectorAll('.product-card');
+  
+      cards.forEach(card => {
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        card.style.backgroundColor = randomColor;
+      }); {% endcomment %}
+      let currentIndex = 0;
+
+      // Function to show the current slide
+      function showSlide(index) {
+          const sliderItems = document.querySelectorAll('.slider-item');
+          currentIndex = (index + sliderItems.length) % sliderItems.length;
+          const translateValue = `translateX(-${currentIndex * 100}%)`;
+          document.querySelector('.slider').style.transform = translateValue;
+  
+          // Update text on left side
+          const currentText = sliderItems[currentIndex].querySelector('.text').innerHTML;
+          document.querySelector('.left-side .text').innerHTML = currentText;
+      }
+  
+      // Function to show the next slide
+      function nextSlide() {
+          showSlide(currentIndex + 1);
+      }
+  
+      // Function to show the previous slide
+      function prevSlide() {
+          showSlide(currentIndex - 1);
+      }
+  
+      // Add event listeners to the buttons
+      document.querySelector('.prev-btn').addEventListener('click', prevSlide);
+      document.querySelector('.next-btn').addEventListener('click', nextSlide);
+  
+      // Show initial slide
+      showSlide(currentIndex);
+  
+    // Get the end time of the sale from the server-side variable
+    
+   // Function to retrieve the end time of the sale from localStorage
+function getEndDate() {
+  const endDate = localStorage.getItem("saleEndDate");
+  return endDate ? new Date(parseInt(endDate)) : null;
+}
+
+// Function to set the end time of the sale in localStorage
+function setEndDate() {
+  // Calculate the end date: May 1, 2024, 23:59:59
+  const endYear = 2024;
+  const endMonth = 5; // May is zero-indexed (0 for January, 4 for May)
+  const endDay = 5;
+  const endHour = 23;
+  const endMinute = 59;
+  const endSecond = 59;
+
+  // Create a new Date object for the end date
+  const endDate = new Date(endYear, endMonth, endDay, endHour, endMinute, endSecond);
+
+  // Store the end date in localStorage
+  localStorage.setItem("saleEndDate", endDate.getTime());
+
+  return endDate;
+}
+
+// Function to pad single digits with a leading zero
+function pad(num) {
+  return num < 10 ? "0" + num : num;
+}
+
+// Function to update the timer
+function updateTimer() {
+  let endDate = getEndDate();
+
+  if (!endDate || isNaN(endDate.getTime())) {
+      // If end date is not set or invalid, set it now
+      endDate = setEndDate();
+  }
+
+  // Get the current date and time
+  const now = new Date();
+
+  // Calculate the time remaining until the end of the sale
+  const timeRemaining = endDate - now;
+
+  // Check if the sale has ended
+  if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById("timer").textContent = "Sale has ended";
+  } else {
+      // Convert time remaining to hours, minutes, and seconds
+      const hours = Math.floor((timeRemaining / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((timeRemaining / (1000 * 60)) % 60);
+      const seconds = Math.floor((timeRemaining / 1000) % 60);
+
+      // Format the time remaining as HH:MM:SS
+      const formattedTime = pad(hours) + ":" + pad(minutes) + ":" + pad(seconds);
+
+      // Update the timer element
+      document.getElementById("timer").textContent = formattedTime;
+  }
+}
+
+// Set the new end date
+setEndDate();
+
+// Update the timer every second
+const timerInterval = setInterval(updateTimer, 1000);
+updateTimer(); // Call updateTimer immediately to initialize the timer
+const createscratchcard = (canvas, color) => {
+  if (!canvas) {
+      console.error("Canvas element not found.");
+      return;
+  }
+
+  let context = canvas.getContext("2d");
+  if (!context) {
+      console.error(`Unable to get context for canvas with ID ${canvas.id}.`);
+      return;
+  }
+
+  const init = () => {
+      context.fillStyle = color;
+      context.fillRect(0, 0, 300, 100);
+  };
+
+  let isDragging = false;
+
+  const scratch = (x, y) => {
+      context.globalCompositeOperation = "destination-out";
+      context.beginPath();
+      context.arc(x, y, 24, 0, 2 * Math.PI);
+      context.fill();
+  };
+
+  const handleMouseDown = (event) => {
+      isDragging = true;
+      scratch(event.offsetX, event.offsetY);
+  };
+
+  const handleMouseMove = (event) => {
+      if (isDragging) {
+          scratch(event.offsetX, event.offsetY);
+      }
+  };
+
+  const handleMouseUp = () => {
+      isDragging = false;
+  };
+
+  const handleMouseLeave = () => {
+      isDragging = false;
+  };
+
+  canvas.addEventListener("mousedown", handleMouseDown);
+  canvas.addEventListener("mousemove", handleMouseMove);
+  canvas.addEventListener("mouseup", handleMouseUp);
+  canvas.addEventListener("mouseleave", handleMouseLeave);
+
+  // Touch events
+  canvas.addEventListener("touchstart", (event) => {
+      const touch = event.touches[0];
+      handleMouseDown(touch);
+  });
+
+  canvas.addEventListener("touchmove", (event) => {
+      event.preventDefault(); // Prevent scrolling on touch devices
+      const touch = event.touches[0];
+      handleMouseMove(touch);
+  });
+
+  canvas.addEventListener("touchend", handleMouseUp);
+
+  init();
+};
+
+// Select all canvas elements that match the pattern
+document.querySelectorAll('canvas[id^="scratch-"]').forEach(canvas => {
+  createscratchcard(canvas, "#FFFDD0");
+});
+// Function to get cart count from localStorage
+// Function to get initial cart count from localStorage
+function abc() {
+  return parseInt(localStorage.getItem('cartCount')) || 0;
+}
+
+// Initialize cart count on page load
+updateCartCountindex(abc());
+
+// Attach event listeners to forms
+document.querySelectorAll('form[id^="add-to-cart-index-form_"]').forEach(function(form) {
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Show success notification
+        showNotificationindex(data.success);
+
+        // Update cart count in UI
+        updateCartCountindex(data.cart_item_count);
+      } else if (data.message) {
+        // Show message if product was added (assuming 'message' field is sent from server)
+        showNotificationindex(data.message);
+        
+        // Update cart count in UI
+        updateCartCountindex(data.cart_item_count);
+      } else if (data.error) {
+        // Show error notification
+        showNotificationindex(data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotificationindex('An error occurred. Please try again.'); // Show generic error notification
+    });
+  });
+});
+
+// Function to update cart count in the UI
+function updateCartCountindex(cartItemCount) {
+  const cartCountElement = document.getElementById('cart-count');
+  if (cartCountElement) {
+    cartCountElement.textContent = cartItemCount;
+    cartCountElement.classList.add('animate__animated', 'animate__bounceIn'); // Add animation class
+    localStorage.setItem('cartCount', cartItemCount); // Save cart count to localStorage
+  }
+}
+
+// Function to show notification (assuming you have a function like this)
+function showNotificationindex(message) {
+  alert(message); // Display alert message
+}
+
+
+    {% comment %} $(document).ready(function() {
+      $('.buy--btn').click(function(event) {
+          event.preventDefault(); // Prevent the default form submission
+  
+          var form = $(this).closest('form'); // Find the closest form
+          var formData = form.serialize(); // Serialize form data
+  
+          $.ajax({
+              type: 'POST',
+              url: '/add_to_cart_index/unit_id', // Ensure this matches the URL pattern in urls.py
+              data: formData,
+              success: function(response) {
+                  if (response.success) {
+                      alert(response.success); // Show success message
+                      // Update cart count display on the page if needed
+                  } else {
+                      alert(response.error); // Show error message
+                  }
+              },
+              error: function(xhr, textStatus, errorThrown) {
+                  console.log('Error:', errorThrown); // Log any errors
+              }
+          });
+      });
+  });
+   {% endcomment %}
+  
+  });
+  function selectBucket(size, discount, id, imageUrl) {
+    var selectedBucketItem = document.createElement('div');
+    selectedBucketItem.classList.add('selected-bucket-item');
+
+    selectedBucketItem.innerHTML = `
+        <div class="bucket-card" onclick="selectBucket('${size}', '${discount}', '${id}', '${imageUrl}')" style="width: 100%; max-width: 150px;"> <!-- Adjust size as needed -->
+            <div class="bucket-image">
+                <img src="${imageUrl}" class="card-img-top" alt="${size}" style="width: 100%;">
+            </div>
+            <div class="bucket-info">
+                <h5 class="card-title">${size}</h5>
+                <p class="card-text">Discount: ${discount}%</p>
+            </div>
+        </div>
+    `;
+
+    var selectedBucketList = document.getElementById('selected-bucket-list');
+    selectedBucketList.innerHTML = '';
+    selectedBucketList.appendChild(selectedBucketItem);
+
+    document.getElementById('fix-bucket-button').style.display = 'block';
+
+    var fixBucketButton = document.getElementById('fix-bucket-button');
+    fixBucketButton.setAttribute('data-size', size);
+    fixBucketButton.setAttribute('data-discount', discount);
+    fixBucketButton.setAttribute('data-bucket-id', id);
+
+    // Store selected bucket HTML in session storage
+    sessionStorage.setItem('selectedBucketHTML', selectedBucketItem.innerHTML);
+    sessionStorage.setItem('fixButtonDataSize', size);
+    sessionStorage.setItem('fixButtonDataDiscount', discount);
+    sessionStorage.setItem('fixButtonDataBucketId', id);
+}
+
+function fixSelectedBucket() {
+    var fixBucketButton = document.getElementById('fix-bucket-button');
+    var size = fixBucketButton.getAttribute('data-size');
+    var discount = fixBucketButton.getAttribute('data-discount');
+    var bucketId = fixBucketButton.getAttribute('data-bucket-id');
+
+    $.ajax({
+        type: 'POST',
+        url: '{% url "select_bucket" %}',
+        data: {
+            size: size,
+            discount: discount,
+            bucket_id: bucketId,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            console.log('Bucket selected successfully:', response);
+            document.getElementById('success-message').style.display = 'block';
+            setTimeout(function() {
+                document.getElementById('success-message').style.display = 'none';
+            }, 3000);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error selecting bucket:', error);
+        }
+    });
+}
+
+$(document).ready(function() {
+    $('.bucket-card').click(function() {
+        $('#selected-bucket-list').empty();
+        var bucketCard = $(this).clone();
+        bucketCard.find('.card-body').removeClass('bucket-card');
+        $('#selected-bucket-list').append(bucketCard);
+    });
+
+    // Restore selected bucket from session storage
+    const selectedBucketHTML = sessionStorage.getItem('selectedBucketHTML');
+    const fixButtonDataSize = sessionStorage.getItem('fixButtonDataSize');
+    const fixButtonDataDiscount = sessionStorage.getItem('fixButtonDataDiscount');
+    const fixButtonDataBucketId = sessionStorage.getItem('fixButtonDataBucketId');
+
+    if (selectedBucketHTML) {
+        var selectedBucketList = document.getElementById('selected-bucket-list');
+        selectedBucketList.innerHTML = selectedBucketHTML;
+
+        document.getElementById('fix-bucket-button').style.display = 'block';
+        var fixBucketButton = document.getElementById('fix-bucket-button');
+        fixBucketButton.setAttribute('data-size', fixButtonDataSize);
+        fixBucketButton.setAttribute('data-discount', fixButtonDataDiscount);
+        fixBucketButton.setAttribute('data-bucket-id', fixButtonDataBucketId);
+    }
+});
+
+
+  </script>
+  
+{% endblock %} 
+
