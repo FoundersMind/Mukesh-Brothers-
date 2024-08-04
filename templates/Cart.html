@@ -13,8 +13,52 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
    
 </head>
+<style>
+  
+.order-confirmation-box {
+  position: relative;
+  background-color: #f8f9fa; /* Light grey background */
+  border: 2px solid #007bff; /* Blue border */
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 40px;
+  margin-top: 20px;
+  border-radius: 5px;
+  width: 300px;
+  border-right: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 1s ease-out;
+}
+
+.order-confirmation-box:hover {
+  transform: translateX(10px); /* Slide to the right on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+}
+
+.order-confirmation-box h2 {
+  margin: 0;
+  font-size: 1.5em;
+  color: #007bff;
+}
+
+.order-confirmation-box::after {
+  content: "";
+  position: absolute;
+  top: 34%;
+  right: -40px;
+  margin-top: -10px; /* Half of arrow's height */
+  border-width: 20px;
+  border-style: solid;
+  border-color: transparent transparent transparent #007bff;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+</style>
 {% block content %}
-    
+
 {% endblock content %}
 
 {% block cart %}
@@ -22,7 +66,9 @@
 {% endblock cart %}
 
 <div class="container-fluid">
-  <h1 class="text-center">Your Cart</h1>
+  <div class="order-confirmation-box">
+    <h2>{% trans "Your Cart" %}</h2>
+</div>
   <div class="row" style="margin-top: 10px;">
     <!-- Product Display Section (Left Side) -->
     <div class="col-md-9" style="margin-right: 10px; margin-left: 10px;">
@@ -271,21 +317,48 @@
   
       // Calculate total price
       const totalCartPriceDisplay = document.getElementById('total-cart-price');
+      console.log('Total Cart Price Display Text:', totalCartPriceDisplay.textContent);
+      
       let totalPriceValue = parseFloat(totalCartPriceDisplay.textContent.split('₹ ')[1]);
+      console.log('Parsed Total Price Value:', totalPriceValue);
   
       // Check if discount info exists
       const discountInfoElement = document.getElementById('discount-info');
-      if (discountInfoElement && discountInfoElement.innerText.trim() !== '') {
-          // Discount applied: subtract the discount amount from total price
-          const discountPercent = parseFloat(discountInfoElement.innerText.split(':')[1].trim());
-          const bucketdiscount = (totalPriceValue * (discountPercent / 100)).toFixed(2);
-          totalPriceValue -= parseFloat(bucketdiscount);
+      if (discountInfoElement) {
+          console.log('Discount Info Element Text:', discountInfoElement.innerText);
+          
+          // Check if discount text contains a colon
+          const discountText = discountInfoElement.innerText.trim();
+          if (discountText.includes(':')) {
+              const discountPercent = parseFloat(discountText.split(':')[1].trim());
+              console.log('Parsed Discount Percent:', discountPercent);
   
-          // Create discounted_amount input field
+              const bucketdiscount = (totalPriceValue * (discountPercent / 100)).toFixed(2);
+              totalPriceValue -= parseFloat(bucketdiscount);
+  
+              // Create discounted_amount input field
+              const bucketdiscountInput = document.createElement('input');
+              bucketdiscountInput.type = 'hidden';
+              bucketdiscountInput.name = 'bucket_discount';
+              bucketdiscountInput.value = bucketdiscount;
+              form.appendChild(bucketdiscountInput);
+          } else {
+              // Discount info does not have a colon, handle accordingly
+              console.log('Discount info text does not contain a colon. Assuming no discount.');
+              const bucketdiscountInput = document.createElement('input');
+              bucketdiscountInput.type = 'hidden';
+              bucketdiscountInput.name = 'bucket_discount';
+              bucketdiscountInput.value = '0';
+              form.appendChild(bucketdiscountInput);
+          }
+      } else {
+          console.log('No discount info element found');
+          
+          // No discount applied: set discount amount to 0
           const bucketdiscountInput = document.createElement('input');
           bucketdiscountInput.type = 'hidden';
           bucketdiscountInput.name = 'bucket_discount';
-          bucketdiscountInput.value = bucketdiscount;
+          bucketdiscountInput.value = '0';
           form.appendChild(bucketdiscountInput);
       }
   
@@ -299,6 +372,8 @@
       document.body.appendChild(form);
       form.submit();
   });
+  
+  
   
     
      // Function to handle subproduct selection

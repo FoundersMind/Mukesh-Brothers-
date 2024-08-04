@@ -275,9 +275,77 @@ def create_user_cart(sender, instance, created, **kwargs):
     if created:
         Cart.objects.create(user=instance)
 
+# forms.py
+
+# models.py
+from django.db import models
+from django.contrib.auth.models import User
+
+class VideoRequest(models.Model):
+    subproduct = models.ForeignKey(subproduct, on_delete=models.CASCADE, null=True, blank=True)
+    firm_name = models.CharField(max_length=255)
+    contact_no = models.CharField(max_length=15)
+    description = models.TextField()
+    submitted_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # New field
+    unit = models.CharField(max_length=50, blank=True, null=True)  # New field
+    video = models.FileField(upload_to='videos/', null=True, blank=True)  # New field for video upload
+
+    def __str__(self):
+        subproduct_name = self.subproduct.name if self.subproduct else 'No Subproduct'
+        return f"{self.firm_name} - {subproduct_name} - {self.submitted_at}"
+
+from django.db import models
+from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+class Order(models.Model):
+    PROGRESS_STATUS_CHOICES = [
+        ('placed', 'Placed'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+        # Add more statuses if needed
+    ]
+
+    PAYMENT_CHOICES = [
+        ('cash', 'Cash'),
+        ('online', 'Online'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    billing_address = models.TextField()
+    city_town = models.CharField(max_length=50)
+    firm_name = models.CharField(max_length=100, blank=True)
+    postcode = models.CharField(max_length=20)
+    phone = models.CharField(max_length=15)
+    email = models.EmailField()
+    gst_number = models.CharField(max_length=50, blank=True)
+    delivery_address = models.TextField(blank=True)
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_CHOICES)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    bucket_discount = models.DecimalField(max_digits=10, decimal_places=2)
+    coupon_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    final_total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, default='pending')  # Status like 'pending', 'completed', etc.
+    progress_status = models.CharField(max_length=20, choices=PROGRESS_STATUS_CHOICES, default='placed')  # Add this line
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order {self.id} by {self.first_name} {self.last_name}"
 
 
 
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(subproduct, on_delete=models.CASCADE)  # Assuming you have a Product model
+    unit = models.CharField(max_length=50, blank=True, null=True)  # Add a field for unit
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField()
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.URLField(max_length=200, blank=True, null=True)  # Add field for image URL
 
+    def __str__(self):
+        return f"Item {self.product.name} for Order {self.order.id}"
 
 

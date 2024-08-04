@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    
+   
+</head>
+{% block body %}
+<style>
+   
+   
+    
+    .row {
+        margin: 0; /* Remove default margin */
+    }
+    
+    .card {
+        width: 100%; /* Ensure card spans full width */
+        box-shadow: 2px 4px 15px 0px rgb(0, 108, 170);
+        z-index: 0;
+        margin-bottom: 20px; /* Space between cards */
+    }
+    
+    .card-header, .card-footer {
+        background-color: #fff;
+    }
+    
+    .card-body {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        width: 100%; /* Ensure card body spans full width */
+    }
+    
+    .media {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%; /* Ensure media item spans full width */
+        margin-bottom: 20px; /* Space between media items */
+    }
+    
+    .media-body {
+        flex: 1;
+    }
+    
+    .media-body img {
+        margin-left: 20px;
+    }
+    
+    @media (max-width: 767px) {
+        .card-body {
+            flex-direction: column;
+            text-align: center;
+        }
+    
+        .media-body img {
+            margin-left: 0;
+            margin-top: 20px;
+        }
+    }
+    
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    
+    .bold {
+        font-weight: 600;
+    }
+    
+    .small {
+        font-size: 12px !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    .Today {
+        color: rgb(83, 83, 83);
+    }
+    
+    .btn-outline-primary {
+        background-color: #fff !important;
+        color: #4bb8a9 !important;
+        border: 1.3px solid #4bb8a9;
+        font-size: 12px;
+        border-radius: 0.4em !important;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #4bb8a9 !important;
+        color: #fff !important;
+        border: 1.3px solid #4bb8a9;
+    }
+    
+    .btn-outline-primary:focus,
+    .btn-outline-primary:active {
+        outline: none !important;
+        box-shadow: none !important;
+        border-color: #42A5F5 !important;
+    }
+    
+    #progressbar {
+        margin-bottom: 30px;
+        padding-left: 0;
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    #progressbar #step1:before {
+        content: "1";
+        color: #fff;
+        width: 29px;
+    }
+    
+    #progressbar #step2:before {
+        content: "2";
+        color: #fff;
+        width: 29px;
+    }
+    
+    #progressbar #step3:before {
+        content: "3";
+        color: #fff;
+        width: 29px;
+    }
+    
+    #progressbar li {
+        list-style-type: none;
+        font-size: 13px;
+        width: 33.33%;
+        float: left;
+        position: relative;
+        font-weight: 400;
+        color: #455A64 !important;
+        text-align: center;
+    }
+    
+    #progressbar li:before {
+        line-height: 29px;
+        display: block;
+        font-size: 12px;
+        background: #455A64;
+        border-radius: 50%;
+        margin: auto;
+    }
+    
+    #progressbar li:after {
+        content: '';
+        width: 50%;
+        height: 2px;
+        background: #455A64;
+        position: absolute;
+        left: 50%;
+        top: 15px;
+        z-index: 4;
+        transform: translateX(-50%);
+    }
+    
+    #progressbar li:nth-child(2):after {
+        left: 78%;
+    }
+    
+    #progressbar li:nth-child(1):after {
+        left: 100%;
+        width:93%;
+    }
+    #progressbar li:nth-child(3):after {
+        left: 25% !important;
+        width: 50% !important;
+    }
+    
+    #progressbar li.active:before,
+    #progressbar li.active:after {
+        background: #4bb8a9; 
+    }
+    
+    .a {
+        justify-content: space-between !important;
+    }
+    
+    .border-line {
+        border-right: 1px solid rgb(226, 206, 226);
+    }
+    
+    .card-footer img {
+        opacity: 0.3;
+    }
+    
+    .card-footer h5 {
+        font-size: 1.1em;
+        color: #8C9EFF;
+        cursor: pointer;
+    }
+    
+    @media (min-width: 992px) {
+        .card {
+            max-width: 100%; /* Ensure card spans full width on larger screens */
+        }
+    }
+</style>
+
+<div class="container-fluid my-5">
+    <div class="row">
+        {% for order in orders %}
+        <div class="col-md-12 mb-4">
+            <div class="card px-2">
+                <div class="card-header bg-white">
+                    <div class="row justify-content-between">
+                        <div class="col">
+                            <p class="text-muted">Order ID <span class="font-weight-bold text-dark">{{ order.id }}</span></p> 
+                            <p class="text-muted">Placed On <span class="font-weight-bold text-dark">{{ order.created_at|date:"d, F Y" }}</span></p>
+                        </div>
+                        <div class="flex-col my-auto">
+                            <h6 class="ml-auto mr-3">
+                                <a href="#">View Details</a>
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% for item in order.items.all %}
+                    <div class="media">
+                        <div class="media-body">
+                            <h5 class="bold">{{ item.product.name }}</h5>
+                            <p class="text-muted">Qt: {{ item.quantity }} {{ item.unit }}</p>
+                            <h4 class="mt-3 mb-4 bold"> <span class="mt-5">&#x20B9;</span> {{ item.total_price }} <span class="small text-muted"> via ({{ order.payment_method }}) </span></h4>
+                            <p class="text-muted">Tracking Status on: <span class="Today">{{ item.order.created_at|date:"H:i, d M Y" }}</span></p>
+                        </div>
+                        <img class="align-self-center img-fluid" src="{{ item.image }}" width="180" height="180">
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="card-footer bg-white px-sm-3 pt-sm-4 px-0">
+                    <ul id="progressbar" class="d-flex justify-content-between">
+                        <li class="{% if order.progress_status == 'placed' %}active{% endif %}" id="step1">PLACED</li>
+                        <li class="{% if order.progress_status == 'shipped' %}active{% endif %}" id="step2">SHIPPED</li>
+                        <li class="{% if order.progress_status == 'delivered' %}active{% endif %}" id="step3">DELIVERED</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+
+{% endblock body %}

@@ -27,10 +27,11 @@
   .search {
     display: flex;
     align-items: center;
+    justify-content: space-around; /* Added this line to use space around */
     background-color: white;
     border-radius: 10px;
     padding: 0px;
-    width: 60%; /* Adjust as needed */
+    width: 600px; /* Adjust as needed */
     border: none;
     position: relative;
     height: 37px;
@@ -41,9 +42,10 @@
     font-size: 15px;
     border: none;
     outline: none;
-    width: 50%;
-    margin-top: 14px;
+    width: 50%; /* Adjust width as needed */
+    margin-top: 14px; /* Consider adjusting or removing this margin */
 }
+
 
 .recent_search {
     position: absolute;
@@ -351,16 +353,18 @@
               <span>Profile</span>
           </a>
           <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-              <li><a href="/profile"><i class="fas fa-user"></i> My Account ({{ user.username }})</a></li>
-              <li><a href="/orders"><i class="fas fa-shopping-bag"></i> Orders</a></li>
+            <li><a href="{% url 'account' %}"><i class="fas fa-user"></i> My Account ({{ user.username }})</a></li>
+
+              <li><a href="/my_orders"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
               <li><a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
           </ul>
       </li>
   {% else %}
       <li class="nav-item1">
-          <a href="/Login" class="nav-link1"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
+          <a href="/login" class="nav-link1"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
       </li>
   {% endif %}
+
 
   <!-- Other list items with similar properties -->
    {% block cart %}

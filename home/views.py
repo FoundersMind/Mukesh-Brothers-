@@ -1131,6 +1131,7 @@ def add_to_bucket(request):
                 message = 'Please choose more than 10kg to avail the discount.'
         else:
             message = 'Invalid bucket size selected.'
+            discountPercent=0
 
         # Add items to bucket or perform any necessary actions here
 
@@ -1163,29 +1164,250 @@ def get_bucket_limit(size):
             return bucket_size * 1000  # Convert kg to grams if size is in grams
     except ValueError:
         return 0.0  # Default case if size is not recognized
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
+from django.core.exceptions import ValidationError
+from decimal import Decimal, InvalidOperation
+from .models import Order, OrderItem
+from django.contrib.auth.models import User
+import requests
+from decimal import Decimal, InvalidOperation
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+from .models import Order, OrderItem, subproduct
+
+@csrf_exempt
+def submit_order(request):
+    if request.method == 'POST':
+        # Extract form data
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        billing_address = request.POST.get('billing_address')
+        city_town = request.POST.get('city_town')
+        firm_name = request.POST.get('firm_name', '')
+        postcode = request.POST.get('postcode')
+        phone = request.POST.get('phone')
+        email = request.POST.get('email')
+        gst_number = request.POST.get('gst_number', '')
+        delivery_address = request.POST.get('delivery_address', '')
+        payment_method = request.POST.get('payment_method')
+
+        # Safely extract and convert decimal values
+        def get_decimal_value(key, default='0.00'):
+            try:
+                return Decimal(request.POST.get(key, default))
+            except (ValueError, InvalidOperation):
+                return Decimal(default)
+
+        try:
+            total_price = get_decimal_value('total_price')
+            bucket_discount = get_decimal_value('bucket_discount')
+            coupon_discount = get_decimal_value('discounted-amount')
+            final_total_amount = get_decimal_value('discounted-total-amount')
+        except (ValueError, InvalidOperation) as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+        # Handle order items
+        try:
+            order_items_data = json.loads(request.POST.get('order_items_data', '[]'))
+            order_items = []
+
+            for item in order_items_data:
+                subproduct_name = item.get('subproduct_name')
+                unit = item.get('unit')  # Extract unit
+                print(unit)
+                image_url = item.get('image_url')  # Extract image URL
+                subproduct_instance = subproduct.objects.filter(name=subproduct_name).first()
+
+                if subproduct_instance:
+                    order_items.append({
+                        'subproduct_name': subproduct_instance.name,
+                        'unit': unit,  # Include unit
+                        'unit_price': Decimal(item.get('unit_price', '0.00')),
+                        'quantity': int(item.get('quantity', 0)),
+                        'total_price': Decimal(item.get('total_price', '0.00')),
+                        'image_url': image_url,  # Include image URL
+                    })
+                else:
+                    return JsonResponse({'error': f'Subproduct with name {subproduct_name} does not exist'}, status=400)
+        except (ValueError, json.JSONDecodeError) as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+        # Check if the user is authenticated
+        user = request.user if request.user.is_authenticated else None
+
+        # Create the order
+        order = Order(
+            user=user,
+            first_name=first_name,
+            last_name=last_name,
+            billing_address=billing_address,
+            city_town=city_town,
+            firm_name=firm_name,
+            postcode=postcode,
+            phone=phone,
+            email=email,
+            gst_number=gst_number,
+            delivery_address=delivery_address,
+            payment_method=payment_method,
+            total_price=total_price,
+            bucket_discount=bucket_discount,
+            coupon_discount=coupon_discount,
+            final_total_amount=final_total_amount,
+            status='pending',  # Default status
+        )
+        order.save()
+
+        # Save order items
+        for item in order_items:
+            OrderItem.objects.create(
+                order=order,
+                product=subproduct.objects.get(name=item['subproduct_name']),
+                unit=item['unit'],  # Save the unit
+                unit_price=item['unit_price'],
+                quantity=item['quantity'],
+                total_price=item['total_price'],
+                image=item['image_url']  # Save the image URL
+            )
+
+        # Clear cart or perform other actions after saving the order
+        request.session['cart_items'] = []  # Clear cart items from session
+
+        # Set a session variable to indicate order confirmation
+        request.session['order_confirmed'] = True
+
+        # Instead of redirecting, send a JSON response
+        return JsonResponse({'order_id': order.id})
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse,HttpResponseNotAllowed
 
-@require_POST
-def submit_order(request):
-    # Process the submitted form data to finalize the order
+def order_confirmed(request, order_id):
+    if not request.session.get('order_confirmed'):
+        return redirect('home')  # Redirect to home or any other page if order not confirmed
+
+    # Clear the session variable after rendering the page
+    del request.session['order_confirmed']
+
+    return render(request, 'order_confirmed.html', {'order_id': order_id})
+
+
+from django.shortcuts import render
+from .models import Order
+
+def my_orders(request):
+    user = request.user if request.user.is_authenticated else None
+    orders = Order.objects.filter(user=user) if user else []
+    return render(request, 'my_order.html', {'orders': orders})
+
+
+@csrf_exempt
+def create_cashfree_session(request, order_id):
     if request.method == 'POST':
-        # Example: Save order details and calculate total amount
-        # Replace this with your actual order processing logic
+        try:
+            order = Order.objects.get(id=order_id)
+            customer_id = str(request.user.id)  # Use the logged-in user's ID
 
-        # Create the invoice content (example function)
-        invoice_content = generate_invoice_content(request.POST)  # Example function to generate invoice content
-        
-        # Save the invoice content to a file or database (adjust as per your storage method)
+            headers = {
+                'Content-Type': 'application/json',
+                'x-api-version': '2022-01-01',
+                'x-client-id': settings.CASHFREE_APP_ID,
+                'x-client-secret': settings.CASHFREE_SECRET_KEY,
+                'Accept': 'application/json',
+            }
 
-        # Return rendered invoice content for download
-        response = HttpResponse(invoice_content, content_type='application/pdf')  # Adjust content type as needed
-        response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'  # Force download as PDF
-        return response
+            data = {
+                'order_id': str(order_id),
+                'order_amount': str(order.final_total_amount),
+                'order_currency': 'INR',
+                'customer_details': {
+                    'customer_id': customer_id,
+                    'customer_name': f"{order.first_name} {order.last_name}",
+                    'customer_email': order.email,
+                    'customer_phone': order.phone,
+                },
+                'order_note': 'Order note if any',
+            }
 
-    # If it's not a POST request, return a Method Not Allowed response
-    return HttpResponseNotAllowed(['POST'])
+            response = requests.post(
+                'https://sandbox.cashfree.com/pg/orders',  # Use production URL if not in sandbox mode
+                headers=headers,
+                json=data
+            )
+
+            if response.status_code == 200:
+                response_data = response.json()
+                payment_url = response_data.get('payment_link')  # Ensure this key matches the response from Cashfree
+                if payment_url:
+                    return JsonResponse({'payment_url': payment_url})  # Return the payment URL
+                else:
+                    return JsonResponse({'error': 'Payment URL not found in response'}, status=500)
+            else:
+                return JsonResponse({
+                    'error': 'Failed to create Cashfree order',
+                    'details': response.json()
+                }, status=400)
+        except Order.DoesNotExist:
+            return JsonResponse({'error': 'Order not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def cashfree_callback(request):
+    if request.method == 'POST':
+        try:
+            # Extract response data
+            response_data = json.loads(request.body.decode('utf-8'))
+
+            # Verify response data and status
+            order_id = response_data.get('order_id')
+            order_status = response_data.get('order_status')
+
+            # Check the order status
+            if order_status == 'SUCCESS':
+                # Update the order status in the database
+                order = Order.objects.get(id=order_id)
+                order.status = 'completed'  # Update to completed or similar status
+                order.save()
+
+                # Redirect to home page or thank-you page
+                return redirect('home')  # Adjust the URL name as needed
+
+            return JsonResponse({'error': 'Payment failed'}, status=400)
+
+        except Order.DoesNotExist:
+            return JsonResponse({'error': 'Order not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+# def payment_callback(request):
+#     # Handle Cashfree payment callback
+#     if request.method == 'POST':
+#         order_id = request.POST['orderId']
+#         order = Order.objects.get(id=order_id)
+#         order.payment_status = 'confirmed'
+#         order.save()
+
+#         return redirect('thank_you')
+
+#     return redirect('order_confirmation')
+
+from django.shortcuts import render
+
+def payment_page(request):
+    # Render the payment page template
+    return render(request, 'payment.html')
+
+def bill_page(request):
+    # Render the bill page template
+    return render(request, 'bill.html')
+
+
 
 
 def generate_invoice_content(post_data):
@@ -1221,3 +1443,41 @@ def generate_invoice_content(post_data):
     })
 
     return invoice_content
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from .models import VideoRequest
+from .forms import VideoRequestForm
+@require_POST
+@login_required
+def submit_video_request(request):
+    form = VideoRequestForm(request.POST)
+    if form.is_valid():
+        video_request = form.save(commit=False)
+        video_request.user = request.user
+        video_request.save()
+        return JsonResponse({'success': True, 'message': 'Your request has been submitted successfully. We wil contact you within 2 days'})
+    else:
+        # For debugging purposes, you might want to log the errors
+        import json
+        errors = form.errors.get_json_data()
+        print("Form errors:", json.dumps(errors, indent=2))  # Log errors to the server console
+        return JsonResponse({'success': False, 'errors': errors}, status=400)
+    
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def account_view(request):
+    # Assuming you have models for Orders, Coupons, Addresses, etc.
+    # orders = Order.objects.filter(user=request.user)
+    # coupons = Coupon.objects.filter(user=request.user)
+    # addresses = Address.objects.filter(user=request.user)
+
+    # context = {
+    #     # 'orders': orders,
+    #     'coupons': coupons,
+    #     # 'addresses': addresses,
+    # }
+    return render(request, 'account.html')

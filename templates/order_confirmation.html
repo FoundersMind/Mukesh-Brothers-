@@ -7,25 +7,71 @@
      {% load i18n %}
      {% load l10n %}
      <meta charset="utf-8">
+     <script src="https://sdk.cashfree.com/js/ui/2.0.0/cashfree.sandbox.js"></script>
+
+
 <style>
-    body {
-        font-family: Arial, sans-serif;
-    }
+  
+.order-confirmation-box {
+    position: relative;
+    background-color: #f8f9fa; /* Light grey background */
+    border: 2px solid #007bff; /* Blue border */
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 40px;
+    margin-top: 20px;
+    border-radius: 5px;
+    width: 390px;
+    border-right: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-out;
+}
+
+.order-confirmation-box:hover {
+    transform: translateX(10px); /* Slide to the right on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+}
+
+.order-confirmation-box h2 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #007bff;
+}
+
+.order-confirmation-box::after {
+    content: "";
+    position: absolute;
+    top: 26%;
+    right: -47px;
+    margin-top: -10px; /* Half of arrow's height */
+    border-width: 25px;
+    border-style: solid;
+    border-color: transparent transparent transparent #007bff;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+    
     .row {
         display: flex;
+        width:100%;
        
     }
     .left-section {
         flex: 0 0 45%;
         padding-right: 20px;
+        margin-right:10px;
         display: flex;
         flex-direction: column;
         margin-left:20px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
     }
-    .right-section {
-        flex: 0 0 45%;
-        padding-left: 20px;
-    }
+   
    
     .btn-primary {
         background-color: #007bff;
@@ -44,6 +90,8 @@
         padding: 1em;
         border-radius: 10px;
         border: 1px solid #ccc;
+        flex: 0 0 50%;
+        padding-left: 20px;
     }
     
     .order-items-section h3 {
@@ -186,7 +234,14 @@
     
 </style>
 </head>
-<form id="languageForm" method="post">
+{% block content %}
+    
+{% endblock content %}
+
+{% block cart %}
+
+{% endblock cart %}
+{% comment %} <form id="languageForm" method="post">
     {% csrf_token %}
     <div class="dropdown ml-auto">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -199,12 +254,22 @@
         </ul>
         
     </div>
-</form>
-<form style="width:99%; height:100%;" method="post" action="{% url 'submit_order' %}">
+</form> {% endcomment %}
+<div class="container-fluid">
+     <div class="order-confirmation-box">
+            <h2>{% trans "Order Confirmation" %}</h2>
+        </div>
+<form id="order-confirmation-form" style="width:99%; height:100%;" method="post" action="{% url 'submit_order' %}">
     {% csrf_token %}
-    <div>
-        <h2>{% trans "Order Confirmation" %}</h2>
-        <div class="row">
+   
+    <input type="hidden" name="total_price" value="{{ total_price }}">
+    <input type="hidden" name="bucket_discount" value="{{ bucket_discount }}">
+    <input type="hidden" name="discounted-amount" value="{{ discounted_amount }}">
+    <input type="hidden" name="discounted-total-amount" value="{{ discounted_total_amount }}">
+
+    <div class="container-fluid">
+       
+        <div class="row" style="width:100%;">
             <div class="left-section">
                 <!-- Left Section: Billing and Checkout Information -->
                 <div class="billing-checkout-section">
@@ -259,214 +324,360 @@
                     <div class="form-group">
                         <div class="order_confirm-form-group full-width" style="border: none;">
                             <textarea id="delivery-address" name="delivery_address" placeholder="{% trans 'Delivery Address (if different)' %}"></textarea>
-                       
-                </div>
-            </div>
-             <div class="form-group">
-                        <div class="order_confirm-form-group full-width">
-                            <label for="payment-method" style="color:black; font-weight:bold;">{% trans "Payment Method *" %}</label>
-                            <select id="payment-method" name="payment_method" style="color:black;" required>
-                                <option value="cash">{% trans "Cash" %}</option>
-                                <option value="online">{% trans "Online" %}</option>
-                            </select>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label style="color:black; font-weight:bold;margin-top:75px;">{% trans "Payment Method *" %}</label>
+                        <div class="btn-group" role="group" aria-label="Payment Method" style="margin-top:80px;margin-left:5px;">
+                            <input type="radio" id="payment-cash" name="payment_method" value="cash" class="btn-check" autocomplete="off">
+                            <label for="payment-cash" class="btn btn-outline-primary">Cash on Delivery</label>
+                
+                            <input type="radio" id="payment-online" name="payment_method" value="online" class="btn-check" autocomplete="off">
+                            <label for="payment-online" class="btn btn-outline-primary">Online Payment</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <input type="hidden" id="order-id" name="order_id" value="{{ order.id }}">
+            <input type="hidden" id="order-items-data" name="order_items_data" value="">
+
+            <!-- Right Section: Order Items -->
+            <div class="right-section">
+                <div class="order-items-section">
+                    <h3>{% trans "Order Items" %}</h3>
+                    <table class="order-table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Image" %}</th>
+                                <th>{% trans "Product" %}</th>
+                                <th>{% trans "Unit Price" %}</th>
+                                <th>{% trans "Quantity" %}</th>
+                                <th>{% trans "Total Price" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr class="order-item">
+                                <td class="d-none"><span class="subproduct-name">{{ item.subproduct.name }}</span></td>
+                                <td>
+                                    {% if item.subproduct.image %}
+                                    <img src="{{ item.subproduct.image.url }}" alt="{{ item.subproduct.name }}" class="subproduct-image">
+                                    {% else %}
+                                    <p>{% trans "No Image Available" %}</p>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ item.subproduct.name }}
+                                    <span class="item-unit">{{ item.unit }}</span>
+                                </td>
+                                <td class="unit-price">₹ {{ item.unit_price }}</td>
+                                <td class="quantity">{{ item.quantity }}</td>
+                                <td class="total-price">₹ {{ item.total_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <p>{% trans "Total Items" %}: {{ total_items }}</p>
+                </div>
+                
+                <!-- Right Section: Price -->
+                <div class="price-section">
+                    <p>{% trans "Price" %} ₹ <span id="total-price" class="price-item">{{ total_price }}</span></p>
+                    <p>{% trans "Bucket Discount" %}: ₹ <span id="bucket-discount" class="price-item bucket-discount">-{{ bucket_discount }}</span></p>
+                    <p id="discount-amount" class="d-none">{% trans "Coupon Discount Applied" %}: ₹ - <span id="discounted-amount" class="price-item">0.00</span></p>
+                    <p>{% trans "Total Amount" %}: ₹ <span id="discounted-total-amount" class="price-item">{{ discounted_total_amount }}</span></p>
+                
+                    <div id="coupon-section" class="coupon-section">
+                        <input type="text" style="color: black; border: 1px solid #ccc; padding: 8px; width:30%" id="coupon-code" name="coupon_code" placeholder="{% trans 'Enter Coupon Code' %}">
+                        <button type="button" id="apply-coupon-btn" style="margin-left:5px;" class="btn btn-warning mt-0">{% trans 'Apply Coupon' %}</button>
+                        <button type="button" id="remove-coupon-btn" style="margin-left:5px;" class="btn btn-danger mt-0 d-none">{% trans 'Remove Coupon' %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container" style="display: flex; justify-content: center; margin-top: 20px;">
+            <div class="form-group text-center" style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary btn-sm" id="cashfree-payment-btn" style="display: none; margin-top:10px; width:280px; border-radius:10px;">{% trans "Proceed to Payments" %}</button>
+                <button type="button" class="btn btn-primary btn-sm" id="confirm-order-btn" style="display: none; margin-top:10px; width:280px;border-radius:10px;">{% trans "Confirm Your Order" %}</button>
+            </div>
         </div>
     </div>
 </form>
 
-        <!-- Right Section: Order Items -->
-        <div class="right-section">
-            <div class="order-items-section">
-                <h3>{% trans "Order Items" %}</h3>
-                <table class="order-table">
-                    <thead>
-                        <tr>
-                            <th>{% trans "Image" %}</th>
-                            <th>{% trans "Product" %}</th>
-                            <th>{% trans "Unit Price" %}</th>
-                            <th>{% trans "Quantity" %}</th>
-                            <th>{% trans "Total Price" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in cart_items %}
-                        <tr class="order-item">
-                            <td>
-                                {% if item.subproduct.image %}
-                                <img src="{{ item.subproduct.image.url }}" alt="{{ item.subproduct.name }}">
-                                {% else %}
-                                <p>{% trans "No Image Available" %}</p>
-                                {% endif %}
-                            </td>
-                            <td>{{ item.subproduct.name }} {{ item.unit }}</td>
-                            <td>₹ {{ item.unit_price }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>₹ {{ item.total_price }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <p>{% trans "Total Items" %}: {{ total_items }}</p>
-            </div>
-
-            <!-- Right Section: Price -->
-            <div class="price-section">
-                <p>{% trans "Price" %} ₹ <span id="total-price" class="price-item">{{ total_price }}</span></p>
-                <p>{% trans "Bucket Discount" %}: ₹ <span id="bucket-discount" class="price-item bucket-discount">-{{ bucket_discount }}</span></p>
-                <p id="discount-amount" class="d-none">{% trans "Coupon Discount Applied" %}: ₹ - <span id="discounted-amount" class="price-item">0.00</span></p>
-                <p>{% trans "Total Amount" %}: ₹ <span id="discounted-total-amount" class="price-item">{{ discounted_total_amount }}</span></p>
-
-                <div id="coupon-section" class="coupon-section">
-                    <input type="text" style="color: black; border: 1px solid #ccc; padding: 8px; width:30%" id="coupon-code" name="coupon_code" placeholder="{% trans 'Enter Coupon Code' %}">
-                    <button type="button" id="apply-coupon-btn" style="margin-left:5px;" class="btn btn-warning mt-0">{% trans 'Apply Coupon' %}</button>
-                    <button type="button" id="remove-coupon-btn" style="margin-left:5px;" class="btn btn-danger mt-0 d-none">{% trans 'Remove Coupon' %}</button>
-                </div>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">{% trans "Submit Order" %}</button>
-
+</div>         
 
 <script>
     // -*- coding: utf-8 -*-
     document.addEventListener('DOMContentLoaded', function() {
-        
-       
-        const applyCouponBtn = document.getElementById('apply-coupon-btn');
-        const removeCouponBtn = document.getElementById('remove-coupon-btn');
-        const totalPriceElem = document.getElementById('total-price');
-        const discountedTotalAmountElem = document.getElementById('discounted-total-amount');
-        const discountAmountElem = document.getElementById('discount-amount');
-        const discountedAmountSpan = document.getElementById('discounted-amount');
-        const couponSection = document.getElementById('coupon-section');
-        const couponCodeInput = document.getElementById('coupon-code');
-        
-        let originalTotalPrice = parseFloat('{{ discounted_total_amount }}');
-        let currentTotalPrice = originalTotalPrice;
-        let couponApplied = '{{ request.session.coupon_applied|default:"" }}';
-        let couponCode = '{{ request.session.coupon_code|default:"" }}';
-        let couponDiscount = parseFloat('{{ request.session.coupon_discount|default:"0" }}');
-        let totalPriceAfterCoupon = parseFloat('{{ request.session.total_price_after_coupon_discount|default:"0" }}');
-    
-        // Initialize UI based on session data
-        if (couponApplied) {
-            couponCodeInput.value = couponCode;
-            applyCouponBtn.classList.add('d-none');
-            removeCouponBtn.classList.remove('d-none');
-            discountAmountElem.classList.remove('d-none');
-            discountedAmountSpan.innerText = couponDiscount.toFixed(2);
-            currentTotalPrice = totalPriceAfterCoupon;
-            updateTotalAmount();
-        }
-    
-        applyCouponBtn.addEventListener('click', function() {
-            const couponCode = couponCodeInput.value;
-            if (couponCode.trim() !== '') {
-                applyCoupon(couponCode, currentTotalPrice);
-            }
-        });
-    
-        removeCouponBtn.addEventListener('click', function() {
-            removeCoupon();
-        });
-    
-        function applyCoupon(couponCode, totalCartPrice) {
-            fetch("{% url 'apply_coupon' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: 'coupon_code=' + encodeURIComponent(couponCode) + '&total_cart_price=' + totalCartPrice
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    let couponDiscount = parseFloat(data.coupon_discount);
-                    discountedAmountSpan.innerText = couponDiscount.toFixed(2);
-                    discountAmountElem.classList.remove('d-none');
-                    removeCouponBtn.classList.remove('d-none');
-                    applyCouponBtn.classList.add('d-none');
-                    currentTotalPrice = parseFloat(data.total_price_after_coupon_discount);
-                    updateTotalAmount();  // Update the total amount after applying coupon
-                    // Update session-like variables
-                    couponApplied = true;
-                    couponCode = couponCode;
-                    couponDiscount = couponDiscount;
-                    totalPriceAfterCoupon = currentTotalPrice;
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-    
-        function removeCoupon() {
-            fetch("{% url 'remove_coupon_discount' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: ''
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    discountedAmountSpan.innerText = '0.00';
-                    discountAmountElem.classList.add('d-none');
-                    removeCouponBtn.classList.add('d-none');
-                    applyCouponBtn.classList.remove('d-none');
-                    currentTotalPrice = originalTotalPrice;  // Reset to original total price
-                    updateTotalAmount();  // Update the total amount after removing coupon
-                    // Update session-like variables
-                    couponApplied = false;
-                    couponCode = '';
-                    couponDiscount = 0;
-                    totalPriceAfterCoupon = originalTotalPrice;
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-    
-        function updateTotalAmount() {
-            const finalTotalAmount = currentTotalPrice - parseFloat(discountedAmountSpan.innerText);
-            discountedTotalAmountElem.innerText = finalTotalAmount.toFixed(2);
-        }
-       
-        var languageButtons = document.querySelectorAll('.dropdown-menu .dropdown-item');
-    
-        languageButtons.forEach(function(button) {
-            button.addEventListener('click', function(event) {
-                var languageCode = button.getAttribute('data-language-code');
-                if (languageCode) {
-                    var formData = new FormData();
-                    formData.append('language', languageCode);
-            
-                    fetch("{% url 'set_language' %}", {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRFToken': '{{ csrf_token }}',
-                            'Accept': 'application/json',
-                        }
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            location.reload(); // Reload page after language change
-                        } else {
-                            console.error('Failed to change language');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error changing language:', error);
-                    });
+        var paymentBtns = document.querySelectorAll('input[name="payment_method"]');
+        var paymentBtn = document.getElementById('cashfree-payment-btn');
+        var confirmOrderBtn = document.getElementById('confirm-order-btn');
+
+        paymentBtns.forEach(function(btn) {
+            btn.addEventListener('change', function() {
+                if (document.getElementById('payment-online').checked) {
+                    paymentBtn.style.display = 'block';
+                    confirmOrderBtn.style.display = 'none';
+                } else if (document.getElementById('payment-cash').checked) {
+                    paymentBtn.style.display = 'none';
+                    confirmOrderBtn.style.display = 'block';
                 }
             });
         });
+
+        
+// Common function to handle form submission
+function handleFormSubmission(buttonId) {
+    const form = document.getElementById('order-confirmation-form');
+    const paymentMode = document.querySelector('input[name="payment_mode"]:checked')?.value; // Get selected payment mode
+
+    // Function to check if a field is empty
+    function isFieldEmpty(field) {
+        return !field.value.trim();
+    }
+
+    // Collecting required fields
+    const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+
+    // Checking if all required fields are filled
+    for (let field of requiredFields) {
+        if (isFieldEmpty(field)) {
+            alert('Please fill all required fields.');
+            field.focus();
+            return; // Prevent form submission
+        }
+    }
+
+    // Validate phone number
+    const phoneField = document.getElementById('phone');
+    const phoneValue = phoneField.value.trim();
+    const phonePattern = /^\d{10}$/;
+    if (!phonePattern.test(phoneValue)) {
+        alert('Phone number must be exactly 10 digits.');
+        phoneField.focus();
+        return; // Prevent form submission
+    }
+
+    // Validate email format
+    const emailField = document.getElementById('email');
+    const emailValue = emailField.value.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(emailValue)) {
+        alert('Please enter a valid email address.');
+        emailField.focus();
+        return; // Prevent form submission
+    }
+
+    // Prepare form data
+    const formData = new FormData(form);
+
+    // Collecting order items data
+    const orderItems = [];
+    document.querySelectorAll('.order-item').forEach(item => {
+        const subproductName = item.querySelector('.subproduct-name').textContent.trim();
+        const unitPrice = item.querySelector('.unit-price').textContent.trim().replace('₹', '').trim();
+        const quantity = item.querySelector('.quantity').textContent.trim();
+        const totalPrice = item.querySelector('.total-price').textContent.trim().replace('₹', '').trim();
+        const imageUrl = item.querySelector('img.subproduct-image')?.src || ''; // Get image URL
+        const unit = item.querySelector('.item-unit').textContent.trim(); // Get unit
+
+        orderItems.push({
+            subproduct_name: subproductName,
+            unit_price: unitPrice,
+            quantity: quantity,
+            total_price: totalPrice,
+            image_url: imageUrl, // Add image URL to order items
+            unit:unit
+        });
+    });
+
+    formData.append('order_items_data', JSON.stringify(orderItems));
+
+    if (paymentMode === 'online') {
+        // Send form data and expect a response if payment mode is online
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.order_id) {
+                return fetch(`/create_cashfree_session/${data.order_id}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+                    }
+                });
+            } else {
+                console.error('Order ID not found');
+                throw new Error('Order ID not found');
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.payment_url) {
+                window.location.href = data.payment_url; // Redirect to Cashfree payment URL
+            } else {
+                console.error('Payment URL not found');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    } else {
+        // Redirect to order_confirmed.html if payment mode is not online
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.order_id) {
+                fetch(`/order_confirmed/${data.order_id}/`)
+                .then(response => response.text())
+                .then(html => {
+                    document.open();
+                    document.write(html);
+                    document.close();
+                })
+                .catch(error => {
+                    console.error('Error fetching order confirmation page:', error);
+                });
+            } else {
+                console.error('Order ID not found');
+            }
+        })
+        .catch(error => {
+            console.error('Error submitting order:', error);
+        });
+    }
+}
+
+        
+
+// Add event listener to the button
+document.getElementById('cashfree-payment-btn').addEventListener('click', handleFormSubmission);
+document.getElementById('confirm-order-btn').addEventListener('click', handleFormSubmission);
+
+        
+        
+        
+            // Coupon handling
+            const applyCouponBtn = document.getElementById('apply-coupon-btn');
+            const removeCouponBtn = document.getElementById('remove-coupon-btn');
+            const totalPriceElem = document.getElementById('total-price');
+            const discountedTotalAmountElem = document.getElementById('discounted-total-amount');
+            const discountAmountElem = document.getElementById('discount-amount');
+            const discountedAmountSpan = document.getElementById('discounted-amount');
+        const couponSection = document.getElementById('coupon-section');
+            const couponCodeInput = document.getElementById('coupon-code');
+    
+            let originalTotalPrice = parseFloat('{{ discounted_total_amount }}');
+            let currentTotalPrice = originalTotalPrice;
+            let couponApplied = '{{ request.session.coupon_applied|default:"" }}';
+            let couponCode = '{{ request.session.coupon_code|default:"" }}';
+            let couponDiscount = parseFloat('{{ request.session.coupon_discount|default:"0" }}');
+            let totalPriceAfterCoupon = parseFloat('{{ request.session.total_price_after_coupon_discount|default:"0" }}');
+    
+            // Initialize UI based on session data
+            if (couponApplied) {
+                couponCodeInput.value = couponCode;
+                applyCouponBtn.classList.add('d-none');
+                removeCouponBtn.classList.remove('d-none');
+                discountAmountElem.classList.remove('d-none');
+                discountedAmountSpan.innerText = couponDiscount.toFixed(2);
+                currentTotalPrice = totalPriceAfterCoupon;
+                updateTotalAmount();
+            }
+    
+            applyCouponBtn.addEventListener('click', function() {
+                const couponCode = couponCodeInput.value;
+                if (couponCode.trim() !== '') {
+                    applyCoupon(couponCode, currentTotalPrice);
+                }
+            });
+    
+            removeCouponBtn.addEventListener('click', function() {
+                removeCoupon();
+            });
+    
+            function applyCoupon(couponCode, totalCartPrice) {
+                fetch("{% url 'apply_coupon' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: 'coupon_code=' + encodeURIComponent(couponCode) + '&total_cart_price=' + totalCartPrice
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let couponDiscount = parseFloat(data.coupon_discount);
+                        discountedAmountSpan.innerText = couponDiscount.toFixed(2);
+                        discountAmountElem.classList.remove('d-none');
+                        removeCouponBtn.classList.remove('d-none');
+                        applyCouponBtn.classList.add('d-none');
+                        currentTotalPrice = parseFloat(data.total_price_after_coupon_discount);
+                        updateTotalAmount();  // Update the total amount after applying coupon
+                        // Update session-like variables
+                        couponApplied = true;
+                        couponCode = couponCode;
+                        couponDiscount = couponDiscount;
+                        totalPriceAfterCoupon = currentTotalPrice;
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+    
+            function removeCoupon() {
+                fetch("{% url 'remove_coupon_discount' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: ''
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        discountedAmountSpan.innerText = '0.00';
+                        discountAmountElem.classList.add('d-none');
+                        removeCouponBtn.classList.add('d-none');
+                        applyCouponBtn.classList.remove('d-none');
+                        currentTotalPrice = originalTotalPrice;  // Reset to original total price
+                        updateTotalAmount();  // Update the total amount after removing coupon
+                        // Update session-like variables
+                        couponApplied = false;
+                        couponCode = '';
+                        couponDiscount = 0;
+                        totalPriceAfterCoupon = originalTotalPrice;
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+    
+            function updateTotalAmount() {
+                const finalTotalAmount = currentTotalPrice - parseFloat(discountedAmountSpan.innerText);
+                discountedTotalAmountElem.innerText = finalTotalAmount.toFixed(2);
+            }
+       
+        
 });
 </script>
 

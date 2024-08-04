@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-family: 'Arial', sans-serif;
+        }
+        .order-confirmed-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .order-confirmed-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .order-confirmed-header h1 {
+            font-size: 2.5rem;
+            color: #28a745;
+        }
+        .order-confirmed-header p {
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+        .order-details {
+            margin-bottom: 20px;
+        }
+        .order-details h4 {
+            margin-bottom: 10px;
+        }
+        .order-details ul {
+            list-style: none;
+            padding: 0;
+        }
+        .order-details ul li {
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .order-details ul li:last-child {
+            border-bottom: none;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .order-summary {
+            margin-top: 20px;
+        }
+        .order-summary h5 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="order-confirmed-container">
+        <div class="order-confirmed-header">
+            <i class="fas fa-check-circle"></i>
+            <h1>Order Confirmed!</h1>
+            <p>Thank you for your order. We have received your order and are processing it.</p>
+        </div>
+        
+        <div class="order-details">
+            <h4>Order Details:</h4>
+            <ul>
+                <li><strong>Order ID:</strong> {{ order_id }}</li>
+                <li><strong>Customer Name:</strong> {{ order.first_name }} {{ order.last_name }}</li>
+                <li><strong>Billing Address:</strong> {{ order.billing_address }}, {{ order.city_town }}, {{ order.postcode }}</li>
+                <li><strong>Phone:</strong> {{ order.phone }}</li>
+                <li><strong>Email:</strong> {{ order.email }}</li>
+                <li><strong>Total Price:</strong> ₹ {{ order.total_price }}</li>
+                <li><strong>Bucket Discount:</strong> ₹ {{ order.bucket_discount }}</li>
+                <li><strong>Coupon Discount:</strong> ₹ {{ order.coupon_discount }}</li>
+                <li><strong>Final Total Amount:</strong> ₹ {{ order.final_total_amount }}</li>
+            </ul>
+        </div>
+
+        <div class="order-summary">
+            <h5>What Happens Next?</h5>
+            <p>We will send you an email with your order details and tracking information once your order is processed.</p>
+            <a href="/my_orders" class="btn btn-primary">View My Orders</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html> 
+
+{% comment %} <!DOCTYPE html>
+<html>
+<head>
+    <title>Order Confirmed</title>
+</head>
+<body>
+    <h1>Thank you for your order!</h1>
+    <p>Your order ID is: {{ order_id }}</p>
+</body>
+</html> {% endcomment %}
+

@@ -15,14 +15,20 @@ from .converters import FloatConverter
 register_converter(FloatConverter, 'float')
 urlpatterns = [
     path('', views.index, name='home'),
-   
+    path('submit-video-request/', views.submit_video_request, name='submit_video_request'),
+
     path('filtered_and_special_data/', views.filtered_and_special_data, name='filtered_and_special_data'),
     path('filtered-subproducts/', views.filtered_subproducts_without_product, name='filtered_subproducts_without_product'),
     path('filtered-subproducts/<int:product_id>/', views.filtered_subproducts, name='filtered_subproducts'),
     path('checkout_view/', views.checkout_view, name='checkout_view'),
-    path('submit_order/', views.submit_order, name='submit_order'),
+    path('submit-order/', views.submit_order, name='submit_order'),
+    path('create_cashfree_session/<int:order_id>/', views.create_cashfree_session, name='create_cashfree_session'),
+    path('cashfree_callback/', views.cashfree_callback, name='cashfree_callback'),
+    path('order_confirmed/<int:order_id>/', views.order_confirmed, name='order_confirmed'),
+    path('my_orders/', views.my_orders, name='my_orders'),
+    path('bill/', views.bill_page, name='bill_page'),
     path('Login/', views.login_view, name='Login'),
-   
+    path('account/', views.account_view, name='account'),
     path('subproduct/<int:product_id>/', views.subproduct1, name='subproduct1'),
     path('add_to_cart/', views.add_to_cart, name='add_to_cart'),
     path('add_to_cart_index/', views.add_to_cart_index, name='add_to_cart_index'),

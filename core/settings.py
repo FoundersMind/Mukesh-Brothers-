@@ -104,7 +104,7 @@ LANGUAGES = [
     # Add more languages as needed
 ]
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -155,3 +155,16 @@ TWILIO_FROM_NUMBER = "+918770500434"
 MAIN_SITE_SESSION_COOKIE_NAME = 'main_site_sessionid'
 ADMIN_SITE_SESSION_COOKIE_NAME = 'admin_site_sessionid'
 SESSION_COOKIE_NAME = MAIN_SITE_SESSION_COOKIE_NAME
+
+CASHFREE_APP_ID = 'TEST1027118633f310e1279b8d22f0cb68117201'
+CASHFREE_SECRET_KEY = 'cfsk_ma_test_fadb26ec62fa38ad9e158c014b6153e9_c3b4285a'
+CASHFREE_URL = 'https://sandbox.cashfree.com/pg/orders' 
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'njbhandari4@gmail.com'
+EMAIL_HOST_PASSWORD = 'Nj9685070940'
+DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
