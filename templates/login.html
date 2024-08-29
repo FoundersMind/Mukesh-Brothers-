@@ -3,7 +3,8 @@
 {% block body %}
     {% load static %}
         <head>
-            <meta charset="utf-8">
+            <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
     {% comment %} <section class="Form mx-3 my-4 pl-4 ">
         <div class="container1">
@@ -496,7 +497,7 @@
                 </div>
 
                 <div class="modal-right">
-                    <img src="/static/login_photo_2.png" alt="">
+                    <img src="{% static 'login_photo_2.png' %}" alt="">
                     <a class="btn btn-google" href="{% url 'social:begin' 'google-oauth2' %}">
                         <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google Logo"> Sign in using Google
                     </a>

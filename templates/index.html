@@ -2,7 +2,9 @@
 {% block body %}
 
 <head>
- <link rel="stylesheet" href="/static/style.css"> 
+  {% load static %}  <!-- Load the static template tag library -->
+
+  <link rel="stylesheet" href="{% static 'style.css' %}">
 
  <meta charset="utf-8">
 
@@ -336,11 +338,11 @@
           <div class="text">
             <div class="product__info">
               <div class="title">
-                <img class="sales" src="/static/sales.png" alt="ON SALE!">
+                <img class="sales" src="{% static 'sales.png' %}" alt="ON SALE!">
                 <div class="scratch-card-container">
                   <div class="scratch-card">
-                    <img src="/static/coupon.png" alt="ON SALE!">
-                    <img src="/static/coupon.png" alt="ON SALE!">
+                    <img src="{% static 'coupon.png' %}" alt="ON SALE!">
+                    <img src="{% static 'coupon.png' %}" alt="ON SALE!">
                   </div>
                   {% if sp_data.coupons.all %}
                   {% for coupon in sp_data.coupons.all %}
@@ -381,7 +383,7 @@
   
 <div class="image-div">
   <picture>
-    <img src="/static/dry_fruit_banner.webp" alt="Dry Fruits Banner">
+    <img src="{% static 'dry_fruit_banner.webp' %}" alt="Dry Fruits Banner">
   </picture>
 </div>
 <!-- Add this section to your index.html after the product section -->
@@ -389,7 +391,7 @@
   <div class="row" style="border: 1px solid #ccc; margin-top:40px;">
     <!-- Left Section: Static Image -->
     <div class="col-12 col-md-3" style="margin-top:80px;">
-      <img src="/static/Bucket_avail.png" alt="bucket_avail" style="width: 100%; height:95%; auto;border-radius:20px;">
+      <img src="{% static 'Bucket_avail.png' %}" alt="bucket_avail" style="width: 100%; height: 95%; border-radius: 20px;">
     </div>
     
     <!-- Middle Section: Buckets -->

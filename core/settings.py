@@ -1,19 +1,21 @@
-import os,sys
+import os
 from pathlib import Path
+from decouple import config
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+USE_X_FORWARDED_HOST = True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-we4am0xy3$9+%vtmm@jxe!t9s1khr7o8d7u+#x4wxkvwa-o6xj'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 INSTALLED_APPS = [
     'home.apps.HomeConfig',
@@ -24,26 +26,27 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social_django',
+     'channels',
+
 ]
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'social_core.backends.google.GoogleOAuth2',
-
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',  # Add LocaleMiddleware after SessionMiddleware
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
-    'home.middleware.middleware.SwitchSessionCookieMiddleware',  # Add this middleware
-    'home.middleware.middleware.CustomAuthenticationMiddleware',  # Add your custom authentication middleware
+    'home.middleware.middleware.SwitchSessionCookieMiddleware',
+    'home.middleware.middleware.CustomAuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -60,25 +63,34 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
-                'home.context_processor.recent_searches',  # Add your custom context processor if needed
-               
-                'django.template.context_processors.i18n',  # Add internationalization context processor
+                'home.context_processor.recent_searches',
+                'django.template.context_processors.i18n',
             ],
-            'builtins': ['django.templatetags.i18n'],  # Enable internationalization template tags
+            'builtins': ['django.templatetags.i18n'],
         },
     },
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
+ASGI_APPLICATION = 'core.asgi.application'
 
+# Channels configuration
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Mukesh',
-        'USER': 'root',
-        'PASSWORD': 'Nj9685070940',
-        'HOST': '127.0.0.1',
-        'PORT': '3306'
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', cast=int),
     }
 }
 
@@ -101,28 +113,26 @@ LANGUAGE_CODE = 'en-us'
 LANGUAGES = [
     ('en', 'English'),
     ('hi', 'Hindi'),
-    # Add more languages as needed
 ]
 
 TIME_ZONE = 'Asia/Kolkata'
-
 USE_I18N = True
-
 USE_L10N = True
+USE_TZ = False
 
-USE_TZ = True
-
-# Add LOCALE_PATHS
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
 ]
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 
+# Add STATICFILES_DIRS to point to your additional static files directories
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+# This should only be used for the directory where collectstatic will gather static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Media files (uploads)
 MEDIA_URL = '/media/'
@@ -132,39 +142,36 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication URLs
-
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'Home'
 LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = 'login'
 
 # Social Auth (Google OAuth2) settings
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '445917318375-8mek6s393lqf1r5el2fqfs3im43j468a.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
 # Email backend settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
 # Twilio settings
-TWILIO_ACCOUNT_SID = "AC45daf80c65ebd12a7a1d91340f5d8aa4"
-TWILIO_AUTH_TOKEN = "31242dad01385092852b0fe22cdd145c"
-TWILIO_VERIFY_SID = "VA3223ffa6144df33a06901a5a749a1335"
-TWILIO_FROM_NUMBER = "+918770500434"
+TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN')
+TWILIO_VERIFY_SID = config('TWILIO_VERIFY_SID')
+TWILIO_FROM_NUMBER = config('TWILIO_FROM_NUMBER')
 
 # Session cookie names
 MAIN_SITE_SESSION_COOKIE_NAME = 'main_site_sessionid'
 ADMIN_SITE_SESSION_COOKIE_NAME = 'admin_site_sessionid'
 SESSION_COOKIE_NAME = MAIN_SITE_SESSION_COOKIE_NAME
 
-CASHFREE_APP_ID = 'TEST1027118633f310e1279b8d22f0cb68117201'
-CASHFREE_SECRET_KEY = 'cfsk_ma_test_fadb26ec62fa38ad9e158c014b6153e9_c3b4285a'
-CASHFREE_URL = 'https://sandbox.cashfree.com/pg/orders' 
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'njbhandari4@gmail.com'
-EMAIL_HOST_PASSWORD = 'Nj9685070940'
-DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
+# Cashfree settings
+CASHFREE_APP_ID = config('CASHFREE_APP_ID')
+CASHFREE_SECRET_KEY = config('CASHFREE_SECRET_KEY')
+CASHFREE_URL = config('CASHFREE_URL')

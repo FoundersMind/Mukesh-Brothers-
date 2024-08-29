@@ -8,14 +8,13 @@
     <meta charset="utf-8">
     <title>{% block title %} {% endblock title %}Mukesh & Brothers</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% comment %} <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-    <script src="{% static 'javascript.js' %}"></script>
+    
+   
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.bundle.min.js"></script> {% endcomment %}
 
 </head>
 
@@ -231,7 +230,7 @@
                     {% if product.subproduct.tag %}
                     <div class="product-tag">{{ product.subproduct.get_tag_display }}</div>
                     {% endif %}
-                    <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#videoRequestModal_{{ product.subproduct.id }}">
+                    <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#videoRequestModal_{{ product.subproduct.id }}">
                         <i class="fas fa-video"></i> Live Video on Request
                     </a>
                 </div>
@@ -241,7 +240,7 @@
                 <button class="btn btn-sm dropdown-toggle" style="margin-left: 20px; width: 150px;" type="button" id="netweightDropdown_{{ product.subproduct.id }}" data-bs-toggle="dropdown" aria-expanded="false">
                     Net.Wt
                 </button>
-                <form id="add-to-cart-form_{{ product.subproduct.id }}" method="post" action="{% url 'add_to_cart' %}">
+                <form id="add-to-cart-form_{{ product.subproduct.id }}" method="post" action="{% url 'add_to_cart' %}"style="border:None;">
                     {% csrf_token %}
                     <input type="hidden" name="subproduct_id" value="{{ product.subproduct.id }}">
                     <input type="hidden" name="subproduct_name" value="{{ product.subproduct.name }}">

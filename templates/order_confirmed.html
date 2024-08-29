@@ -12,57 +12,83 @@
             color: #495057;
             font-family: 'Arial', sans-serif;
         }
+        
         .order-confirmed-container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
+            max-width: 600px; /* Reduced width */
+            margin: 20px auto; /* Reduced margin */
+            padding: 15px; /* Reduced padding */
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
         .order-confirmed-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* Reduced margin */
         }
+        
         .order-confirmed-header h1 {
-            font-size: 2.5rem;
+            font-size: 2rem; /* Reduced font size */
             color: #28a745;
         }
+        
         .order-confirmed-header p {
-            font-size: 1.2rem;
+            font-size: 1rem; /* Reduced font size */
             color: #6c757d;
         }
+        
         .order-details {
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Reduced margin */
         }
+        
         .order-details h4 {
             margin-bottom: 10px;
+            font-size: 1.1rem; /* Reduced font size */
         }
+        
         .order-details ul {
             list-style: none;
             padding: 0;
         }
+        
         .order-details ul li {
-            padding: 8px 0;
+            padding: 6px 0; /* Reduced padding */
             border-bottom: 1px solid #dee2e6;
         }
+        
         .order-details ul li:last-child {
             border-bottom: none;
         }
+        
         .btn-primary {
             background-color: #007bff;
             border: none;
         }
+        
         .btn-primary:hover {
             background-color: #0056b3;
         }
+        
         .order-summary {
-            margin-top: 20px;
+            margin-top: 15px; /* Reduced margin */
         }
+        
         .order-summary h5 {
-            font-size: 1.2rem;
+            font-size: 1.1rem; /* Reduced font size */
             margin-bottom: 10px;
         }
+        
+        .countdown-container {
+            margin-top: 15px; /* Reduced margin */
+            text-align: center;
+        }
+        
+        .countdown {
+            font-size: 1.2rem; /* Reduced font size */
+            font-weight: bold;
+            color: #007bff; /* Bootstrap primary color */
+        }
+        
     </style>
 </head>
 <body>
@@ -77,39 +103,78 @@
         <div class="order-details">
             <h4>Order Details:</h4>
             <ul>
-                <li><strong>Order ID:</strong> {{ order_id }}</li>
+                <li><strong>Order ID:</strong> {{ order.custom_order_id }}</li>
+                <li><strong>Total Items:</strong> {{ order.total_items }}</li>
                 <li><strong>Customer Name:</strong> {{ order.first_name }} {{ order.last_name }}</li>
                 <li><strong>Billing Address:</strong> {{ order.billing_address }}, {{ order.city_town }}, {{ order.postcode }}</li>
                 <li><strong>Phone:</strong> {{ order.phone }}</li>
                 <li><strong>Email:</strong> {{ order.email }}</li>
                 <li><strong>Total Price:</strong> ₹ {{ order.total_price }}</li>
-                <li><strong>Bucket Discount:</strong> ₹ {{ order.bucket_discount }}</li>
-                <li><strong>Coupon Discount:</strong> ₹ {{ order.coupon_discount }}</li>
+                
+               
+                    <li><strong>Bucket Discount:</strong> ₹ {{ order.bucket_discount }}</li>
+                
+                
+                {% if order.coupon_discount > 0 %}
+                    <li><strong>Coupon Discount:</strong> ₹ {{ order.coupon_discount }}</li>
+                {% endif %}
+                
                 <li><strong>Final Total Amount:</strong> ₹ {{ order.final_total_amount }}</li>
             </ul>
         </div>
 
-        <div class="order-summary">
+        <div class="order-summary text-center">
             <h5>What Happens Next?</h5>
             <p>We will send you an email with your order details and tracking information once your order is processed.</p>
             <a href="/my_orders" class="btn btn-primary">View My Orders</a>
+        </div>
+
+        <div class="countdown-container">
+            <p>You will be redirected to the home page in <span id="countdown" class="countdown">10</span> seconds.</p>
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html> 
+    <script>
+    window.addEventListener('load', () => {
+        window.scrollTo(0, 0);
+        // Clear session flag after the page is loaded
+        fetch('/clear_order_confirmed_flag/', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'flag cleared') {
+                    console.log('Session flag cleared');
+                }
+            })
+            .catch(error => console.error('Error clearing flag:', error));
+    });
 
-{% comment %} <!DOCTYPE html>
-<html>
-<head>
-    <title>Order Confirmed</title>
-</head>
-<body>
-    <h1>Thank you for your order!</h1>
-    <p>Your order ID is: {{ order_id }}</p>
+    // Timer functionality
+    var countdownElement = document.getElementById('countdown');
+    var countdownTime = 10; // seconds
+
+    function updateCountdown() {
+        countdownElement.textContent = countdownTime;
+        if (countdownTime <= 0) {
+            window.location.href = '/'; // Redirect to home page
+        } else {
+            countdownTime--;
+            setTimeout(updateCountdown, 1000); // Update every second
+        }
+    }
+
+    updateCountdown(); // Start the countdown
+
+    // Disable back navigation and refresh
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+        history.go(1);
+    };
+</script>
 </body>
-</html> {% endcomment %}
+</html>
+
+
 

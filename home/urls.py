@@ -16,19 +16,24 @@ register_converter(FloatConverter, 'float')
 urlpatterns = [
     path('', views.index, name='home'),
     path('submit-video-request/', views.submit_video_request, name='submit_video_request'),
-
+    path('invoice/<str:custom_order_id>/', views.view_invoice, name='view_invoice'),
+    path('delete_address/<int:address_id>/', views.delete_address, name='delete_address'),
     path('filtered_and_special_data/', views.filtered_and_special_data, name='filtered_and_special_data'),
     path('filtered-subproducts/', views.filtered_subproducts_without_product, name='filtered_subproducts_without_product'),
     path('filtered-subproducts/<int:product_id>/', views.filtered_subproducts, name='filtered_subproducts'),
     path('checkout_view/', views.checkout_view, name='checkout_view'),
+    path('save-address/', views.save_address, name='save_address'),
+    path('invoice/<str:order_id>/print/', views.invoice_html, name='invoice_html'),
     path('submit-order/', views.submit_order, name='submit_order'),
-    path('create_cashfree_session/<int:order_id>/', views.create_cashfree_session, name='create_cashfree_session'),
+    path('clear_cart/', views.clear_cart, name='clear_cart'),
+    path('create_cashfree_session/<str:order_id>/', views.create_cashfree_session, name='create_cashfree_session'),
     path('cashfree_callback/', views.cashfree_callback, name='cashfree_callback'),
-    path('order_confirmed/<int:order_id>/', views.order_confirmed, name='order_confirmed'),
+    path('order_confirmed/<str:order_id>/', views.order_confirmed, name='order_confirmed'),
+     path('order_confirmed_view/<str:order_id>/', views.order_confirmed_view, name='order_confirmed_view'),
+    path('clear_order_confirmed_flag/', views.clear_order_confirmed_flag, name='clear_order_confirmed_flag'),
     path('my_orders/', views.my_orders, name='my_orders'),
-    path('bill/', views.bill_page, name='bill_page'),
     path('Login/', views.login_view, name='Login'),
-    path('account/', views.account_view, name='account'),
+    path('account/', views.account, name='account'),
     path('subproduct/<int:product_id>/', views.subproduct1, name='subproduct1'),
     path('add_to_cart/', views.add_to_cart, name='add_to_cart'),
     path('add_to_cart_index/', views.add_to_cart_index, name='add_to_cart_index'),
@@ -54,6 +59,8 @@ urlpatterns = [
     path('search/', views.search_results, name='search_results'),
     path('get_products/', views.get_products, name='get_products'),
     path('get_subproducts/', views.get_subproducts, name='get_subproducts'),
+    path('contact/', views.contact_us, name='contact_us'),
+    
 
 ]
 

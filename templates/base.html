@@ -24,48 +24,32 @@
       font-weight: bold;
       animation: pulse 1s infinite;
   }
+  @media screen and (max-width: 1366px) and (min-width: 770px) {
   .search {
     display: flex;
     align-items: center;
-    justify-content: space-around; /* Added this line to use space around */
-    background-color: white;
+    justify-content: space-around;
+    background-color: rgba(245, 245, 240, 0.9); /* Light beige with some transparency */
     border-radius: 10px;
     padding: 0px;
-    width: 600px; /* Adjust as needed */
-    border: none;
+    width: 600px;
+    border: 1px solid #ccc; /* Slightly darker border for contrast */
     position: relative;
     height: 37px;
     margin-right: 20px;
-}
+  }
 
-.search input {
+  .search input {
     font-size: 15px;
     border: none;
     outline: none;
     width: 50%; /* Adjust width as needed */
     margin-top: 14px; /* Consider adjusting or removing this margin */
-}
+    background:transparent;
+  }
 
+  }
 
-.recent_search {
-    position: absolute;
-    background-color: floralwhite;
-    box-shadow: -5px -5px 5px black rgba(0, 0, 0, 0.1), 5px 5px 5px black rgba(0, 0, 0, 0.1);
-    height: 400px;
-    width: 100%;
-    top: 42px;
-    border-top: 1px solid black;
-    z-index: 2;
-    padding: 10px;
-    display: none;
-    overflow-y: auto; /* Enable vertical scrolling */
-}
-
-.recent_list {
-    display: flex;
-    flex-direction: column; /* Stack recent searches vertically */
-    overflow: hidden; /* Hide overflow to prevent scrolling on this container */
-}
 
 .recent_list a {
     padding: 8px 16px;
@@ -130,6 +114,7 @@
   
   .search:focus-within .recent_search {
     display: block;
+    background:tranparent;
   }
 
 .form-select {
@@ -302,9 +287,10 @@
                 <span class="large-M">M</span>ukesh & <span class="brothers">Brothers</span>
             </div>
             <span class="since">Since1992</span>
+            
             <div class="search mx-auto">
-              <form action="{% url 'search_results' %}" method="get" id="search-form" class="d-flex" style="width:100%;">
-                  <select name="search_type" id="search-type" class="form-select me-2" aria-label="Search Type"style="width: 115px;">
+              <form action="{% url 'search_results' %}" method="get" id="search-form" class="d-flex" style="width:100%;display:None;border:None;">
+                  <select name="search_type" id="search-type" class="form-select me-2" aria-label="Search Type"style="width: 120px;">
                       <option value="product" class="bold-and-animated">Category</option>
                       <option value="subproduct" class="bold-and-animated">Product</option>
                   </select>
@@ -312,7 +298,7 @@
                   <button type="submit">
                       <i class="fa-solid fa-magnifying-glass" style="font-size: 19px; margin-top:15px; margin-right:9px;"></i>
                   </button>
-              </form>
+             
           
               <!-- Recent Searches Section -->
               <div class="recent_search">
@@ -328,97 +314,72 @@
                   </div>
               </div>
           </div>
-          
+        </form> 
       
         
-          
-<ul class="navbar-nav1">
-    <li class="nav-items">
-      <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-links"> 
-            <i class="fa fa-shopping-cart"></i> 
-        </a>
-    </li>
+        <ul class="navbar-nav1">
+          <li class="nav-items">
+              <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-links"> 
+                  <i class="fa fa-shopping-cart"></i> 
+              </a>
+          </li>
+      
+          <li class="nav-items">
+              <button class="loginbutton"> 
+                  <a href="/Login" class="nav-links">
+                      login
+                  </a> 
+              </button> 
+          </li>
+      </ul>
+      
+      <ul class="navbar-nav2 ml-auto" style="margin-top:20px;">
+          {% if user.is_authenticated %}
+              <li class="dropdown nav-item1">
+                  <a href="#" id="profileDropdown" role="button" aria-haspopup="true" aria-expanded="false" class="nav-link1">
+                      <i class="fas fa-user"></i>
+                      <span>Profile</span>
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                      <li><a href="{% url 'account' %}"><i class="fas fa-user"></i> My Account ({{ user.username }})</a></li>
+                      <li><a href="/my_orders"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
+                      <li><a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                  </ul>
+              </li>
+          {% else %}
+              <li class="nav-item1">
+                  <a href="/Login" class="nav-link1"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
+              </li>
+          {% endif %}
+      
+          <!-- Other list items with similar properties -->
+          {% block cart %}
+          <li class="nav-item1">
+              <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-link1 position-relative">
+                  <i class="fa fa-shopping-cart"></i>
+                  <span id="cart-count" class="cart-count-badge"></span> 
+                  <span>Cart</span>
+              </a>
+          </li>
+          {% endblock cart %}
+      
+          <li class="nav-item1 active"> <!-- Added nav-item1 class -->
+              <a href="/" class="nav-link1">
+                  <img src="{% static 'home.png' %}" alt="Home Icon" style="width:20.25px;height:18px;">
+                  <span>Home</span>
+              </a>
+          </li>
+      
+          <!-- New Contact Us item -->
+          <li class="nav-item1">
+              <a href="/contact" class="nav-link1">
+                  <i class="fas fa-address-book"></i> <!-- Add an icon for Contact Us -->
+                  <span>Contact</span>
+              </a>
+          </li>
+      </ul>
+      
 
-    <li class="nav-items">
-         <button class="loginbutton"> 
-          <a href="/Login" class="nav-links">
-              login </a> 
-         </button> 
-    </li>
-</ul><ul class="navbar-nav2 ml-auto" style="margin-top:20px;">
-  {% if user.is_authenticated %}
-      <li class="dropdown nav-item1">
-          <a href="#" id="profileDropdown" role="button" aria-haspopup="true" aria-expanded="false" class="nav-link1">
-              <i class="fas fa-user"></i>
-              <span>Profile</span>
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-            <li><a href="{% url 'account' %}"><i class="fas fa-user"></i> My Account ({{ user.username }})</a></li>
-
-              <li><a href="/my_orders"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
-              <li><a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-          </ul>
-      </li>
-  {% else %}
-      <li class="nav-item1">
-          <a href="/login" class="nav-link1"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
-      </li>
-  {% endif %}
-
-
-  <!-- Other list items with similar properties -->
-   {% block cart %}
-  <li class="nav-item1">
-    <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-link1 position-relative">
-        <i class="fa fa-shopping-cart"></i>
-        <span id="cart-count" class="cart-count-badge"></span> 
-        <span>Cart</span>
-    </a>
-</li>
-{% endblock cart %}
-
-
-
-  <li class="nav-item1 active"> <!-- Added nav-item1 class -->
-      <a href="/" class="nav-link1">
-          <i class="far fa-house" style="transform: rotate(90deg);"></i>
-          <span>Home</span>
-      </a>
-  </li>
-</ul>
-
-
-{% block content %}
-{# Default content for base.html #}
-<div class="product dropdown" id="product_special" style="margin-top: 20px;">
-  <button class="toggle-button dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Categories
-  </button>
-  <div class="dropdown-menu product-dropdown-menu" aria-labelledby="dropdownMenuButton" style="margin-top: 17px; background-color:#ffcad4">
-    <div class="container-fluid">
-      <div class="row">
-        {% for prod in products %}
-          <div class="col-md-4">
-            <a href="{% url 'subproduct1' product_id=prod.id %}" class="dropdown-item card-link" style="list-style: none; text-decoration: none;">
-              <div class="card product-card_p">
-                <div style="height: 200px; max-width: 100%;">
-                  <img src="{{ prod.image.url }}" alt="{{ prod.name }}" style="height: 70px; width: 70px;">
-                </div>
-                <div class="card-body text-center" style="margin-left:5px;">
-                  <h5 class="card-title" style="margin-right:5px; padding-right:8px;">{{ prod.name }}</h5>
-                  <!-- Include the product_id parameter -->
-                </div>
-              </div>
-            </a>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</div>
-
-
-{% endblock content %}
 
 
 <div class="collapse navbar-collapse " id="navbarnav">
@@ -457,6 +418,38 @@
 </nav>
 
 
+{% block content %}
+{# Default content for base.html #}
+<div class="product dropdown" id="product_special" style="margin-top: 20px;">
+  <button class="toggle-button dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 20px;">
+    Categories
+</button>
+
+  <div class="dropdown-menu product-dropdown-menu" aria-labelledby="dropdownMenuButton" style="margin-top: 17px; background-color:#ffcad4">
+    <div class="container-fluid">
+      <div class="row">
+        {% for prod in products %}
+          <div class="col-md-4">
+            <a href="{% url 'subproduct1' product_id=prod.id %}" class="dropdown-item card-link" style="list-style: none; text-decoration: none;">
+              <div class="card product-card_p">
+                <div style="height: 200px; max-width: 100%;">
+                  <img src="{{ prod.image.url }}" alt="{{ prod.name }}" style="height: 70px; width: 70px;">
+                </div>
+                <div class="card-body text-center" style="margin-left:5px;">
+                  <h5 class="card-title" style="margin-right:5px; padding-right:8px;">{{ prod.name }}</h5>
+                  <!-- Include the product_id parameter -->
+                </div>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock content %}
 <script>
   // -*- coding: utf-8 -*-
 // Function to make AJAX request for translating the entire page to Hindi
@@ -528,8 +521,15 @@ justify-content: space-between;
 overflow:hidden;
 ">
 
-<div class="col " style="flex-basis: 25%; padding: 10px 30px;margin-top:40px;"> <!-- Adjust padding here -->
-  <img src="/static/download.png" width="100%" height="100" class="img-fluid ">
+<div class="col " style="flex-basis: 25%; padding: 10px 30px;"> <!-- Adjust padding here -->
+  <img 
+    src="{% static 'logo-transparent-png.png' %}" 
+    width="100%" 
+    height="100" 
+    class="img-fluid"
+    style="display: block; max-width: 100%; height: auto; border-radius: 30px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"
+>
+
 
    
 </div>

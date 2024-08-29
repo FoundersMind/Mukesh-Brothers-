@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from django.views.decorators.http import require_POST,require_GET
 from django.contrib.auth.decorators import login_required
 from .models import Product
 from django.contrib.auth import logout
@@ -12,7 +12,7 @@ from twilio.base.exceptions import TwilioRestException
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import Product, Unit, Cart, CartItem, subproduct
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+
 # from .models import SpecialSaleProduct
 from django.db import models
 from django.urls import reverse
@@ -680,29 +680,42 @@ def maincart(request):
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import Coupon
-
+from django.utils import timezone
 def apply_coupon(request):
     if request.method == 'POST':
+        # Reset coupon-related session variables if not already set
+        if 'coupon_applied' not in request.session:
+            request.session['coupon_applied'] = False
+            request.session['coupon_code'] = ''
+            request.session['coupon_discount'] = 0
+            request.session['total_price_after_coupon_discount'] = 0
+        
+        # Retrieve the coupon code and total cart price from the POST data
         coupon_code = request.POST.get('coupon_code')
         total_cart_price = request.POST.get('total_cart_price')
 
-        # Check if the coupon code exists
+        # Check if the coupon code exists and is active
         coupon = get_object_or_404(Coupon, code=coupon_code, is_active=True)
 
-        # Check if the coupon has already been applied
+        # Check if the coupon has already been applied in this session
         if request.session.get('coupon_applied'):
             return JsonResponse({'success': False, 'message': 'Coupon has already been applied.'})
+
+        # Check if the coupon has expired
+        if coupon.expiration_date < timezone.now().date():
+            return JsonResponse({'success': False, 'message': 'This coupon has expired.'})
 
         # Apply the discount from the coupon
         coupon_discount = coupon.discount_amount
         total_price_after_coupon_discount = Decimal(total_cart_price) - coupon_discount
 
-        # Update session to mark coupon as applied
+        # Update session to mark coupon as applied and store coupon details
         request.session['coupon_applied'] = True
         request.session['coupon_code'] = coupon_code
         request.session['coupon_discount'] = float(coupon_discount)  # Convert Decimal to float
         request.session['total_price_after_coupon_discount'] = float(total_price_after_coupon_discount)  # Convert Decimal to float
 
+        # Prepare the response data
         response_data = {
             'success': True,
             'coupon_discount': float(coupon_discount),  # Convert Decimal to float
@@ -1046,6 +1059,14 @@ from django.template.loader import render_to_string
 
 from .models import CartItem  # Import your CartItem model
 
+from django.http import JsonResponse
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.http import require_POST
+from .models import CartItem
+
 @login_required
 @require_POST
 def checkout_view(request):
@@ -1056,7 +1077,7 @@ def checkout_view(request):
     # Example: Check if any discount message was sent from JavaScript
     discount_message = request.POST.get('discount_message', None)
     
-    # Example: Determine which discounts were applied
+    # Determine which discounts were applied
     applied_discounts = []
     if request.POST.get('gst_discount_applied'):
         applied_discounts.append('GST Discount')
@@ -1068,16 +1089,17 @@ def checkout_view(request):
     # Retrieve cart items for the current user
     cart_items = CartItem.objects.filter(cart__user=request.user, quantity__gt=0)
     total_items = cart_items.count()
-    total_price = sum(item.unit_price * item.quantity for item in cart_items)
+    total_cart_price = sum(item.unit_price * item.quantity for item in cart_items)
     
     # Simulate shipping address and payment method (replace with actual logic)
     shipping_address = "123 Shipping Street, City, Country"
     payment_method = "Credit Card"
     
+    # Render order confirmation template with context
     context = {
         'cart_items': cart_items,
         'total_items': total_items,
-        'total_price': total_price,
+        'total_cart_price': total_cart_price,
         'shipping_address': shipping_address,
         'payment_method': payment_method,
         'bucket_discount': bucket_discount,
@@ -1091,8 +1113,24 @@ def checkout_view(request):
 from django.http import JsonResponse
 from .models import CartItem
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+
+
 import json
+
+@csrf_exempt  # Ensure CSRF protection is handled appropriately
+def clear_cart(request):
+    if request.method == 'POST':
+        try:
+            # Assume you have a way to get the current user's cart
+            cart, created = Cart.objects.get_or_create(user=request.user)
+            cart.items.all().delete()  # Remove all items from the cart
+            return JsonResponse({'success': True})
+        except Exception as e:
+            print(f'Error clearing cart: {e}')
+            return JsonResponse({'success': False, 'error': 'Failed to clear cart.'}, status=500)
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=400)
+    
 @require_POST
 def add_to_bucket(request):
     try:
@@ -1112,6 +1150,7 @@ def add_to_bucket(request):
         if bucketSize == '5kg':
             if totalWeight >= 1 and totalWeight <= 5:
                 discountPercent=2
+                message="will be available after in checkout"
             elif totalWeight>10:
                 message = 'Please choose Bucket size of  20kg  to avail the discount.'
             else:
@@ -1119,16 +1158,18 @@ def add_to_bucket(request):
         elif bucketSize == '10kg':
             if totalWeight > 5 and totalWeight <= 10:
                 discountPercent = 8
+                message="will be available after in checkout"
             elif totalWeight > 10:
                 message = 'Please increase the Bucket size  to avail the discount.'
 
             else:
-                message = 'Please choose more then 5kg to avail the discount.'
+                message = 'Please Add more then 5kg to avail the discount.'
         elif bucketSize == '20kg':
             if totalWeight > 10 and totalWeight < 20:
                 discountPercent = 12
+                message="will be available after in checkout"
             else:
-                message = 'Please choose more than 10kg to avail the discount.'
+                message = 'Please Add more than 10kg to avail the discount.'
         else:
             message = 'Invalid bucket size selected.'
             discountPercent=0
@@ -1177,7 +1218,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 
 from .models import Order, OrderItem, subproduct
-
+from num2words import num2words  # Import the num2words library
+from .models import Order, OrderItem, subproduct,EmailLog
 @csrf_exempt
 def submit_order(request):
     if request.method == 'POST':
@@ -1185,7 +1227,7 @@ def submit_order(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         billing_address = request.POST.get('billing_address')
-        city_town = request.POST.get('city_town')
+        location = request.POST.get('location')
         firm_name = request.POST.get('firm_name', '')
         postcode = request.POST.get('postcode')
         phone = request.POST.get('phone')
@@ -1193,6 +1235,8 @@ def submit_order(request):
         gst_number = request.POST.get('gst_number', '')
         delivery_address = request.POST.get('delivery_address', '')
         payment_method = request.POST.get('payment_method')
+        cash_payment_type = request.POST.get('cash_option', '')  # Updated field for Cash on Delivery options
+        total_items = int(request.POST.get('total_items', 0))  # Extract total_items as an integer
 
         # Safely extract and convert decimal values
         def get_decimal_value(key, default='0.00'):
@@ -1201,34 +1245,42 @@ def submit_order(request):
             except (ValueError, InvalidOperation):
                 return Decimal(default)
 
+        # Extract discounts and final total amount from the request
         try:
             total_price = get_decimal_value('total_price')
             bucket_discount = get_decimal_value('bucket_discount')
-            coupon_discount = get_decimal_value('discounted-amount')
-            final_total_amount = get_decimal_value('discounted-total-amount')
+            coupon_discount = get_decimal_value('coupon_discount')
+            final_total_amount = get_decimal_value('total_discounted_price')
         except (ValueError, InvalidOperation) as e:
             return JsonResponse({'error': str(e)}, status=400)
+
+        # Convert final_total_amount to words
+        try:
+            final_total_amount_in_words = num2words(final_total_amount, lang='en')
+        except Exception as e:
+            return JsonResponse({'error': f'Error converting amount to words: {str(e)}'}, status=500)
 
         # Handle order items
         try:
             order_items_data = json.loads(request.POST.get('order_items_data', '[]'))
+            if not order_items_data:
+                return JsonResponse({'error': 'No order items provided'}, status=400)
+            
             order_items = []
-
             for item in order_items_data:
                 subproduct_name = item.get('subproduct_name')
-                unit = item.get('unit')  # Extract unit
-                print(unit)
-                image_url = item.get('image_url')  # Extract image URL
+                unit = item.get('unit')
+                image_url = item.get('image_url')
                 subproduct_instance = subproduct.objects.filter(name=subproduct_name).first()
 
                 if subproduct_instance:
                     order_items.append({
                         'subproduct_name': subproduct_instance.name,
-                        'unit': unit,  # Include unit
+                        'unit': unit,
                         'unit_price': Decimal(item.get('unit_price', '0.00')),
                         'quantity': int(item.get('quantity', 0)),
-                        'total_price': Decimal(item.get('total_price', '0.00')),
-                        'image_url': image_url,  # Include image URL
+                        'item_total': Decimal(item.get('item_total', '0.00')),
+                        'image_url': image_url,
                     })
                 else:
                     return JsonResponse({'error': f'Subproduct with name {subproduct_name} does not exist'}, status=400)
@@ -1238,13 +1290,27 @@ def submit_order(request):
         # Check if the user is authenticated
         user = request.user if request.user.is_authenticated else None
 
-        # Create the order
+        # Generate custom_order_id
+        current_date = datetime.now().strftime("%Y%m%d")
+        random_number = get_random_string(length=4, allowed_chars='0123456789')
+        payment_prefix = {
+            'cash': 'C',
+            'online': 'O'
+        }.get(payment_method, 'X')
+
+        if payment_method == 'cash' and cash_payment_type:
+            cash_prefix = {'normal': 'N', 'credit': 'C'}.get(cash_payment_type, 'X')
+            custom_order_id = f"{payment_prefix}{cash_prefix}{current_date}{random_number}"
+        else:
+            custom_order_id = f"{payment_prefix}{current_date}{random_number}"
+
+        # Create the order first
         order = Order(
             user=user,
             first_name=first_name,
             last_name=last_name,
             billing_address=billing_address,
-            city_town=city_town,
+            location=location,
             firm_name=firm_name,
             postcode=postcode,
             phone=phone,
@@ -1252,12 +1318,30 @@ def submit_order(request):
             gst_number=gst_number,
             delivery_address=delivery_address,
             payment_method=payment_method,
+            cash_payment_type=cash_payment_type,
+            total_items=total_items,  # Include total_items in the order
             total_price=total_price,
             bucket_discount=bucket_discount,
             coupon_discount=coupon_discount,
             final_total_amount=final_total_amount,
-            status='pending',  # Default status
+            amount_in_words=final_total_amount_in_words,
+            status='pending',
+            custom_order_id=custom_order_id
         )
+        order.save()
+
+        # Create and save invoice after creating the order
+        invoice_number = f'INV-{custom_order_id}'
+        invoice = Invoice.objects.create(
+            invoice_number=invoice_number,
+            order=order,
+            issue_date=datetime.now(),
+            total_amount=final_total_amount,
+            amount_in_words=final_total_amount_in_words
+        )
+
+        # Update the order with the invoice number
+        order.invoice_number = invoice_number
         order.save()
 
         # Save order items
@@ -1265,12 +1349,18 @@ def submit_order(request):
             OrderItem.objects.create(
                 order=order,
                 product=subproduct.objects.get(name=item['subproduct_name']),
-                unit=item['unit'],  # Save the unit
+                unit=item['unit'],
                 unit_price=item['unit_price'],
                 quantity=item['quantity'],
-                total_price=item['total_price'],
-                image=item['image_url']  # Save the image URL
+                total_price=item['item_total'],
+                image=item['image_url']
             )
+
+        # Generate QR code for the invoice
+        invoice_url = request.build_absolute_uri(f'/download_invoice/{custom_order_id}/')
+        qr_code_data = generate_qr_code(invoice_url)
+        qr_code_image = ContentFile(qr_code_data, f'{custom_order_id}.png')
+        invoice.qr_code.save(f'{custom_order_id}.png', qr_code_image, save=True)
 
         # Clear cart or perform other actions after saving the order
         request.session['cart_items'] = []  # Clear cart items from session
@@ -1278,37 +1368,257 @@ def submit_order(request):
         # Set a session variable to indicate order confirmation
         request.session['order_confirmed'] = True
 
-        # Instead of redirecting, send a JSON response
-        return JsonResponse({'order_id': order.id})
+        # Return the custom_order_id in the JSON response
+        return JsonResponse({'order_id': custom_order_id, 'cash_payment_type': cash_payment_type})
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 from django.shortcuts import render, redirect
+from django.shortcuts import redirect
+from django.http import JsonResponse, HttpResponseBadRequest
 
+@login_required
 def order_confirmed(request, order_id):
-    if not request.session.get('order_confirmed'):
-        return redirect('home')  # Redirect to home or any other page if order not confirmed
+    try:
+        # Check if the session is already locked
+        if request.session.get('checkout_locked'):
+            return JsonResponse({'error': 'Checkout is locked. Please wait until the process is complete.'}, status=403)
+        
+        # Lock the session to prevent duplicate order processing
+        request.session['checkout_locked'] = True
 
-    # Clear the session variable after rendering the page
-    del request.session['order_confirmed']
+        # Retrieve and confirm the order
+        order = get_object_or_404(Order, custom_order_id=order_id)
+        
+        # Clear the cart items
+        cart = request.user.cart
+        cart.items.clear()  # This will clear the ManyToMany relationship
 
-    return render(request, 'order_confirmed.html', {'order_id': order_id})
+        # Reset coupon-related session variables
+        request.session['coupon_applied'] = False
+        request.session['coupon_code'] = ''
+        request.session['coupon_discount'] = 0
+        request.session['total_price_after_coupon_discount'] = 0
+
+        # Clear the session lock after processing
+        del request.session['checkout_locked']
+
+        # Redirect to the new view that will render the order_confirmed.html
+        return redirect('order_confirmed_view', order_id=order_id)
+    
+    except Cart.DoesNotExist:
+        # Clear the session lock if an error occurs
+        request.session.pop('checkout_locked', None)
+        return JsonResponse({'error': 'Cart does not exist for this user'}, status=400)
+    except Exception as e:
+        # Clear the session lock if an error occurs
+        request.session.pop('checkout_locked', None)
+        return JsonResponse({'error': str(e)}, status=500)
+
+from django.shortcuts import render, get_object_or_404
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+@csrf_exempt
+@login_required
+def clear_order_confirmed_flag(request):
+    if request.method == 'POST':
+        # Clear the session flag
+        request.session.pop('order_confirmed_displayed', None)
+        return JsonResponse({'status': 'flag cleared'})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+
+from django.templatetags.static import static
+from django.core.mail import EmailMessage
+from django.utils.timezone import now
+def contact_us(request):
+    return render(request, 'contact_us.html')
+@login_required
+def order_confirmed_view(request, order_id):
+    # Check if the session flag is set
+    if request.session.get('order_confirmed_displayed'):
+        return redirect('/')
+
+    # Retrieve the order to be displayed
+    order = get_object_or_404(Order, custom_order_id=order_id)
+
+    # Generate the static URL for the logo
+    logo_url = static('logo.png')
+
+    # Prepare email content
+    subject = 'Order Confirmation'
+    html_message = f'''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+            }}
+            .container {{
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #ffffff;
+                border-radius: 8px;
+                overflow: hidden;
+                border: 1px solid #ddd;
+                padding: 20px;
+            }}
+            .header {{
+                text-align: center;
+                padding: 10px;
+                background-color: #f4f4f4;
+            }}
+            .header img {{
+                max-width: 200px;
+                height: auto;
+            }}
+            .content {{
+                padding: 20px;
+            }}
+            .content h2 {{
+                color: #333;
+            }}
+            .content p {{
+                color: #666;
+            }}
+            .footer {{
+                text-align: center;
+                padding: 10px;
+                background-color: #f4f4f4;
+                font-size: 12px;
+                color: #666;
+            }}
+            .footer a {{
+                color: #1a73e8;
+                text-decoration: none;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="https://www.flipkart.com/pixaplay-54-projector-aug24-store" alt="Company Logo">
+            </div>
+            <div class="content">
+                <h2>Order Confirmation</h2>
+                <p>Dear {order.first_name} {order.last_name},</p>
+                <p>Your order with ID {order_id} has been confirmed.</p>
+                <p><strong>Order Details:</strong></p>
+                <ul>
+                    <li>Total Price: {order.total_price}</li>
+                    <li>Bucket Discount: {order.bucket_discount}</li>
+                    <li>Coupon Discount: {order.coupon_discount}</li>
+                    <li>Final Total Amount: {order.final_total_amount}</li>
+                </ul>
+                <p>Thank you for your purchase!</p>
+                <p>Best regards,</p>
+                <p>Mukesh & Brothers</p>
+            </div>
+            <div class="footer">
+                <p>&copy; {now().year} Mukesh & Brothers. All rights reserved.</p>
+                <p><a href="https://example.com/unsubscribe">Unsubscribe</a></p>
+            </div>
+        </div>
+    </body>
+    </html>
+    '''
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [order.email]
+
+    try:
+        email = EmailMessage(
+            subject,
+            html_message,
+            from_email,
+            recipient_list
+        )
+        email.content_subtype = 'html'  # Important for HTML emails
+        email.send()
+        status = 'Sent'
+    except Exception as e:
+        status = f'Failed: {str(e)}'
+
+    # Log email details
+    EmailLog.objects.create(
+        recipient=order.email,
+        subject=subject,
+        status=status
+    )
+
+    # Set the session flag to prevent refreshing or going back
+    request.session['order_confirmed_displayed'] = True
+
+    # Render the order_confirmed.html template with the order details
+    return render(request, 'order_confirmed.html', {'order': order})
+
+
+
+
 
 
 from django.shortcuts import render
 from .models import Order
 
+from datetime import datetime, timedelta
+
+from datetime import datetime, timedelta
+from django.shortcuts import render
+from .models import Order  # Ensure this imports your Order model
+@login_required
 def my_orders(request):
     user = request.user if request.user.is_authenticated else None
-    orders = Order.objects.filter(user=user) if user else []
-    return render(request, 'my_order.html', {'orders': orders})
+
+    # Get filter parameters from the request
+    status_filter = request.GET.get('status', '')  # Order status filter
+    date_filter = request.GET.get('date', '')      # Date filter (e.g., '30_days', '2023', '2024')
+    sort_filter = request.GET.get('sort', 'latest') # Sort filter (e.g., 'latest', 'oldest')
+    
+    if user:
+        orders = Order.objects.filter(user=user)
+        
+        # Apply status filter
+        if status_filter:
+            orders = orders.filter(progress_status=status_filter)
+        
+        # Apply date filter
+        if date_filter == '30_days':
+            thirty_days_ago = datetime.now() - timedelta(days=30)
+            orders = orders.filter(created_at__gte=thirty_days_ago)
+        elif date_filter.isdigit():  # Assume it's a year filter
+            orders = orders.filter(created_at__year=date_filter)
+        
+        # Apply sort filter
+        if sort_filter == 'latest':
+            orders = orders.order_by('-created_at')  # Newest first
+        elif sort_filter == 'oldest':
+            orders = orders.order_by('created_at')   # Oldest first
+    else:
+        orders = []
+
+    return render(request, 'my_order.html', {
+        'orders': orders,
+        'status_filter': status_filter,
+        'date_filter': date_filter,
+        'sort_filter': sort_filter,
+    })
 
 
 @csrf_exempt
 def create_cashfree_session(request, order_id):
     if request.method == 'POST':
         try:
-            order = Order.objects.get(id=order_id)
+            order = Order.objects.get(custom_order_id=order_id)
             customer_id = str(request.user.id)  # Use the logged-in user's ID
 
             headers = {
@@ -1320,7 +1630,7 @@ def create_cashfree_session(request, order_id):
             }
 
             data = {
-                'order_id': str(order_id),
+                'order_id': order_id,
                 'order_amount': str(order.final_total_amount),
                 'order_currency': 'INR',
                 'customer_details': {
@@ -1370,7 +1680,7 @@ def cashfree_callback(request):
             # Check the order status
             if order_status == 'SUCCESS':
                 # Update the order status in the database
-                order = Order.objects.get(id=order_id)
+                order = Order.objects.get(custom_order_id=order_id)
                 order.status = 'completed'  # Update to completed or similar status
                 order.save()
 
@@ -1385,64 +1695,152 @@ def cashfree_callback(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-# def payment_callback(request):
-#     # Handle Cashfree payment callback
-#     if request.method == 'POST':
-#         order_id = request.POST['orderId']
-#         order = Order.objects.get(id=order_id)
-#         order.payment_status = 'confirmed'
-#         order.save()
 
-#         return redirect('thank_you')
-
-#     return redirect('order_confirmation')
 
 from django.shortcuts import render
 
-def payment_page(request):
-    # Render the payment page template
-    return render(request, 'payment.html')
-
-def bill_page(request):
-    # Render the bill page template
-    return render(request, 'bill.html')
+import pdfkit
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.shortcuts import get_object_or_404
+from .models import Order, OrderItem, OwnerDetails  # Assuming OrderItem is the model for order items
 
 
 
+def invoice_html(request, order_id):
+    # Fetch order and related items
+    order = get_object_or_404(Order, custom_order_id=order_id)
+    order_items = OrderItem.objects.filter(order=order)
 
-def generate_invoice_content(post_data):
-    # Example function to generate invoice content (HTML or PDF)
-    # Replace with your logic to generate invoice content based on form data
-    first_name = post_data.get('first_name', '')
-    last_name = post_data.get('last_name', '')
-    billing_address = post_data.get('billing_address', '')
-    city_town = post_data.get('city_town', '')
-    firm_name = post_data.get('firm_name', '')
-    postcode = post_data.get('postcode', '')
-    phone = post_data.get('phone', '')
-    email = post_data.get('email', '')
-    gst_number = post_data.get('gst_number', '')
-    delivery_address = post_data.get('delivery_address', '')
+    # Generate QR code for invoice download
+    invoice_url = request.build_absolute_uri(f'/download_invoice/{order_id}/')
+    qr_code_data = generate_qr_code(invoice_url)
+    qr_code_image = ContentFile(qr_code_data, f'{order_id}.png')
 
-    # Calculate total amount and other details based on form data
-    total_amount = 0  # Replace with your logic to calculate total amount
-    
-    # Render the invoice template with form data
-    invoice_content = render_to_string('invoice.html', {
-        'first_name': first_name,
-        'last_name': last_name,
-        'billing_address': billing_address,
-        'city_town': city_town,
-        'firm_name': firm_name,
-        'postcode': postcode,
-        'phone': phone,
-        'email': email,
-        'gst_number': gst_number,
-        'delivery_address': delivery_address,
-        'total_amount': total_amount,
+    # Save QR code image if not already saved
+    if not order.qr_code:
+        order.qr_code.save(f'{order_id}.png', qr_code_image, save=True)
+
+    # Fetch owner details
+    owner_details = OwnerDetails.objects.first()
+
+    if not owner_details:
+        owner_account_details = {
+            'account_number': 'N/A',
+            'ifsc_code': 'N/A',
+            'upi_id': 'N/A',
+            'gst_number': 'N/A',
+            'address': 'N/A',
+            'contact_number': 'N/A',
+        }
+    else:
+        owner_account_details = {
+            'account_number': owner_details.account_number,
+            'ifsc_code': owner_details.ifsc_code,
+            'upi_id': owner_details.upi_id,
+            'gst_number': owner_details.gst_number,
+            'address': owner_details.address,
+            'contact_number': owner_details.contact_number,
+        }
+
+    # Generate HTML for the invoice
+    html_string = render_to_string('invoice.html', {
+        'order': order,
+        'order_items': order_items,
+        'owner_account_details': owner_account_details,
+        'qr_code_url': order.qr_code.url if order.qr_code else None,
     })
 
-    return invoice_content
+    response = HttpResponse(html_string, content_type='text/html')
+    return response
+
+from django.shortcuts import render, get_object_or_404
+from .models import Order, OrderItem,OwnerDetails
+import qrcode
+from io import BytesIO
+from django.core.files.base import ContentFile
+from django.conf import settings
+from django.http import HttpResponse
+
+def generate_qr_code(data):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=2,  # Reduced size
+        border=2,    # Reduced border size
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    return buffered.getvalue()
+
+from django.shortcuts import get_object_or_404, render
+from django.core.files.base import ContentFile
+from .models import Order, OrderItem, Invoice, OwnerDetails
+
+
+def view_invoice(request, custom_order_id):
+    order = get_object_or_404(Order, custom_order_id=custom_order_id)
+    order_items = OrderItem.objects.filter(order=order)
+
+    # Generate QR code for invoice download
+    invoice_url = request.build_absolute_uri(f'/download_invoice/{custom_order_id}/')
+    qr_code_data = generate_qr_code(invoice_url)
+    qr_code_image = ContentFile(qr_code_data, f'{custom_order_id}.png')
+
+    # Retrieve or create the invoice
+    invoice, created = Invoice.objects.get_or_create(
+        order=order,
+        defaults={
+            'invoice_number': f'INV-{custom_order_id}',  # Example invoice number; adjust as needed
+            'issue_date': order.created_at,  # Use order creation date or adjust as needed
+            'total_amount': order.final_total_amount,
+            'amount_in_words': order.amount_in_words  # Define this function as needed
+        }
+    )
+
+    # Save QR code image if not already saved
+    if not invoice.qr_code:
+        invoice.qr_code.save(f'{custom_order_id}.png', qr_code_image, save=True)
+        invoice.save()
+
+    owner_details = OwnerDetails.objects.first()  # Retrieves the first instance
+
+    if not owner_details:
+        owner_account_details = {
+            'account_number': 'N/A',
+            'ifsc_code': 'N/A',
+            'upi_id': 'N/A',
+            'gst_number': 'N/A',
+            'address': 'N/A',
+            'contact_number': 'N/A',
+        }
+    else:
+        owner_account_details = {
+            'account_number': owner_details.account_number,
+            'ifsc_code': owner_details.ifsc_code,
+            'upi_id': owner_details.upi_id,
+            'gst_number': owner_details.gst_number,
+            'address': owner_details.address,
+            'contact_number': owner_details.contact_number,
+        }
+
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'owner_account_details': owner_account_details,
+        'qr_code_url': invoice.qr_code.url if invoice.qr_code else None,
+    }
+    
+    return render(request, 'invoice.html', context)
+
+
+
+
+
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -1468,16 +1866,127 @@ def submit_video_request(request):
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-@login_required
-def account_view(request):
-    # Assuming you have models for Orders, Coupons, Addresses, etc.
-    # orders = Order.objects.filter(user=request.user)
-    # coupons = Coupon.objects.filter(user=request.user)
-    # addresses = Address.objects.filter(user=request.user)
 
-    # context = {
-    #     # 'orders': orders,
-    #     'coupons': coupons,
-    #     # 'addresses': addresses,
-    # }
-    return render(request, 'account.html')
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Order
+from django.contrib.auth.decorators import login_required
+# views.py
+
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Address
+from .forms import AddressForm
+import json
+from django.shortcuts import render
+from .models import Address
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Order, Address
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Address
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Address, Order
+from django.shortcuts import render
+from .models import Coupon
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+
+@csrf_exempt
+def save_address(request):
+    if request.method == 'POST':
+        address_id = request.POST.get('address_id')
+        address_type = request.POST.get('address_type')
+        address_details = request.POST.get('address_details')
+        location = request.POST.get('location')
+        postcode = request.POST.get('postcode')
+        
+        if address_id:  # If address_id is present, update existing address
+            try:
+                address = Address.objects.get(id=address_id)
+                address.address_type = address_type
+                address.address_details = address_details
+                address.location = location
+                address.postcode = postcode
+                address.save()
+                success = True
+                message = 'Address updated successfully'
+            except Address.DoesNotExist:
+                success = False
+                message = 'Address not found'
+        else:  # If address_id is not present, create a new address
+            address = Address(
+                address_type=address_type,
+                address_details=address_details,
+                location=location,
+                postcode=postcode,
+                user=request.user  # Assuming the Address model has a user field
+            )
+            address.save()
+            success = True
+            message = 'Address saved successfully'
+        
+        return JsonResponse({
+            'success': success,
+            'message': message
+        })
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@csrf_exempt
+def delete_address(request, address_id):
+    if request.method == 'DELETE':
+        address = get_object_or_404(Address, id=address_id)
+        address.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+@login_required
+def account(request):
+    # Fetch the pending order for the logged-in user
+    order = Order.objects.filter(user=request.user, status='pending').first()
+    coupons = Coupon.objects.filter(is_active=True)  # Only active coupons
+   
+    # Fetch all addresses for the logged-in user
+    saved_addresses = request.user.addresses.all()
+    
+    # Combine data into the context
+    context = {
+        'order': order,
+        'saved_addresses': saved_addresses,
+        'coupons':coupons
+    }
+    
+    return render(request, 'account.html', context)
+
+
+# views.py
+
+# views.py
+
+from django.shortcuts import get_object_or_404, redirect
+from .models import Order
+from .notification import notify_order_status_change
+
+def update_order_status(request, custom_order_id):
+    order = get_object_or_404(Order, custom_order_id=custom_order_id)
+    new_status = request.POST.get('status')
+    order.progress_status = new_status
+    order.save()
+    
+    # Notify clients about the status change
+    notify_order_status_change(order)
+    
+    return redirect('order_detail', custom_order_id=order.custom_order_id)
+
+
+
+
+

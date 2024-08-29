@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    {% block body %}
+    <style>
+      
+        /* Header Styling */
+        .contact-header {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+            padding: 60px 0;
+            text-align: center;
+            margin-top:20px;
+            border-radius:20px;
+        }
+        
+        .contact-header h1 {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .contact-header p {
+            font-size: 18px;
+        }
+        
+        /* Contact Form Section */
+        .contact-form-section {
+          
+            padding: 40px 0;
+        }
+        
+        .contact-form {
+            background-color: #f5f5dc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+        
+        .contact-form .form-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .contact-form .form-control {
+            border-radius: 5px;
+            height: 50px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+        
+        /* Send Message Button Styling */
+        .contact-form .btn-submit {
+            background-color: #ff6347; /* Change this to your desired color (e.g., Tomato) */
+            color: #fff; /* Text color */
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .contact-form .btn-submit:hover {
+            background-color: #e5533d; /* Darker shade for hover effect */
+        }
+        
+        
+        /* Contact Info Section */
+        .contact-info {
+            background-color: #f5f5dc;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contact-info .info-item {
+            margin-bottom: 20px;
+        }
+        
+        .contact-info h3 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .contact-info h3 i {
+            margin-right: 10px;
+            color: #4caf50; /* Green color for icons */
+        }
+        
+        .contact-info p {
+            font-size: 16px;
+            color: #555;
+        }
+        
+        /* Additional Info Section */
+        .info-section {
+            background-color: #343a40; /* Dark background for contrast */
+            color: #fff;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+        
+        .info-section .info-item {
+            margin-bottom: 30px;
+        }
+        
+        .info-section h3 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .info-section p {
+            font-size: 18px;
+        }
+        
+        .info-section a {
+            color: #ffc107;
+            text-decoration: none;
+        }
+        
+        .info-section a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Contact Image */
+        .contact-image {
+            background: url('https://images.unsplash.com/photo-1565120130290-98e1f13b47c7') center/cover no-repeat;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+        
+        /* Responsive Styling */
+        @media (max-width: 767px) {
+            .contact-form, .contact-info {
+                margin-bottom: 20px;
+            }
+        }
+        
+
+    </style>
+</head>
+
+    {% block content %}
+    
+    {% endblock content %}
+    <header class="contact-header">
+        <div class="container-fluid">
+            <h1>Get in Touch with Us</h1>
+            <p>We'd love to hear from you! Please fill out the form below to reach us.</p>
+        </div>
+    </header>
+
+    <section class="contact-form-section">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <!-- Form Section -->
+                <div class="col-md-6">
+                    <div class="contact-form">
+                        <form style="display:block;border:None;">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Your Name</label>
+                                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                            </div>
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Your Message</label>
+                                <textarea class="form-control" id="message" rows="5" placeholder="Write your message"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-submit">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+    
+                <!-- Contact Information Section -->
+                <div class="col-md-6">
+                    <div class="contact-info">
+                        <div class="info-item">
+                            <h3><i class="fas fa-map-marker-alt"></i> Our Address</h3>
+                            <p>Mahavir Swami Marg, Shivpuri Ho, Shivpuri - 473551 (Gandhi Chowk, Main Bazar)</p>
+                        </div>
+                        <div class="info-item">
+                            <h3><i class="fab fa-whatsapp"></i> Contact Us on WhatsApp</h3>
+                            <p><a href="https://wa.me/918770500434" target="_blank">+91 8770500434</a></p>
+                        </div>
+                        <div class="info-item">
+                            <h3><i class="fas fa-phone-alt"></i> Call Us</h3>
+                            <p>+91 9977773434(Mukesh Jain) </p>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+
+   
+
+{% endblock body %}

@@ -1,0 +1,261 @@
+# Deployment for Web Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+  labels:
+    app: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web-container
+        image: gcr.io/mukeshbothers/core-web:latest
+        command: ["gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi:application"]
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: static-volume
+          mountPath: /app/staticfiles
+        - name: media-volume
+          mountPath: /app/media
+        env:
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: SECRET_KEY
+        - name: DEBUG
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: DEBUG
+        - name: ALLOWED_HOSTS
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: ALLOWED_HOSTS
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: DB_PASSWORD
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: DB_PORT
+        - name: SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+        - name: SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
+        - name: TWILIO_ACCOUNT_SID
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: TWILIO_ACCOUNT_SID
+        - name: TWILIO_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: TWILIO_AUTH_TOKEN
+        - name: TWILIO_VERIFY_SID
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: TWILIO_VERIFY_SID
+        - name: TWILIO_FROM_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: TWILIO_FROM_NUMBER
+        - name: CASHFREE_APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: CASHFREE_APP_ID
+        - name: CASHFREE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: CASHFREE_SECRET_KEY
+        - name: CASHFREE_URL
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: CASHFREE_URL
+        - name: EMAIL_HOST
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: EMAIL_HOST
+        - name: EMAIL_PORT
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: EMAIL_PORT
+        - name: EMAIL_USE_TLS
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: EMAIL_USE_TLS
+        - name: EMAIL_HOST_USER
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: EMAIL_HOST_USER
+        - name: EMAIL_HOST_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: EMAIL_HOST_PASSWORD
+        - name: DEFAULT_FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: DEFAULT_FROM_EMAIL
+      volumes:
+      - name: static-volume
+        persistentVolumeClaim:
+          claimName: static-pvc
+      - name: media-volume
+        persistentVolumeClaim:
+          claimName: media-pvc
+
+---
+
+# Deployment for MySQL
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql-container
+        image: gcr.io/mukeshbothers/mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: DB_NAME
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: web-app-secret
+              key: DB_PASSWORD
+        volumeMounts:
+        - name: mysql-data-volume
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-data-volume
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+
+---
+
+# Deployment for Redis
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis-container
+        image: gcr.io/mukeshbothers/redis:latest
+        ports:
+        - containerPort: 6379
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-container
+        image: gcr.io/mukeshbothers/core-nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: static-volume
+          mountPath: /app/staticfiles
+        - name: media-volume
+          mountPath: /app/media
+      volumes:
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config
+      - name: static-volume
+        persistentVolumeClaim:
+          claimName: static-pvc
+      - name: media-volume
+        persistentVolumeClaim:
+          claimName: media-pvc

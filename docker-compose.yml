@@ -1,0 +1,48 @@
+
+services:
+  web:
+    build: .
+    command: gunicorn --bind 0.0.0.0:8000 core.wsgi:application
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    env_file:
+      - .env
+    depends_on:
+      - db-service
+      - redis-service
+    expose:
+      - "8000"
+
+  db-service:
+    image: mysql:8.0
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: 'Mukesh'
+      MYSQL_ROOT_PASSWORD: 'Nj9685070940'
+    ports:
+      - "3307:3306"
+
+  redis-service:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: dockerfile.nginx
+    ports:
+      - "80:80"
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+
+volumes:
+  mysql_data:
+  static_volume:
+  media_volume:

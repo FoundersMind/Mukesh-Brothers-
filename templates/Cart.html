@@ -1,5 +1,3 @@
-
-
 {% extends 'base.html' %}
 
 {% block title %}
@@ -10,53 +8,145 @@
   {% load static %}
   <meta charset="utf-8">
     <!-- Add your existing head content here -->
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-   
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+
 </head>
-<style>
-  
-.order-confirmation-box {
-  position: relative;
-  background-color: #f8f9fa; /* Light grey background */
-  border: 2px solid #007bff; /* Blue border */
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 40px;
-  margin-top: 20px;
-  border-radius: 5px;
-  width: 300px;
-  border-right: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 1s ease-out;
-}
+  <style>
+    /* Modal background */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+    
+    /* Modal content */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto; /* Center the modal */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 50%; /* Adjust width as needed */
+        position: relative; /* Position relative to contain the close button */
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center align items horizontally */
+    }
+    
+    /* The close button */
+    .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        position: absolute; /* Position absolute to place it in the top-right corner */
+        top: 10px; /* Space from the top */
+        right: 10px; /* Space from the right */
+    }
+    
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    /* Button styles */
+    button {
+        padding: 5px 10px; /* Adjust padding to make buttons smaller */
+        font-size: 14px; /* Smaller font size */
+        border-radius: 4px; /* Optional: Add rounded corners */
+        margin: 5px; /* Space between buttons */
+    }
+    
+    /* Specific button styles */
+    #confirm-btn {
+        background-color: #007bff; /* Primary button color */
+        color: white; /* Text color */
+        border: none; /* Remove border */
+    }
+    
+    #cancel-btn {
+        background-color: #6c757d; /* Secondary button color */
+        color: white; /* Text color */
+        border: none; /* Remove border */
+    }
+    
 
-.order-confirmation-box:hover {
-  transform: translateX(10px); /* Slide to the right on hover */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
-}
+    /* Loading overlay styles */
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+      display: none; /* Hidden by default */
+      justify-content: center;
+      align-items: center;
+      z-index: 9999; /* Ensure it’s above all other content */
+    }
 
-.order-confirmation-box h2 {
-  margin: 0;
-  font-size: 1.5em;
-  color: #007bff;
-}
+    #loading-overlay .spinner {
+      border: 16px solid #f3f3f3; /* Light grey */
+      border-top: 16px solid #3498db; /* Blue */
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      animation: spin 2s linear infinite;
+    }
 
-.order-confirmation-box::after {
-  content: "";
-  position: absolute;
-  top: 34%;
-  right: -40px;
-  margin-top: -10px; /* Half of arrow's height */
-  border-width: 20px;
-  border-style: solid;
-  border-color: transparent transparent transparent #007bff;
-}
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-</style>
+    .order-confirmation-box {
+      position: relative;
+      background-color: #f8f9fa; /* Light grey background */
+      border: 2px solid #007bff; /* Blue border */
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 40px;
+      margin-top: 20px;
+      border-radius: 5px;
+      width: 300px;
+      border-right: none;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 1s ease-out;
+    }
+
+    .order-confirmation-box:hover {
+      transform: translateX(10px); /* Slide to the right on hover */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+    }
+
+    .order-confirmation-box h2 {
+      margin: 0;
+      font-size: 1.5em;
+      color: #007bff;
+    }
+
+    .order-confirmation-box::after {
+      content: "";
+      position: absolute;
+      top: 34%;
+      right: -40px;
+      margin-top: -10px; /* Half of arrow's height */
+      border-width: 20px;
+      border-style: solid;
+      border-color: transparent transparent transparent #007bff;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
 {% block content %}
 
 {% endblock content %}
@@ -66,160 +156,207 @@
 {% endblock cart %}
 
 <div class="container-fluid">
+  {% if cart_items %}
   <div class="order-confirmation-box">
-    <h2>{% trans "Your Cart" %}</h2>
-</div>
+      <h2>{% trans "Your Cart" %}</h2>
+  </div>
   <div class="row" style="margin-top: 10px;">
-    <!-- Product Display Section (Left Side) -->
-    <div class="col-md-9" style="margin-right: 10px; margin-left: 10px;">
-      <div class="row justify-content-start;">
-        {% for cart_item in cart_items %}
-        <div class="col-md-12" style="margin-top: 40px;">
-          <div class="row" style="border-radius: 50px;">
-            <div class="col-md-5">
-              <div class="image-container" style="position: relative; height: 100%;">
-                <img src="{{ cart_item.image_url }}" alt="{{ cart_item.subproduct.name }}" class="img-fluid" style="width: 50%; height: 70%; border-radius: 15px;">
-                {% if cart_item.subproduct.tag %}
-                <div class="product-tag" style="position: absolute; top: 10px; left: 10px; background-color: #ff5722; color: white; padding: 5px 10px; border-radius: 3px; font-size: 12px; font-weight: bold;">{{ cart_item.subproduct.get_tag_display }}</div>
-                {% endif %}
+      <!-- Product Display Section (Left Side) -->
+      <div class="col-md-9" style="margin-right: 10px; margin-left: 10px;">
+          <div class="row justify-content-start;">
+              {% for cart_item in cart_items %}
+              <div class="col-md-12" style="margin-top: 40px;">
+                  <div class="row" style="border-radius: 50px;">
+                      <div class="col-md-5">
+                          <div class="image-container" style="position: relative; height: 100%;">
+                              <img src="{{ cart_item.image_url }}" alt="{{ cart_item.subproduct.name }}" class="img-fluid" style="width: 50%; height: 70%; border-radius: 15px;">
+                              {% if cart_item.subproduct.tag %}
+                              <div class="product-tag" style="position: absolute; top: 10px; left: 10px; background-color: #ff5722; color: white; padding: 5px 10px; border-radius: 3px; font-size: 12px; font-weight: bold;">{{ cart_item.subproduct.get_tag_display }}</div>
+                              {% endif %}
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                          <div class="cart-item-details">
+                              <h4>{{ cart_item.subproduct.name }}</h4>
+                              <p id="unit-display_{{ cart_item.id }}" data-cart-id="{{ cart_item.cart_id }}" data-cart-item-id="{{ cart_item.id }}">Unit: {{ cart_item.unit.unit }} Price: ₹ {{ cart_item.unit.unit_price }}</p>
+                              <div class="row">
+                                  <div class="col-md-4">
+                                      <div class="input-group">
+                                        <button class="btn quantity-btn custom-btn" style="border: 2px solid #fff;" data-cart-id="{{ cart_item.cart_id }}" data-cart-item-id="{{ cart_item.id }}" data-operation="decrement" data-selected-unit="{{ cart_item.selected_unit }}" data-subproduct-id="{{ cart_item.subproduct.id }}" data-unit-price="{{ cart_item.unit.unit_price }}">
+                                          <i class="fas fa-minus"></i>
+                                      </button>
+                                      
+                                      <span id="cart-quantity-display-{{ cart_item.id }}" class="mx-2" style="margin-top:7px;">
+                                          {{ cart_item.quantity }}
+                                      </span>
+                                      
+                                      <button class="btn quantity-btn custom-btn" style="border: 2px solid #fff;" data-cart-id="{{ cart_item.cart_id }}" data-cart-item-id="{{ cart_item.id }}" data-operation="increment" data-selected-unit="{{ cart_item.selected_unit }}" data-subproduct-id="{{ cart_item.subproduct.id }}" data-unit-price="{{ cart_item.unit.unit_price }}">
+                                          <i class="fas fa-plus"></i>
+                                      </button>
+                                      
+                                      
+                                          <div id="loading-overlay">
+                                              <div class="spinner"></div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="col-md-4">
+                                      <p id="total-price-display-{{ cart_item.id }}">Total Price: ₹ {{ cart_item.total_price|floatformat:"2" }}</p>
+                                  </div>
+                                  <div class="col-md-4">
+                                      <form method="post" action="{% url 'remove_from_cart' cart_item.id %}"style="border:None;">
+                                          {% csrf_token %}
+                                          <button type="submit" class="btn btn-danger" style="font-size: 1.2em; padding: 5px 10px;">
+                                            &#128465;
+                                        </button>
+                                        
+                                      </form>
+                                  </div>
+                              </div>
+                              <!-- Checkbox for adding to bucket -->
+                              {% if cart_item.subproduct.tag == 'combo' %}
+                              <div class="form-check">
+                                  <input class="form-check-input combo-checkbox" type="checkbox" value="{{ cart_item.id }}" id="combo-checkbox-{{ cart_item.id }}">
+                                  <label class="form-check-label" for="combo-checkbox-{{ cart_item.id }}">
+                                      Add to bucket
+                                  </label>
+                              </div>
+                              {% endif %}
+                          </div>
+                      </div>
+                  </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="cart-item-details">
-                <h4>{{ cart_item.subproduct.name }}</h4>
-                <p id="unit-display_{{ cart_item.id }}" data-cart-id="{{ cart_item.cart_id }}" data-cart-item-id="{{ cart_item.id }}">Unit: {{ cart_item.unit.unit }} Price: ₹ {{ cart_item.unit.unit_price }}</p>
-                <div class="row">
-                  <div class="col-md-4">
-                    <div class="input-group">
-                      <button class="btn btn-dark quantity-btn custom-btn" data-cart-id="{{ cart_item.cart_id }}" data-cart-item-id="{{ cart_item.id }}" data-operation="decrement" data-selected-unit="{{ cart_item.selected_unit }}" data-subproduct-id="{{ cart_item.subproduct.id }}" data-unit-price="{{ cart_item.unit.unit_price }}">
-                        <i class="fas fa-minus"></i>
-                      </button>
-                      <span id="cart-quantity-display-{{ cart_item.id }}" class="mx-2" style="margin-top:7px;">{{ cart_item.quantity }}</span>
-                      <button class="btn btn-dark quantity-btn custom-btn" data-cart-id="{{ cart_item.cart_id }}" data-cart-item-id="{{ cart_item.id }}" data-operation="increment" data-selected-unit="{{ cart_item.selected_unit }}" data-subproduct-id="{{ cart_item.subproduct.id }}" data-unit-price="{{ cart_item.unit.unit_price }}">
-                        <i class="fas fa-plus"></i>
-                      </button>
-                    </div>
+              {% endfor %}
+          </div>
+      </div>
+
+      <div class="col-md-2">
+          <div class="row">
+              <div class="col-md-12 mt-5" style="border: 2px solid black; border-radius:30px;">
+                  <h4 style="margin-top:12px;">Selected Bucket</h4>
+                  {% if request.session.selected_bucket %}
+                  <div class="selected-bucket-item">
+                    <img src="{% static 'bucket.png' %}" class="card-img-top" alt="{{ bucket.get_size_display }}">
+
+                      <p>Size: {{ request.session.selected_bucket.size }} - Discount: {{ request.session.selected_bucket.discount }}%</p>
                   </div>
-                  <div class="col-md-4">
-                    <p id="total-price-display-{{ cart_item.id }}">Total Price: ₹ {{ cart_item.total_price|floatformat:"2" }}</p>
-                  </div>
-                  <div class="col-md-4">
-                    <form method="post" action="{% url 'remove_from_cart' cart_item.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-danger">Remove</button>
-                    </form>
-                  </div>
-                </div>
-                <!-- Checkbox for adding to bucket -->
-                {% if cart_item.subproduct.tag == 'combo' %}
-                <div class="form-check">
-                  <input class="form-check-input combo-checkbox" type="checkbox" value="{{ cart_item.id }}" id="combo-checkbox-{{ cart_item.id }}">
-                  <label class="form-check-label" for="combo-checkbox-{{ cart_item.id }}">
-                    Add to bucket
-                  </label>
-                </div>
-                {% endif %}
+
+                  <div id="discount-info" style="border-radius: 4px;"></div>
+                  <div id="weight-info" style="border-radius: 4px;"></div> <!-- Added this line to display weight information -->
+
+                  {% else %}
+                  <p>No bucket selected.</p>
+                  {% endif %}
               </div>
-            </div>
           </div>
-        </div>
-        {% endfor %}
       </div>
-    </div>
 
-    <div class="col-md-2">
-      <div class="row">
-        <div class="col-md-12 mt-5" style="border: 2px solid black; border-radius:30px;">
-          <h4 style="margin-top:12px;">Selected Bucket</h4>
-          {% if request.session.selected_bucket %}
-          <div class="selected-bucket-item">
-            <img src="/static/bucket.png" class="card-img-top" alt="{{ bucket.get_size_display }}">
-            <p>Size: {{ request.session.selected_bucket.size }} - Discount: {{ request.session.selected_bucket.discount }}%</p>
+      <!-- Discount Section -->
+
+      <!-- Checkout Details Section -->
+      <div class="col-md-12 mt-4" data-cart-id="{{ cart_id }}">
+          <div class="checkout-details">
+              <h4>Checkout Details</h4>
+              <p id="total-cart-price">Total Cart Price: ₹ {{ total_price_all|floatformat:"2" }} incl. GST</p>
+              <div id="discount-message" style="display:none; color: green;"></div>
+              <button id="checkout-btn" class="btn btn-primary">Checkout</button>
           </div>
-        
-            <div id="discount-info" style="border-radius: 4px;"></div>
-            <div id="weight-info"style="border-radius: 4px;"></div> <!-- Added this line to display weight information -->
-          
-          
-          {% else %}
-          <p>No bucket selected.</p>
-          {% endif %}
-        </div>
       </div>
-    </div>
-
-    <!-- Discount Section -->
-
-    <!-- Checkout Details Section -->
-    <div class="col-md-12 mt-4" data-cart-id="{{ cart_id }}">
-      <div class="checkout-details">
-        <h4>Checkout Details</h4>
-        <p id="total-cart-price">Total Cart Price: ₹ {{ total_price_all|floatformat:"2" }} incl. GST</p>
-        <div id="discount-message" style="display:none; color: green;"></div>
-        <button id="checkout-btn" class="btn btn-primary">Checkout</button>
-      </div>
-    </div>
-  </div>
-
-
-
-
-
-
-  <div class="row mt-4">
-    <div class="col-md-12">
-      <h4>Related Products</h4>
-      <!-- Example: Display related products based on current cart items -->
-      <!-- Adjust content and styling based on your specific design -->
-      <div class="row">
-        <div class="col-md-4">
-          <div class="related-product">
-            <img src="/static/product1.png" alt="Related Product 1" class="img-fluid">
-            <p>Product Name 1</p>
-            <p>Price: ₹ 100.00</p>
-            <button class="btn btn-outline-primary btn-sm">Add to Cart</button>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="related-product">
-            <img src="/static/product2.png" alt="Related Product 2" class="img-fluid">
-            <p>Product Name 2</p>
-            <p>Price: ₹ 120.00</p>
-            <button class="btn btn-outline-primary btn-sm">Add to Cart</button>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="related-product">
-            <img src="/static/product3.png" alt="Related Product 3" class="img-fluid">
-            <p>Product Name 3</p>
-            <p>Price: ₹ 150.00</p>
-            <button class="btn btn-outline-primary btn-sm">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row mt-4">
-    <div class="col-md-12">
-      <h4>Promotions and Offers</h4>
-      <!-- Example: Display promotional banners or offers -->
-      <div class="promotion-banner">
-        <img src="/static/promotion_banner.png" alt="Promotion Banner" class="img-fluid">
-      </div>
-    </div>
-  </div>
-
-  <div class="row mt-4">
-    <div class="col-md-12">
-      <h4>Customer Support</h4>
-      <!-- Example: Provide customer support information or live chat -->
-      <p>Have questions? Contact us at support@example.com or use our live chat.</p>
-      <button class="btn btn-outline-primary">Live Chat</button>
-    </div>
+      <!-- Confirmation Modal -->
+<div id="confirmation-modal" class="modal">
+  <div class="modal-content">
+      <span id="close-modal" class="close">&times;</span>
+      <h4>Confirm Checkout</h4>
+      <p>Are you sure you want to proceed with the checkout?</p>
+      <button id="confirm-btn" class="btn btn-primary"style="width:100px;">Yes</button>
+      <button id="cancel-btn" class="btn btn-secondary"style="width:100px;">No</button>
   </div>
 </div>
 
+  </div>
+
+  <div class="row mt-4">
+      <div class="col-md-12">
+          <h4>Related Products</h4>
+          <!-- Example: Display related products based on current cart items -->
+          <!-- Adjust content and styling based on your specific design -->
+          <div class="row">
+              <div class="col-md-4">
+                  <div class="related-product">
+                    <img src="{% static 'product1.png' %}" alt="Related Product 1" class="img-fluid">
+                      <p>Product Name 1</p>
+                      <p>Price: ₹ 100.00</p>
+                      <button class="btn btn-outline-primary btn-sm">Add to Cart</button>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="related-product">
+                      <img src="{% static 'product2.png' %}" alt="Related Product 2" class="img-fluid">
+                      <p>Product Name 2</p>
+                      <p>Price: ₹ 120.00</p>
+                      <button class="btn btn-outline-primary btn-sm">Add to Cart</button>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="related-product">
+                      <img src="{% static 'product3.png' %}" alt="Related Product 3" class="img-fluid">
+                      <p>Product Name 3</p>
+                      <p>Price: ₹ 150.00</p>
+                      <button class="btn btn-outline-primary btn-sm">Add to Cart</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div class="row mt-4">
+      <div class="col-md-12">
+          <h4>Promotions and Offers</h4>
+          <!-- Example: Display promotional banners or offers -->
+          <div class="promotion-banner">
+              <img src="{% static 'promotion_banner.png' %}" alt="Promotion Banner" class="img-fluid">
+          </div>
+      </div>
+  </div>
+
+  <div class="row mt-4">
+      <div class="col-md-12">
+          <h4>Customer Support</h4>
+          <!-- Example: Provide customer support information or live chat -->
+          <p>Have questions? Contact us at support@example.com or use our live chat.</p>
+          <button class="btn btn-outline-primary">Live Chat</button>
+      </div>
+  </div>
+  {% else %}
+  <div class="container-fluid "style="margin-top:60px;">
+    <div class="row">
+    
+     <div class="col-md-12">
+     
+         <div class="card">
+       <div class="card-header">
+       <h5>Cart</h5>
+       </div>
+       <div class="card-body cart">
+           <div class="col-sm-12 empty-cart-cls text-center">
+             <img src="https://i.imgur.com/dCdflKN.png" width="130" height="130" class="img-fluid mb-4 mr-3">
+             <h3><strong>Your Cart is Empty</strong></h3>
+             <h4>Add something to make me happy :)</h4>
+             <a href="/" class="btn btn-primary cart-btn-transform m-3" data-abc="true">continue shopping</a>
+             
+           
+           </div>
+       </div>
+   </div>
+       
+     
+     </div>
+    
+    </div>
+   
+   </div>
+  {% endif %}
+</div>
 
 
 <script>
@@ -269,7 +406,7 @@
               quantityDisplay.innerText = data.new_quantity;
               const newQuantity = parseInt(data.new_quantity);
               let newTotalPrice = newQuantity * unitPrice;
-              
+    
               totalPriceDisplay.innerText = `Total Price: ₹ ${newTotalPrice.toFixed(2)}`;
               totalPriceValue = totalPriceValue + newTotalPrice - totalPriceValueItem;
               totalCartPriceDisplay.innerText = `Total Cart Price: ₹ ${totalPriceValue.toFixed(2)} incl. GST`;
@@ -280,6 +417,14 @@
               if (checkbox && checkbox.checked) {
                 handleSubproductSelection();
               }
+    
+              // Show the loading overlay
+              document.getElementById('loading-overlay').style.display = 'flex';
+    
+              // Reload the window after a 5-second delay
+              setTimeout(function() {
+                window.location.reload();
+              }, 2000); // 5000 milliseconds = 5 seconds
             })
             .catch(error => {
               console.error('Error updating quantity:', error);
@@ -288,10 +433,9 @@
       });
     });
     
-    
     let originalTotalPrice = parseFloat('{{ total_price_all }}'); // Initial total price from server
     let accumulatedDiscount = 0; // Accumulated discount from all sources
-  
+    
     function updateTotalPrice(newTotalPrice, message) {
       const totalCartPriceDisplay = document.getElementById('total-cart-price');
       totalCartPriceDisplay.innerText = `Total Cart Price: ₹ ${newTotalPrice.toFixed(2)} incl. GST`;
@@ -299,80 +443,81 @@
       discountMessage.innerText = message;
       discountMessage.style.display = 'block';
     }
-  
+    
    
     document.getElementById('checkout-btn').addEventListener('click', function() {
-      const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value; // Fetch CSRF token
+      // Show the confirmation modal
+      const modal = document.getElementById('confirmation-modal');
+      modal.style.display = 'block';
   
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '{% url "checkout_view" %}';
-  
-      // Create CSRF token input field
-      const csrfInput = document.createElement('input');
-      csrfInput.type = 'hidden';
-      csrfInput.name = 'csrfmiddlewaretoken';
-      csrfInput.value = csrftoken;
-      form.appendChild(csrfInput);
-  
-      // Calculate total price
-      const totalCartPriceDisplay = document.getElementById('total-cart-price');
-      console.log('Total Cart Price Display Text:', totalCartPriceDisplay.textContent);
-      
-      let totalPriceValue = parseFloat(totalCartPriceDisplay.textContent.split('₹ ')[1]);
-      console.log('Parsed Total Price Value:', totalPriceValue);
-  
-      // Check if discount info exists
-      const discountInfoElement = document.getElementById('discount-info');
-      if (discountInfoElement) {
-          console.log('Discount Info Element Text:', discountInfoElement.innerText);
-          
-          // Check if discount text contains a colon
-          const discountText = discountInfoElement.innerText.trim();
-          if (discountText.includes(':')) {
-              const discountPercent = parseFloat(discountText.split(':')[1].trim());
-              console.log('Parsed Discount Percent:', discountPercent);
-  
-              const bucketdiscount = (totalPriceValue * (discountPercent / 100)).toFixed(2);
-              totalPriceValue -= parseFloat(bucketdiscount);
-  
-              // Create discounted_amount input field
-              const bucketdiscountInput = document.createElement('input');
-              bucketdiscountInput.type = 'hidden';
-              bucketdiscountInput.name = 'bucket_discount';
-              bucketdiscountInput.value = bucketdiscount;
-              form.appendChild(bucketdiscountInput);
-          } else {
-              // Discount info does not have a colon, handle accordingly
-              console.log('Discount info text does not contain a colon. Assuming no discount.');
-              const bucketdiscountInput = document.createElement('input');
-              bucketdiscountInput.type = 'hidden';
-              bucketdiscountInput.name = 'bucket_discount';
-              bucketdiscountInput.value = '0';
-              form.appendChild(bucketdiscountInput);
+      // Handle confirmation and cancellation
+      document.getElementById('confirm-btn').addEventListener('click', function() {
+          const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value; // Fetch CSRF token
+    
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '{% url "checkout_view" %}'; // Ensure this URL is correct
+    
+          // Create CSRF token input field
+          const csrfInput = document.createElement('input');
+          csrfInput.type = 'hidden';
+          csrfInput.name = 'csrfmiddlewaretoken';
+          csrfInput.value = csrftoken;
+          form.appendChild(csrfInput);
+    
+          // Calculate total price
+          const totalCartPriceDisplay = document.getElementById('total-cart-price');
+          let totalPriceValue = parseFloat(totalCartPriceDisplay.textContent.split('₹ ')[1].replace(',', ''));
+    
+          // Check if discount info exists
+          const discountInfoElement = document.getElementById('discount-info');
+          let bucketdiscount = 0;
+          if (discountInfoElement) {
+              const discountText = discountInfoElement.innerText.trim();
+              if (discountText.includes(':')) {
+                  const discountPercent = parseFloat(discountText.split(':')[1].trim());
+                  bucketdiscount = (totalPriceValue * (discountPercent / 100)).toFixed(2);
+                  totalPriceValue -= parseFloat(bucketdiscount);
+              }
           }
-      } else {
-          console.log('No discount info element found');
-          
-          // No discount applied: set discount amount to 0
+    
+          // Create hidden input fields for discount and discounted total amount
           const bucketdiscountInput = document.createElement('input');
           bucketdiscountInput.type = 'hidden';
           bucketdiscountInput.name = 'bucket_discount';
-          bucketdiscountInput.value = '0';
+          bucketdiscountInput.value = bucketdiscount;
           form.appendChild(bucketdiscountInput);
-      }
+    
+          const discountedTotalInput = document.createElement('input');
+          discountedTotalInput.type = 'hidden';
+          discountedTotalInput.name = 'discounted_total_amount';
+          discountedTotalInput.value = totalPriceValue.toFixed(2);
+          form.appendChild(discountedTotalInput);
+    
+          document.body.appendChild(form);
+          form.submit();
+      });
   
-      // Create discounted_total_amount input field
-      const discountedTotalInput = document.createElement('input');
-      discountedTotalInput.type = 'hidden';
-      discountedTotalInput.name = 'discounted_total_amount';
-      discountedTotalInput.value = totalPriceValue.toFixed(2);
-      form.appendChild(discountedTotalInput);
+      document.getElementById('cancel-btn').addEventListener('click', function() {
+          // Hide the modal
+          const modal = document.getElementById('confirmation-modal');
+          modal.style.display = 'none';
+      });
   
-      document.body.appendChild(form);
-      form.submit();
+      document.getElementById('close-modal').addEventListener('click', function() {
+          // Hide the modal
+          const modal = document.getElementById('confirmation-modal');
+          modal.style.display = 'none';
+      });
   });
   
+  // Close the modal if the user clicks outside of it
+  window.onclick = function(event) {
+      const modal = document.getElementById('confirmation-modal');
+      if (event.target === modal) {
+          modal.style.display = 'none';
+      }
+  }
   
   
     
@@ -441,11 +586,12 @@
     .then(data => {
       // Log the response message to console or use it as needed
       console.log(data.message); // Example: "Items added to bucket successfully."
-  
+      displayMessage(data.message);
       // Display total weight received from server
       if (data.discount_percent !== null && data.discount_percent !== 0) {
         displayDiscount(data.discount_percent);
         displayWeight(data.total_weight);
+        
       } else {
         // Handle case where no discount is applicable
         
@@ -460,7 +606,7 @@
   }
      function displayDiscount(discountPercent) {
        const discountInfo = document.getElementById('discount-info');
-       discountInfo.innerHTML = `<strong>Discount:</strong> ${discountPercent}%`;
+       discountInfo.innerHTML = `<strong>Discount given:</strong> ${discountPercent}%`;
      }
    
      function displayMessage(message) {
@@ -476,9 +622,9 @@
 });
   
 </script>
-
   
 
 
+    
     {% endblock body %}
     
