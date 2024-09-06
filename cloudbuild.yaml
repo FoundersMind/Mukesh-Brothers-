@@ -1,20 +1,20 @@
 steps:
   # Build the Django application Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/mukeshbothers/core-web:latest', '.']  # '.' means the root directory
-    dir: './'  # Updated to the correct directory if needed
+    args: ['build', '-t', 'gcr.io/mukeshbothers/core-web-v2:latest', '.']
+    dir: './web'
 
   # Push the Django application Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/mukeshbothers/core-web:latest']
+    args: ['push', 'gcr.io/mukeshbothers/core-web-v2:latest']
 
   # Build the Nginx Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/mukeshbothers/core-nginx:latest', './nginx']
+    args: ['build', '-t', 'gcr.io/mukeshbothers/core-nginx-v2:latest', './nginx']
 
   # Push the Nginx Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/mukeshbothers/core-nginx:latest']
+    args: ['push', 'gcr.io/mukeshbothers/core-nginx-v2:latest']
 
   # Apply Kubernetes manifests to deploy the application
   - name: 'gcr.io/cloud-builders/kubectl'
@@ -26,7 +26,7 @@ steps:
       - 'CLOUDSDK_CORE_PROJECT=mukeshbothers'
 
 images:
-  - 'gcr.io/mukeshbothers/core-web:latest'
-  - 'gcr.io/mukeshbothers/core-nginx:latest'
+  - 'gcr.io/mukeshbothers/core-web-v2:latest'
+  - 'gcr.io/mukeshbothers/core-nginx-v2:latest'
 
 logsBucket: 'gs://finally_bucket'
