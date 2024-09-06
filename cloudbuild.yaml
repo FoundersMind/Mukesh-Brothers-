@@ -1,8 +1,8 @@
 steps:
   # Build the Django application Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/mukeshbothers/core-web:latest', '.']
-    dir: './web'
+    args: ['build', '-t', 'gcr.io/mukeshbothers/core-web:latest', '.']  # '.' means the root directory
+    dir: './'  # Updated to the correct directory if needed
 
   # Push the Django application Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
@@ -20,7 +20,7 @@ steps:
   - name: 'gcr.io/cloud-builders/kubectl'
     args: ['apply', '-f', 'deployment.yaml']
     env:
-      - 'CLOUDSDK_COMPUTE_REGION=us-central1' # Use a supported region for Cloud Build
+      - 'CLOUDSDK_COMPUTE_REGION=us-central1'
       - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
       - 'CLOUDSDK_CONTAINER_CLUSTER=mukesh'
       - 'CLOUDSDK_CORE_PROJECT=mukeshbothers'
