@@ -134,10 +134,11 @@
             <div class="col-md-3 sidebar">
                 <div class="profile-section">
                     <div class="profile-picture">
-                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}"{% static 'avatar-transformed.png' %}"{% endif %}" alt="Profile Picture">
+                        <img src="{% static 'avatar-transformed.png' %}" alt="Profile Picture">
                     </div>
                     <h3>{{ user.username }}</h3>
                 </div>
+                
                 <div class="list-group mt-3">
                     <a href="#" class="list-group-item list-group-item-action section-heading active-section" data-target="profile">Profile</a>
                     <a href="#" class="list-group-item list-group-item-action section-heading" data-target="coupon-section">My coupons</a>

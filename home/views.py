@@ -96,7 +96,7 @@ def index(request):
 
     
 def login_view(request):
-    return render(request,'Login.html')
+    return render(request,'login.html')
 
 def calculate_unit_price(subproduct_id, united):
     try:

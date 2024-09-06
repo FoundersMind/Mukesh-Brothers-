@@ -1,4 +1,9 @@
 
+/* static/style.css */
+.custom-site-logo {
+  width: 50px;
+  height: 50px;
+}
 
 header{
     width: 1263.33px;
@@ -1483,6 +1488,8 @@ list-style: none;
   font-size: 12px;
   font-weight: bold;
 }
+
+
 
 
 
