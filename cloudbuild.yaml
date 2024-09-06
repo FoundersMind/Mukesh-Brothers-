@@ -2,7 +2,7 @@ steps:
   # Build the Django application Docker image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/mukeshbothers/core-web-v2:latest', '.']
-    dir: './web'
+    dir: './'  # This points to the root directory where your Dockerfile is located
 
   # Push the Django application Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
@@ -11,6 +11,7 @@ steps:
   # Build the Nginx Docker image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/mukeshbothers/core-nginx-v2:latest', './nginx']
+    dir: './nginx'  # This points to the directory where your Dockerfile.nginx is located
 
   # Push the Nginx Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
