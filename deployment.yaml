@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: web-container
-        image: gcr.io/mukeshbothers/core-web:latest
+        image: gcr.io/mukeshbothers/core-web-v2:latest
         command: ["gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi:application"]
         ports:
         - containerPort: 8000
@@ -238,7 +238,7 @@ spec:
     spec:
       containers:
       - name: nginx-container
-        image: gcr.io/mukeshbothers/core-nginx:latest
+        image: gcr.io/mukeshbothers/core-nginx-v2:latest
         ports:
         - containerPort: 80
         volumeMounts:
