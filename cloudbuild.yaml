@@ -1,29 +1,29 @@
 steps:
-# Build the Django application Docker image
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/mukeshbothers/core-web:latest', '.']
-  dir: './web'
+  # Build the Django application Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/mukeshbothers/core-web:latest', '.']
+    dir: './web'
 
-# Push the Django application Docker image to Google Container Registry
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/mukeshbothers/core-web:latest']
+  # Push the Django application Docker image to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/mukeshbothers/core-web:latest']
 
-# Build the Nginx Docker image
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/mukeshbothers/core-nginx:latest', './nginx']
+  # Build the Nginx Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/mukeshbothers/core-nginx:latest', './nginx']
 
-# Push the Nginx Docker image to Google Container Registry
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/mukeshbothers/core-nginx:latest']
+  # Push the Nginx Docker image to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/mukeshbothers/core-nginx:latest']
 
-# Apply Kubernetes manifests to deploy the application
-- name: 'gcr.io/cloud-builders/kubectl'
-  args: ['apply', '-f', 'deployment.yaml']
-  env:
-    - 'CLOUDSDK_COMPUTE_REGION=asia-south1'
-    - 'CLOUDSDK_COMPUTE_ZONE=asia-south1-a'
-    - 'CLOUDSDK_CONTAINER_CLUSTER=mukesh'
-    - 'CLOUDSDK_CORE_PROJECT=mukeshbothers'
+  # Apply Kubernetes manifests to deploy the application
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'deployment.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=asia-south1'
+      - 'CLOUDSDK_COMPUTE_ZONE=asia-south1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=mukesh'
+      - 'CLOUDSDK_CORE_PROJECT=mukeshbothers'
 
 images:
   - 'gcr.io/mukeshbothers/core-web:latest'
@@ -31,4 +31,5 @@ images:
 
 options:
   logging:
-    logs_bucket: 'gs://finally_bucket'
+    # Use REGIONAL_USER_OWNED_BUCKET instead of specifying a bucket if you encounter issues
+    default_logs_bucket_behavior: 'REGIONAL_USER_OWNED_BUCKET'
