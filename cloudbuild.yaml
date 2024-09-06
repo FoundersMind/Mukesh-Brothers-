@@ -10,8 +10,8 @@ steps:
 
   # Build the Nginx Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/mukeshbothers/core-nginx-v2:latest', './nginx']
-    dir: './nginx'  # This points to the directory where your Dockerfile.nginx is located
+    args: ['build', '-t', 'gcr.io/mukeshbothers/core-nginx-v2:latest', '-f', 'nginx/dockerfile.nginx', 'nginx']
+    dir: './'  # This points to the root directory but Dockerfile is in 'nginx'
 
   # Push the Nginx Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
