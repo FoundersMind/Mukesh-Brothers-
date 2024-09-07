@@ -13,7 +13,7 @@ USE_X_FORWARDED_HOST = True
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
@@ -323,7 +323,7 @@ JAZZMIN_SETTINGS = {
     # Override change forms on a per modeladmin basis
     "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
     # Add a language dropdown into the admin
-    "language_chooser": False,
+    "language_chooser": True,
 }
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
