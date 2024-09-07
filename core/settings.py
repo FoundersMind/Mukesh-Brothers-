@@ -13,7 +13,7 @@ USE_X_FORWARDED_HOST = True
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
@@ -177,8 +177,6 @@ CASHFREE_APP_ID = config('CASHFREE_APP_ID')
 CASHFREE_SECRET_KEY = config('CASHFREE_SECRET_KEY')
 CASHFREE_URL = config('CASHFREE_URL')
 
-
-
 JAZZMIN_SETTINGS = {
     # Title of the window (Will default to current_admin_site.site_title if absent or None)
     "site_title": "Mukesh & Brothers Admin",
@@ -190,7 +188,7 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Mukesh & Brothers",
 
     # Logo to use for your site, must be present in static files, used for brand on top left
-   "site_logo": None,  # Just the path, not an HTML tag
+    "site_logo": None,  # Just the path, not an HTML tag
     "site_logo_classes": None,  # Apply custom CSS class
     "custom_css": None,  # Ensure your custom CSS is linked correctly
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
@@ -200,10 +198,8 @@ JAZZMIN_SETTINGS = {
     "login_logo_dark": None,
 
     # CSS classes that are applied to the logo above
-    
 
     # Path to custom CSS file in static files
-  
 
     # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
     "site_icon": None,
@@ -229,7 +225,6 @@ JAZZMIN_SETTINGS = {
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
         {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
         {"model": "auth.User"},
-        {"app": "books"},
     ],
 
     #############
@@ -259,15 +254,15 @@ JAZZMIN_SETTINGS = {
     "hide_models": [],
 
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
-    "order_with_respect_to": ["auth", "books", "books.author", "books.book"],
+    "order_with_respect_to": ["auth", "home"],  # Replace "books" with "home"
 
     # Custom links to append to app groups, keyed on app name
     "custom_links": {
-        "books": [{
+        "home": [{  # Replace "books" with "home"
             "name": "Make Messages", 
             "url": "make_messages", 
             "icon": "fas fa-comments",
-            "permissions": ["books.view_book"]
+            "permissions": ["home.view_order"]  # Update permissions as necessary
         }]
     },
 
@@ -276,6 +271,24 @@ JAZZMIN_SETTINGS = {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
+        "home.Product": "fas fa-box",
+        "home.subproduct": "fas fa-boxes",
+        "home.inventory": "fas fa-warehouse",
+        "home.Unit": "fas fa-ruler",
+        "home.SpecialProduct": "fas fa-star",
+        "home.Cart": "fas fa-shopping-cart",
+        "home.CartItem": "fas fa-cart-arrow-down",
+        "home.customer": "fas fa-user",
+        "home.Coupon": "fas fa-percent",
+        "home.Bucket": "fas fa-box-open",
+        "home.GSTDiscount": "fas fa-tag",
+        "home.VideoRequest": "fas fa-video",
+        "home.Order": "fas fa-receipt",
+        "home.OrderItem": "fas fa-file-invoice",
+        "home.OwnerDetails": "fas fa-info-circle",
+        "home.Invoice": "fas fa-file-invoice-dollar",
+        "home.Address": "fas fa-map-marker-alt",
+        "home.EmailLog": "fas fa-envelope",
     },
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
@@ -312,3 +325,5 @@ JAZZMIN_SETTINGS = {
     # Add a language dropdown into the admin
     "language_chooser": False,
 }
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
