@@ -159,9 +159,8 @@ def check_quantity(request):
 
 from django.http import JsonResponse
 
-
-@login_required
 @require_POST
+@login_required
 def add_to_cart(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         subproduct_id = request.POST.get('subproduct_id')
@@ -681,6 +680,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import Coupon
 from django.utils import timezone
+@login_required
 def apply_coupon(request):
     if request.method == 'POST':
         # Reset coupon-related session variables if not already set
@@ -1132,6 +1132,7 @@ def clear_cart(request):
         return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=400)
     
 @require_POST
+@login_required
 def add_to_bucket(request):
     try:
         data = json.loads(request.body)
@@ -1221,6 +1222,7 @@ from .models import Order, OrderItem, subproduct
 from num2words import num2words  # Import the num2words library
 from .models import Order, OrderItem, subproduct,EmailLog
 @csrf_exempt
+@login_required
 def submit_order(request):
     if request.method == 'POST':
         # Extract form data
@@ -1781,7 +1783,7 @@ from django.shortcuts import get_object_or_404, render
 from django.core.files.base import ContentFile
 from .models import Order, OrderItem, Invoice, OwnerDetails
 
-
+@login_required
 def view_invoice(request, custom_order_id):
     order = get_object_or_404(Order, custom_order_id=custom_order_id)
     order_items = OrderItem.objects.filter(order=order)

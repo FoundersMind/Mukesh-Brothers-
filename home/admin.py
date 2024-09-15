@@ -9,7 +9,7 @@ class UnitInline(admin.TabularInline):
     model = Unit
     extra = 0
     fields = ('unit', 'unit_price', 'quantity')
-    readonly_fields = ('unit_price', 'quantity')
+   
 
 class SubproductAdmin(admin.ModelAdmin):
     TAG_CHOICES = [
