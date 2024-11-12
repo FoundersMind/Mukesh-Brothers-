@@ -16,7 +16,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
-SITE_URL = 'http://localhost:8000'  # Change this to your actual site URL
+
 INSTALLED_APPS = [
     'jazzmin',
     'home.apps.HomeConfig',
