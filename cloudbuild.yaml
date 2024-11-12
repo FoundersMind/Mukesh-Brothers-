@@ -23,7 +23,7 @@ steps:
     env:
       - 'CLOUDSDK_COMPUTE_REGION=asia-south1-a'
       - 'CLOUDSDK_COMPUTE_ZONE=asia-south1-a'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=mukesh'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=naman'
       - 'CLOUDSDK_CORE_PROJECT=mukeshbothers'
 
 images:
