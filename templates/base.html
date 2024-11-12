@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,11 +20,8 @@
 
 <body>
   <style>
+   
     
-    .bold-and-animated {
-      font-weight: bold;
-      animation: pulse 1s infinite;
-  }
   @media screen and (max-width: 1366px) and (min-width: 770px) {
   .search {
     display: flex;
@@ -276,7 +274,12 @@
         justify-content: center; /* Center text horizontally */
     }
   </style>
- 
+ <!-- Welcome Screen Modal -->
+
+
+
+
+
   <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container-fluid">
         <div class="header">
@@ -289,96 +292,93 @@
             <span class="since">Since1992</span>
             
             <div class="search mx-auto">
-              <form action="{% url 'search_results' %}" method="get" id="search-form" class="d-flex" style="width:100%;display:None;border:None;">
-                  <select name="search_type" id="search-type" class="form-select me-2" aria-label="Search Type"style="width: 120px;">
-                      <option value="product" class="bold-and-animated">Category</option>
-                      <option value="subproduct" class="bold-and-animated">Product</option>
-                  </select>
-                  <input type="text" name="q" id="search-input" class="form-control me-2" placeholder="Search for Category or Products" autocomplete="off">
-                  <button type="submit">
-                      <i class="fa-solid fa-magnifying-glass" style="font-size: 19px; margin-top:15px; margin-right:9px;"></i>
-                  </button>
-             
-          
-              <!-- Recent Searches Section -->
-              <div class="recent_search">
-                  <h6 class="mt-3 mb-2">Recent Searches:</h6>
+                <form action="{% url 'search_results' %}" method="get" id="search-form" class="d-flex" style="width:100%;display:None;border:None;">
+                    <select name="search_type" id="search-type" class="form-select me-2" aria-label="Search Type" style="width: 120px;">
+                        <option value="product" class="bold-and-animated">Category</option>
+                        <option value="subproduct" class="bold-and-animated">Product</option>
+                    </select>
+                    <input type="text" name="q" id="search-input" class="form-control me-2" placeholder="Search for Category or Products" autocomplete="off">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass" style="font-size: 19px; margin-top:15px; margin-right:9px;"></i>
+                    </button>
+                    
+                    <!-- Recent Searches Section -->
+                    <div class="recent_search">
+                        <h6 class="mt-3 mb-2">Recent Searches:</h6>
                   <div class="list-group" id="recent-searches">
                       <!-- Recent searches will be populated dynamically using JavaScript -->
                   </div>
-                  <div class="scrolling-list">
+                        <div class="scrolling-list">
                       <!-- Scrolling list content goes here -->
                       <div class="scrolling-content">
                           <!-- Content to scroll through, dynamically populated -->
                       </div>
                   </div>
-              </div>
-          </div>
-        </form> 
-      
-        
-        <ul class="navbar-nav1">
-          <li class="nav-items">
-              <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-links"> 
-                  <i class="fa fa-shopping-cart"></i> 
-              </a>
-          </li>
-      
-          <li class="nav-items">
-              <button class="loginbutton"> 
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Language Toggle Button -->
+                <button id="toggleLanguage" class="btn btn-outline-secondary" style="margin-left: 10px;">Switch to Hindi</button>
+                
+                <ul class="navbar-nav1">
+                    <li class="nav-items">
+                        <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-links"> 
+                            <i class="fa fa-shopping-cart"></i> 
+                        </a>
+                    </li>
+                    <li class="nav-items">
+                        <button class="loginbutton"> 
                   <a href="/Login" class="nav-links">
                       login
                   </a> 
-              </button> 
-          </li>
-      </ul>
-      
-      <ul class="navbar-nav2 ml-auto" style="margin-top:20px;">
-          {% if user.is_authenticated %}
-              <li class="dropdown nav-item1">
-                  <a href="#" id="profileDropdown" role="button" aria-haspopup="true" aria-expanded="false" class="nav-link1">
-                      <i class="fas fa-user"></i>
-                      <span>Profile</span>
-                  </a>
-                  <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-                      <li><a href="{% url 'account' %}"><i class="fas fa-user"></i> My Account ({{ user.username }})</a></li>
-                      <li><a href="/my_orders"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
-                      <li><a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                  </ul>
-              </li>
-          {% else %}
-              <li class="nav-item1">
-                  <a href="/Login" class="nav-link1"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
-              </li>
-          {% endif %}
-      
-          <!-- Other list items with similar properties -->
-          {% block cart %}
-          <li class="nav-item1">
-              <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-link1 position-relative">
-                  <i class="fa fa-shopping-cart"></i>
-                  <span id="cart-count" class="cart-count-badge"></span> 
-                  <span>Cart</span>
-              </a>
-          </li>
-          {% endblock cart %}
-      
-          <li class="nav-item1 active"> <!-- Added nav-item1 class -->
-              <a href="/" class="nav-link1">
-                  <img src="{% static 'home.png' %}" alt="Home Icon" style="width:20.25px;height:18px;">
-                  <span>Home</span>
-              </a>
-          </li>
-      
-          <!-- New Contact Us item -->
-          <li class="nav-item1">
-              <a href="/contact" class="nav-link1">
-                  <i class="fas fa-address-book"></i> <!-- Add an icon for Contact Us -->
-                  <span>Contact</span>
-              </a>
-          </li>
-      </ul>
-      
+                        </button> 
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav2 ml-auto" style="margin-top:20px;">
+                    {% if user.is_authenticated %}
+                        <li class="dropdown nav-item1">
+                            <a href="#" id="profileDropdown" role="button" aria-haspopup="true" aria-expanded="false" class="nav-link1">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                                <li><a href="{% url 'account' %}"><i class="fas fa-user"></i> My Account ({{ user.username }})</a></li>
+                                <li><a href="/my_orders"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
+                                <li><a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item1">
+                            <a href="/Login" class="nav-link1"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
+                        </li>
+                    {% endif %}
+                    
+                    {% block cart %}
+                    <li class="nav-item1">
+                        <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-link1 position-relative">
+                            <i class="fa fa-shopping-cart"></i>
+                            <span id="cart-count" class="cart-count-badge"></span> 
+                            <span>Cart</span>
+                        </a>
+                    </li>
+                    {% endblock cart %}
+                    
+                    <li class="nav-item1 active">
+                        <a href="/" class="nav-link1">
+                            <img src="{% static 'home.png' %}" alt="Home Icon" style="width:20.25px;height:18px;">
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item1">
+                        <a href="/contact" class="nav-link1">
+                            <i class="fas fa-address-book"></i>
+                            <span>Contact</span>
+                        </a>
+                    </li>
+                </ul>
 
 
 
@@ -451,6 +451,14 @@
 
 {% endblock content %}
 <script>
+ 
+    // Modal Control
+    
+      // Show modal with animation on page load
+     
+    
+
+  
   // -*- coding: utf-8 -*-
 // Function to make AJAX request for translating the entire page to Hindi
 

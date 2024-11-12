@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+</head>
+
+{% block body %}
+<style>
+
+
+/* Chatbot Container */
+.chatbot-container {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  max-width: 800px;
+  background-color: #333;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Navbar Section */
+.chatbot-navbar, .chatbot-sub-navbar {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #444;
+}
+
+.chatbot-navbar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.chatbot-navbar h3, .chatbot-sub-navbar button {
+  color: white;
+  margin: 0 10px;
+}
+
+.chatbot-sub-navbar button {
+  background-color: #666;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.chatbot-sub-navbar button:hover {
+  background-color: #888;
+}
+
+/* Main Chat Interface */
+.chatbot-main {
+  display: flex;
+  height: 400px;
+  background-color: #555;
+}
+
+/* Left Side for Prompts */
+.chatbot-left {
+  flex: 1;
+  background-color: #444;
+  color: #ffffff;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Right Side for Chatbot Prompt Options */
+.chatbot-right {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Prompt List */
+.chatbot-prompts-list {
+  list-style: none;
+  padding: 0;
+}
+
+.chatbot-prompt-item {
+  padding: 10px;
+  background-color: #666;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.chatbot-prompt-item:hover {
+  background-color: #888;
+}
+
+/* Welcome Screen */
+.welcome-screen {
+  text-align: center;
+  color: white;
+}
+
+.start-button {
+  background-color: #444;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.start-button:hover {
+  background-color: #555;
+}
+</style>
+
+<!-- Welcome Screen -->
+<div id="welcome-screen" class="welcome-screen">
+  <h1>Mukesh & Brothers</h1>
+  <p>Enter your name to start chatting</p>
+  <input type="text" id="user-name" placeholder="Your name" />
+  <button class="start-button" onclick="startChat()">Start</button>
+</div>
+
+<!-- Main Chatbot Interface -->
+<div id="chatbot-interface" class="container-fluid" style="display: none;justify-content: center;
+  align-items: center;
+  background: black;
+  padding: 20px; ">
+  <div class="chatbot-container">
+    <!-- Navbar with Chatbot's Photo and Name -->
+    <div class="chatbot-navbar">
+      <img src="{% static 'chatbot.png' %}" alt="Chatbot Photo" />
+      <h3>Chatbot Name</h3>
+    </div>
+
+    <!-- Sub Navbar with Mute, Clear, and Exit Options -->
+    <div class="chatbot-sub-navbar">
+      <button onclick="toggleVoice()">Mute/Unmute Chat</button>
+      <button onclick="clearChat()">Clear Chat</button>
+      <button onclick="exitChat()">Exit Chat</button>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <div class="chatbot-main">
+      <!-- Left Side: Chatbot Prompts/Responses -->
+      <div class="chatbot-left" id="chatbot-output">
+        <!-- Chatbot's Automatic Greeting -->
+        <p id="greeting">Jai Jinendra, <span id="user-greeting"></span>! What can I do for you?</p>
+      </div>
+
+      <!-- Right Side: Prompt Options and Text Input -->
+      <div class="chatbot-right">
+        <ul class="chatbot-prompts-list" id="predefined-prompts">
+          <li class="chatbot-prompt-item" onclick="sendPrompt('How can I help you?')">How can I help you?</li>
+          <li class="chatbot-prompt-item" onclick="sendPrompt('Tell me a joke!')">Tell me a joke!</li>
+          <li class="chatbot-prompt-item" onclick="sendPrompt('What is the weather?')">What is the weather?</li>
+          <li class="chatbot-prompt-item" onclick="sendPrompt('Tell me about your features.')">Tell me about your features.</li>
+        </ul>
+        <input type="text" id="user-input" placeholder="Type your message here..." onkeypress="handleKeyPress(event)" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function startChat() {
+    const name = document.getElementById('user-name').value;
+    if (name.trim() !== "") {
+      document.getElementById('user-greeting').innerText = name;
+      document.getElementById('welcome-screen').style.display = 'none';
+      document.getElementById('chatbot-interface').style.display = 'flex';
+    }
+  }
+
+  function sendPrompt(prompt) {
+    let response = `Chatbot response to: "${prompt}"`;
+    document.getElementById('chatbot-output').innerHTML += `<p>${response}</p>`;
+  }
+
+  function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+      const userInput = document.getElementById('user-input').value;
+      document.getElementById('chatbot-output').innerHTML += `<p>User: ${userInput}</p>`;
+      document.getElementById('user-input').value = '';
+    }
+  }
+
+  function toggleVoice() {
+    alert("Voice toggled (mute/unmute).");
+  }
+
+  function clearChat() {
+    document.getElementById('chatbot-output').innerHTML = `<p>Chatbot will respond here...</p>`;
+  }
+
+  function exitChat() {
+    window.history.back();
+  }
+</script>
+
+{% endblock body %}
+
+{% block footer %}
+{% endblock footer %}

@@ -1,0 +1,22 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+  {{ block.super }} <!-- This renders the default buttons (Add, etc.) -->
+
+  <div class="object-tools">
+    <ul class="object-tools-items">
+      <!-- Assuming `cl` is your ChangeList object containing the queryset -->
+      {% for obj in cl.result_list %}
+        <li>
+          <form method="POST" action="{% url 'generate_qr_code' model_name='product' pk=obj.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="button">Generate QR Code</button>
+          </form>
+        </li>
+        <li>
+          <a href="{% url 'scan_qr_code' %}?model_name=product&pk={{ obj.id }}" class="button">Scan QR Code</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

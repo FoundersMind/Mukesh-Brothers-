@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 {% block body %}
 
@@ -11,7 +12,15 @@
 
 </head>
     <style>
-      
+      #chatbotIcon {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        cursor: pointer;
+        width: 50px;
+        height: 50px;
+        z-index: 1050;
+    }
       @media screen and (max-width: 1366px) and (min-width: 770px) {
         .product-card img {
           width: 100%;
@@ -317,6 +326,15 @@
       }
 
   </style>
+
+
+<!-- Chatbot Icon -->
+<div id="chatbotIcon" style="position: fixed; bottom: 20px; right: 20px; cursor: pointer;">
+  <a href="{% url 'chatbot' %}">
+    <img src="{% static 'chatbot.png' %}" alt="Chatbot Icon" style="width: 50px; height: 50px;">
+  </a>
+</div>
+  
   <div class="countdown-timer">
     <span class="moving-text">Sale ends in:
       <span id="timer"></span>
@@ -485,7 +503,6 @@
     document.addEventListener("DOMContentLoaded", function() {
      
      
-
       {% comment %} const colors = ['#FFDDC1', '#FEC8D8', '#D4A5A5', '#E7D3D3', '#D5E1DF', '#E2F0CB', '#FFDAC1', '#FF9AA2', '#B5EAD7', '#C7CEEA'];
       const cards = document.querySelectorAll('.product-card');
   
@@ -851,4 +868,5 @@ $(document).ready(function() {
   </script>
   
 {% endblock %} 
+
 

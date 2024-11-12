@@ -270,7 +270,8 @@
     </head>
 
     <body>
-
+        {% block chatbot %}
+        {% endblock chatbot %}
        <div class="invoice-wrapper" id="print-area">
     <div class="invoice">
         <div class="invoice-container">
@@ -329,6 +330,7 @@
                             <li>{{ order.billing_address }}</li>
                             <li>{{ order.billing_city }}, {{ order.billing_state }} {{ order.billing_zipcode }}</li>
                             <li>{{ order.billing_country }}</li>
+                            <li class="text-bold">Email </li>
                             <li>{{ order.email }}</li>
                         </ul>
                     </div>
@@ -336,7 +338,7 @@
             </div>
     
             <div class="hr"></div>
-    
+
             <div class="overflow-view">
                 <div class="invoice-body">
                     <table>
@@ -346,7 +348,12 @@
                                 <td class="text-bold">Unit</td>
                                 <td class="text-bold">Rate</td>
                                 <td class="text-bold">QTY</td>
-                                <td class="text-bold">Amount</td>
+                                <td class="text-bold">Unit Quantity</td> <!-- Unit Quantity Column -->
+                                <td class="text-bold">GST Rate</td> <!-- GST Rate -->
+                                <td class="text-bold">Taxable Value</td> <!-- Price Before 5% Discount -->
+                                <td class="text-bold">Amount
+                                    <span style="font-size: small; font-weight: normal;">(incl. of Tax)</span>
+                                </td> <!-- Total Price Column -->
                             </tr>
                         </thead>
                         <tbody>
@@ -356,49 +363,71 @@
                                 <td>{{ item.unit }}</td>
                                 <td>{{ item.unit_price }}</td>
                                 <td>{{ item.quantity }}</td>
-                                <td class="text-end">{{ item.total_price }}</td>
+                                
+                                <td>
+                                    <!-- Display the unit quantity of the item -->
+                                    {{ item.unit_quantity }} kg
+                                </td> <!-- Displaying the unit_quantity -->
+            
+                                <td>
+                                    <!-- Display the GST Rate for the item -->
+                                {{item.gst_rate}}%
+                                </td> <!-- Displaying GST Rate -->
+            
+                                
+                                <td>
+                                    <!-- Display price before applying the 5% discount -->
+                                    {{ item.price_before_gst }}
+                                </td> <!-- Displaying Price Before Discount -->
+                                
+                                <td class="text-end">{{ item.total_price }}</td> <!-- Displaying total price for the item -->
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-    
+            
                     <div class="invoice-body-bottom">
+                        <!-- Display the total unit quantity for the entire order -->
                         <div class="invoice-body-info-item border-bottom d-flex justify-content-between">
                             <div class="info-item-td text-start text-bold">
                                 Total Items: {{ order.total_items }}
                             </div>
-                            <div class="info-item-td text-end text-bold">
-                                Total: {{ order.total_price }}
+                            <div class="info-item-td text-start text-bold">
+                                Total Quantity: {{ order.total_unit_quantity }} kg
                             </div>
                         </div>
-                        
-                    
-                    
+            
+                        <div class="info-item-td text-end text-bold">
+                            Total: {{ order.total_price }}
+                        </div>
+            
                         {% if order.bucket_discount %}
                         <div class="invoice-body-info-item border-bottom">
                             <div class="info-item-td text-end text-bold">Bucket Discount:</div>
                             <div class="info-item-td text-end">{{ order.bucket_discount }}</div>
                         </div>
                         {% endif %}
+                        
                         {% if order.coupon_discount %}
                         <div class="invoice-body-info-item border-bottom">
                             <div class="info-item-td text-end text-bold">Coupon Discount:</div>
                             <div class="info-item-td text-end">- {{ order.coupon_discount }}</div>
                         </div>
                         {% endif %}
+            
                         <div class="invoice-body-info-item border-bottom">
                             <div class="info-item-td text-end text-bold">Tax:</div>
                             <div class="info-item-td text-end">{{ order.tax }}</div>
                         </div>
+            
                         <div class="invoice-body-info-item border-bottom">
                             <div class="info-item-td text-end text-bold">Sub Total:</div>
-                            <div class="info-item-td text-end text-bold">{{ order.final_total_amount }}(E. & O.E) </div>
-                           
+                            <div class="info-item-td text-end text-bold">{{ order.final_total_amount }} (E. & O.E)</div>
                         </div>
-                       
                     </div>
                 </div>
             </div>
+            
     
             <p><strong>Amount Chargeable (in words):</strong> <strong>{{ order.amount_in_words|capfirst }} only</strong></p>
     

@@ -15,6 +15,7 @@ from .converters import FloatConverter
 register_converter(FloatConverter, 'float')
 urlpatterns = [
     path('', views.index, name='home'),
+    path('chatbot/', views.chatbot_view, name='chatbot'),  # Add this line
     path('submit-video-request/', views.submit_video_request, name='submit_video_request'),
     path('invoice/<str:custom_order_id>/', views.view_invoice, name='view_invoice'),
     path('delete_address/<int:address_id>/', views.delete_address, name='delete_address'),
@@ -29,7 +30,7 @@ urlpatterns = [
     path('create_cashfree_session/<str:order_id>/', views.create_cashfree_session, name='create_cashfree_session'),
     path('cashfree_callback/', views.cashfree_callback, name='cashfree_callback'),
     path('order_confirmed/<str:order_id>/', views.order_confirmed, name='order_confirmed'),
-     path('order_confirmed_view/<str:order_id>/', views.order_confirmed_view, name='order_confirmed_view'),
+    path('order_confirmed_view/<str:order_id>/', views.order_confirmed_view, name='order_confirmed_view'),
     path('clear_order_confirmed_flag/', views.clear_order_confirmed_flag, name='clear_order_confirmed_flag'),
     path('my_orders/', views.my_orders, name='my_orders'),
     path('Login/', views.login_view, name='Login'),
@@ -60,7 +61,9 @@ urlpatterns = [
     path('get_products/', views.get_products, name='get_products'),
     path('get_subproducts/', views.get_subproducts, name='get_subproducts'),
     path('contact/', views.contact_us, name='contact_us'),
-    
+    path('translate/', views.translate_text, name='translate_text'),
+    path('generate-qr/<str:model_name>/<int:pk>/', views.generate_qr_code, name='generate_qr_code'),
+    path('scan-qr/', views.scan_qr_code, name='scan_qr_code'),
 
 ]
 

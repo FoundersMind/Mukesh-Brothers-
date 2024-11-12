@@ -1,57 +1,191 @@
 <head>
     <meta charset="utf-8">
+    <style>
+        /* Container Styles */
+        .products-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            justify-items: center;
+            padding: 2rem;
+        }
+
+        /* Card Styles */
+        .product-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+            max-width: 220px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hover effect */
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Product Image Styles */
+        .product-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        /* Card Body Styles */
+        .card-body {
+            padding: 10px;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+
+        /* Rating Styles */
+        .product-rating {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .star {
+            color: gold;
+            font-size: 1.2rem;
+        }
+
+        /* Add to Wishlist Button */
+        .wishlist-button {
+            background-color: transparent;
+            border: 2px solid #007bff;
+            color: #007bff;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .wishlist-button:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<div class="products-container">
-    {% for product in products %}
-        <div class="card product-card">
-            <a href="#{{ product.id }}" class="product-link">
+
+<body>
+    <div class="products-container">
+        {% for product in products %}
+            <div class="product-card" data-product-id="{{ product.id }}">
                 <img src="{{ product.image.url }}" alt="{{ product.name }}">
-            </a>
-            <div class="card-body">
-                <h5 class="card-title">{{ product.name }}</h5>
-            </div>
-        </div>
-        <!-- Create a container for the subproducts associated with this product -->
-        <div class="subproducts-container" id="{{ product.id }}">
-            {% for subproduct in product.subproduct_set.all %}
-                <div class="card subproduct-card">
-                    <img src="{{ subproduct.image.url }}" alt="{{ subproduct.name }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ subproduct.name }}</h5>
-                        <h4 class="card-title">{{ subproduct.price }}</h4>
+                <div class="card-body">
+                    <h5>{{ product.name }}</h5>
+                    <div class="product-rating">
+                        {% for i in range(product.rating) %}
+                            <span class="star">★</span>
+                        {% endfor %}
+                        {% for i in range(5 - product.rating) %}
+                            <span class="star">☆</span> <!-- Empty stars for rating -->
+                        {% endfor %}
                     </div>
+                    <p>Price:{{ product.price }}</p>
+                    <button class="wishlist-button">Add to Wishlist</button>
                 </div>
-            {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Modal for Quick View -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title"></h2>
+            <img id="modal-image" src="" alt="" style="width: 100%;">
+            <p id="modal-description"></p>
+            <button class="wishlist-button" id="modal-wishlist">Add to Wishlist</button>
         </div>
-    {% endfor %}
-</div>
+    </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Get all product links and subproduct containers
-    const productLinks = document.querySelectorAll(".product-link");
-    const subproductContainers = document.querySelectorAll(".subproducts-container");
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const productCards = document.querySelectorAll('.product-card');
+            const modal = document.getElementById("myModal");
+            const modalTitle = document.getElementById("modal-title");
+            const modalImage = document.getElementById("modal-image");
+            const modalDescription = document.getElementById("modal-description");
+            const modalClose = document.getElementsByClassName("close")[0];
 
-    // Hide all subproduct containers initially
-    subproductContainers.forEach(container => {
-        container.style.display = "none";
-    });
+            // Open modal on card click
+            productCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-product-id');
+                    // Fetch product details (mockup data)
+                    modalTitle.textContent = this.querySelector('h5').textContent; // Product name
+                    modalImage.src = this.querySelector('img').src; // Product image
+                    modalDescription.textContent = "Details about the product with ID: " + productId; // Mockup description
+                    modal.style.display = "block"; // Show modal
+                });
+            });
 
-    // Add click event listeners to product links
-    productLinks.forEach(link => {
-        link.addEventListener("click", function(event) {
-            event.preventDefault();
-            const productId = this.getAttribute("href").substring(1);
-            const targetContainer = document.getElementById(productId);
-            
-            // Toggle the visibility of the associated subproduct container
-            if (targetContainer.style.display === "none") {
-                targetContainer.style.display = "block";
-            } else {
-                targetContainer.style.display = "none";
+            // Close modal
+            modalClose.onclick = function() {
+                modal.style.display = "none";
             }
-        });
-    });
-});
-</script>
 
+            // Close modal on click outside of modal
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            // Add to Wishlist Functionality
+            const wishlistButtons = document.querySelectorAll('.wishlist-button');
+            wishlistButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.stopPropagation(); // Prevent triggering the modal
+                    alert("Item added to wishlist!");
+                });
+            });
+        });
+    </script>
+</body>

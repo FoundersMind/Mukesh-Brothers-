@@ -16,7 +16,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
-
+SITE_URL = 'http://localhost:8000'  # Change this to your actual site URL
 INSTALLED_APPS = [
     'jazzmin',
     'home.apps.HomeConfig',
@@ -80,7 +80,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('redis', 6379)],
+            "hosts": [('redis', 64921)],
         },
     },
 }
@@ -148,6 +148,7 @@ LOGIN_REDIRECT_URL = 'Home'
 LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = 'login'
 CSRF_TRUSTED_ORIGINS = ['https://mukesh-brothers.com']
+
 # Social Auth (Google OAuth2) settings
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')

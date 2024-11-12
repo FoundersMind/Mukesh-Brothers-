@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan QR Code</title>
+</head>
+<body>
+    <h1>Scan QR Code</h1>
+
+    <!-- Include a form that posts the scanned QR code data -->
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="qr_data" placeholder="Scanned QR code data" id="qr_data">
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- QR scanning script (you can use any JS QR code scanner library) -->
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <div id="qr-reader" style="width:500px;"></div>
+
+    <script>
+        // Initialize QR reader
+        const qrReader = new Html5Qrcode("qr-reader");
+        
+        qrReader.start(
+            { facingMode: "environment" },  // Rear camera
+            {
+                fps: 10,  // Frames per second
+                qrbox: { width: 250, height: 250 }  // Scanning box
+            },
+            (decodedText, decodedResult) => {
+                // Handle the decoded QR code (URL)
+                document.getElementById('qr_data').value = decodedText;
+            }
+        ).catch((err) => {
+            console.log(err);
+        });
+    </script>
+</body>
+</html>

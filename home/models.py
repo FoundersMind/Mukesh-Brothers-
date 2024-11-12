@@ -19,6 +19,14 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 import uuid
 
+import qrcode
+from django.conf import settings
+from django.templatetags.static import static
+from django.db import models
+from io import BytesIO
+from django.core.files import File
+from PIL import Image
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     image = models.ImageField(upload_to='product_images', null=True, blank=True)
@@ -32,9 +40,23 @@ class Product(models.Model):
         blank=True,
         default=''
     )
+    qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)  # QR code field
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        # Generate QR code pointing to the product's admin page
+        product_url = f"{settings.SITE_URL}/admin/app_name/product/{self.id}/change/"
+        qr = qrcode.make(product_url)
+
+        # Save QR code image to ImageField
+        qr_image = BytesIO()
+        qr.save(qr_image, format="PNG")
+        qr_image.seek(0)
+        self.qr_code.save(f"product_{self.id}_qr.png", File(qr_image), save=False)
+
+        super().save(*args, **kwargs)  # Call the real save() method
 
 class Coupon(models.Model):
     code = models.CharField(max_length=20, unique=True)
@@ -61,9 +83,9 @@ class subproduct(models.Model):
         ('', 'None'),
         ('new', 'New'),
         ('best_seller', 'Best Seller'),
-        ('combo', 'Combo')  # Added combo/bundle option
+        ('combo', 'Combo')
     ]
-    
+
     name = models.CharField(max_length=200)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     image = models.ImageField(upload_to='product_images', null=True, blank=True)
@@ -75,8 +97,27 @@ class subproduct(models.Model):
         default=''
     )
     bucket = models.ForeignKey('Bucket', on_delete=models.CASCADE, null=True, blank=True)
+    qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)  # QR code field
+
+    # New gst_rate field with default value 5%
+    gst_rate = models.DecimalField(max_digits=5, decimal_places=2, default=5.00)  # Default GST 5%
+
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        # Generate QR code pointing to the subproduct's admin page
+        subproduct_url = f"{settings.SITE_URL}/admin/app_name/subproduct/{self.id}/change/"
+        qr = qrcode.make(subproduct_url)
+
+        # Save QR code image to ImageField
+        qr_image = BytesIO()
+        qr.save(qr_image, format="PNG")
+        qr_image.seek(0)
+        self.qr_code.save(f"subproduct_{self.id}_qr.png", File(qr_image), save=False)
+
+        super().save(*args, **kwargs)  # Call the real save() method
+
 
 class Unit(models.Model):
     Subproduct = models.ForeignKey(subproduct, on_delete=models.CASCADE, null=True, blank=True)
@@ -344,7 +385,7 @@ class Order(models.Model):
         ('placed', 'Placed'),
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
-        ('cancelled', 'Cancelled'),  # Added cancelled status
+        ('cancelled', 'Cancelled'),
     ]
     PAYMENT_CHOICES = [
         ('cash', 'Cash'),
@@ -378,11 +419,12 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     unit = models.CharField(max_length=50, blank=True, null=True)
     custom_order_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    amount_in_words = models.CharField(max_length=255, blank=True)  # New field for amount in words
+    amount_in_words = models.CharField(max_length=255, blank=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     invoice_number = models.CharField(max_length=50, blank=True, null=True)
     invoice = models.OneToOneField(Invoice, on_delete=models.CASCADE, null=True, blank=True, related_name='order_related')
     total_items = models.PositiveIntegerField(default=0)
+    total_unit_quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # New field for total quantity
     placed_at = models.DateTimeField(null=True, blank=True)
     shipped_at = models.DateTimeField(null=True, blank=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
@@ -403,7 +445,7 @@ class Order(models.Model):
                 payment_prefix += {'normal': 'N', 'credit': 'C'}.get(self.cash_payment_type, 'X')
             
             self.custom_order_id = f"{payment_prefix}{date_str}{random_number}"
-        
+
         # Update the amount in words before saving
         if not self.amount_in_words:
             self.amount_in_words = self.convert_amount_to_words(self.final_total_amount)
@@ -427,6 +469,7 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.custom_order_id} by {self.first_name} {self.last_name}"
 
+
 from django.db import models
 
 class EmailLog(models.Model):
@@ -446,9 +489,14 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.URLField(max_length=200, blank=True, null=True)  # Add field for image URL
+    unit_quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Field for unit quantity in kg
+    price_before_gst = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # New field for price before GST
+    gst_rate = models.DecimalField(max_digits=5, decimal_places=2, default=5.00)  # Default GST 5%
 
     def __str__(self):
         return f"Item {self.product.name} for Order {self.order.id}"
+
+
     
 from django.db import models
 from django.core.validators import RegexValidator, MinLengthValidator

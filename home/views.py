@@ -53,6 +53,7 @@ def logout_view(request):
     return redirect('home')  # Replace 'home' with the name of your homepage URL or login page URL
 
 
+from decimal import Decimal, ROUND_DOWN
 
 def index(request):
     products = Product.objects.all()
@@ -66,10 +67,10 @@ def index(request):
         prices = [unit.unit_price for unit in units if unit.unit_price is not None]
         
         if prices:
-            max_price = max(prices)
-            min_price = max_price * Decimal('0.95')  # Convert the float value to a Decimal object
+            max_price = max(prices).quantize(Decimal('0.01'), rounding=ROUND_DOWN)  # Limit to 2 decimal places
+            min_price = (max_price * Decimal('0.95')).quantize(Decimal('0.01'), rounding=ROUND_DOWN)  # Limit to 2 decimal places
         else:
-            min_price = max_price = 0  # Or any other default values you prefer
+            min_price = max_price = Decimal('0.00')  # Set default to 0.00
         
         special_data.append({
             'special_product': special_product,
@@ -91,7 +92,6 @@ def index(request):
         'buckets': buckets,  # Pass buckets to the template context
     }
     return render(request, 'index.html', context)
-
 
 
     
@@ -1783,33 +1783,93 @@ from django.shortcuts import get_object_or_404, render
 from django.core.files.base import ContentFile
 from .models import Order, OrderItem, Invoice, OwnerDetails
 
+import re
+import re  # Ensure regex is imported
+from django.shortcuts import get_object_or_404
+from django.core.files.base import ContentFile
+
+from decimal import Decimal, ROUND_DOWN
+import re
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from .models import Order, OrderItem, Invoice, OwnerDetails
+
+
 @login_required
 def view_invoice(request, custom_order_id):
+    # Fetch the order and its associated items
     order = get_object_or_404(Order, custom_order_id=custom_order_id)
     order_items = OrderItem.objects.filter(order=order)
+
+    total_unit_quantity = 0  # Initialize total unit quantity
+
+    for item in order_items:
+        print(f"Processing item with unit: {item.unit}")
+        
+        # Match unit value and type, allowing for optional spaces
+        match = re.match(r"(\d+)\s*(Grams|Kilogram)", item.unit.strip())
+        
+        if match:
+            unit_value = int(match.group(1))
+            unit_type = match.group(2)
+            print(f"Match found: {match.groups()}")
+
+            # Convert to kilograms
+            unit_in_kg = unit_value / 1000 if unit_type == "Grams" else unit_value
+            item.unit_quantity = unit_in_kg * item.quantity
+            total_unit_quantity += item.unit_quantity
+        else:
+            print(f"No match for unit: {item.unit}")
+
+        # Get GST rate from the corresponding subproduct
+        subproduct = item.product  # Get the associated subproduct
+        print(subproduct)
+        
+        # Ensure subproduct has a valid gst_rate before proceeding
+        if hasattr(subproduct, 'gst_rate'):
+            gst_rate = Decimal(subproduct.gst_rate)/100  # Convert GST rate from percentage to decimal
+            item.gst_rate = subproduct.gst_rate
+            print(gst_rate)
+
+            # Calculate Price Before GST using the total price
+            item.price_before_gst = item.total_price / (1 + gst_rate)
+            item.price_before_gst = item.price_before_gst.quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+            print(item.price_before_gst)
+
+            # Calculate the GST Amount based on the price before GST
+            item.gst_amount = item.price_before_gst * gst_rate
+            item.gst_amount = item.gst_amount.quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+
+            # Save the updated item
+            item.save()
+        else:
+            print(f"Subproduct {subproduct} does not have a gst_rate.")
+
+    # Update order with the total unit quantity
+    order.total_unit_quantity = total_unit_quantity
+    order.save()
 
     # Generate QR code for invoice download
     invoice_url = request.build_absolute_uri(f'/download_invoice/{custom_order_id}/')
     qr_code_data = generate_qr_code(invoice_url)
     qr_code_image = ContentFile(qr_code_data, f'{custom_order_id}.png')
 
-    # Retrieve or create the invoice
     invoice, created = Invoice.objects.get_or_create(
         order=order,
         defaults={
-            'invoice_number': f'INV-{custom_order_id}',  # Example invoice number; adjust as needed
-            'issue_date': order.created_at,  # Use order creation date or adjust as needed
+            'invoice_number': f'INV-{custom_order_id}',
+            'issue_date': order.created_at,
             'total_amount': order.final_total_amount,
-            'amount_in_words': order.amount_in_words  # Define this function as needed
+            'amount_in_words': order.amount_in_words  
         }
     )
 
-    # Save QR code image if not already saved
     if not invoice.qr_code:
         invoice.qr_code.save(f'{custom_order_id}.png', qr_code_image, save=True)
         invoice.save()
 
-    owner_details = OwnerDetails.objects.first()  # Retrieves the first instance
+    owner_details = OwnerDetails.objects.first()
 
     if not owner_details:
         owner_account_details = {
@@ -1835,8 +1895,9 @@ def view_invoice(request, custom_order_id):
         'order_items': order_items,
         'owner_account_details': owner_account_details,
         'qr_code_url': invoice.qr_code.url if invoice.qr_code else None,
+        'total_unit_quantity': total_unit_quantity,
     }
-    
+
     return render(request, 'invoice.html', context)
 
 
@@ -1989,6 +2050,84 @@ def update_order_status(request, custom_order_id):
     return redirect('order_detail', custom_order_id=order.custom_order_id)
 
 
+from django.http import JsonResponse
+from google.cloud import translate_v2 as translate
+import os
 
+def translate_text(request):
+    if request.method == "GET":
+        text = request.GET.get('text')
+        target_language = request.GET.get('target_language')
+
+        if text and target_language:
+            translate_client = translate.Client()
+
+            # Perform the translation
+            result = translate_client.translate(text, target_language=target_language)
+
+            # Return the translated text
+            return JsonResponse({'translated_text': result['translatedText']})
+        else:
+            return JsonResponse({'error': 'Invalid parameters'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse
+from .models import Product, subproduct
+import qrcode
+from io import BytesIO
+from django.core.files.base import ContentFile
+
+# # Function to generate QR code for Product and Subproduct
+# def generate_qr_code(request, model_name, pk):
+#     # Determine if it's Product or Subproduct
+#     if model_name == 'product':
+#         obj = get_object_or_404(Product, pk=pk)
+#     elif model_name == 'subproduct':
+#         obj = get_object_or_404(subproduct, pk=pk)
+#     else:
+#         return HttpResponse("Invalid model name", status=400)
+
+#     # Generate QR code pointing to the product's or subproduct's admin page
+#     product_url = f"{request.build_absolute_uri('/')}/admin/home/{model_name}/{obj.id}/change/"
+#     qr = qrcode.make(product_url)
+
+#     # Save the QR code image
+#     qr_image = BytesIO()
+#     qr.save(qr_image, format="PNG")
+#     qr_image.seek(0)
+    
+#     # Save it to the corresponding model
+#     if model_name == 'product':
+#         obj.qr_code.save(f"product_{obj.id}_qr.png", ContentFile(qr_image.read()), save=True)
+#     elif model_name == 'subproduct':
+#         obj.qr_code.save(f"subproduct_{obj.id}_qr.png", ContentFile(qr_image.read()), save=True)
+
+#     return HttpResponse("QR code generated successfully!")
+
+# Function to handle QR code scanning for Product and Subproduct
+def scan_qr_code(request):
+    # Implement logic for scanning QR code (you can use a library or frontend JS for scanning)
+    scanned_data = request.POST.get('scanned_data')  # This should come from the frontend scanner
+    
+    # Check whether the scanned data matches a Product or Subproduct
+    try:
+        # Assuming the scanned data is the model's primary key (ID)
+        product = Product.objects.get(pk=scanned_data)
+        return redirect(f"/admin/home/product/{product.id}/change/")
+    except Product.DoesNotExist:
+        try:
+            sub_product = subproduct.objects.get(pk=scanned_data)
+            return redirect(f"/admin/home/subproduct/{sub_product.id}/change/")
+        except subproduct.DoesNotExist:
+            return HttpResponse("QR code does not match any Product or Subproduct.", status=404)
+
+
+
+
+def chatbot_view(request):
+    return render(request, 'chatbot.html')
 
 
