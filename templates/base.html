@@ -3,19 +3,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  {% load static %}
   <meta charset="utf-8">
+  <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="My E-commerce Store">
+<link rel="manifest" href="{% static 'manifest.json' %}">
+
+
   <title>{% block title %} {% endblock title %}Mukesh & Brothers</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  {% load static %}
+  
    {# for internationalization tags #}
   <link rel="stylesheet" href="{% static 'style.css' %}">
-  <script src="{% static 'javascript.js' %}"></script>
+ 
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
+  <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register("{% static 'js/serviceworker.js' %}")
+            .then((registration) => {
+                console.log("Service Worker Registered: ", registration);
+            })
+            .catch((error) => {
+                console.log("Service Worker Registration Failed: ", error);
+            });
+    }
+</script>
 </head>
 
 <body>
@@ -23,6 +42,14 @@
    
     
   @media screen and (max-width: 1366px) and (min-width: 770px) {
+    #search-form{
+      width:100%;
+      display:None;
+      border:None;
+    }
+    #search-type{
+      width:120px;
+    }
   .search {
     display: flex;
     align-items: center;
@@ -129,16 +156,48 @@
   
   
    
-    @media screen and (max-width: 769px) {
-   
-    .col{
-    flex-basis:100%;
-    margin-left:0px;
+    @media screen and (max-width: 768px) {
+      .hide-on-mobile {
+        display: none !important;
+      }
+      .seasonal{
+      margin-left:163px;
+      margin-top:50px;
+        
+      width:100%;
+      }
+      .seasonal-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-decoration: none;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        background: linear-gradient(45deg, 
+            #ff7e00,   /* Autumn (Orange) */
+            #ffdf00,   /* Summer (Yellow) */
+            #1e90ff,   /* Winter (Blue) */
+            #00a86b    /* Spring (Green) */
+        );
+        background-size: 300% 300%;
+        transition: 0.5s;
+        animation: gradientMove 6s infinite alternate;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     }
-    .col:nth-child(2), .col:nth-child(3){
-    flex-basis:100%;
-    margin-left:0px;
+    
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
+    
+    .seasonal-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+    }
+    
    
   
     }
@@ -273,183 +332,186 @@
         align-items: center; /* Center text vertically */
         justify-content: center; /* Center text horizontally */
     }
+    .operational-notice {
+      font-size: 14px;
+      font-weight: bold;
+      color: red;
+      margin-left: 5px; /* Space after logo */
+      white-space: nowrap; /* Prevents text from wrapping */ 
+  }
+  
+  @media (max-width: 768px) {
+      .operational-notice {
+          font-size: 12px; /* Smaller text for mobile */
+      }
+  }
+  
   </style>
  <!-- Welcome Screen Modal -->
 
 
 
+ 
 
-
+ <div class="desktop-nav {% if request.resolver_match.view_name == 'subproduct1' or request.path == '/Login/' %}hide-on-mobile{% endif %} ">
   <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container-fluid">
-        <div class="header">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarnav">
-                <span class="navbar-toggler-icon"></span>
+      <div class="header">
+        <!-- Logo -->
+        <div class="logo-container">
+          <img src="{% static 'logo.png' %}" alt="Mukesh & Brothers Logo" class="logo-image">
+          <span class="since">Since 1992</span>
+        </div>
+      <div class="header-right " style="position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 15px;">
+          <form action="{% url 'set_language' %}" method="post" id="language-toggle-form" style="border: none;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <input type="hidden" name="language" id="languageInput" value="{% if request.LANGUAGE_CODE == 'en' %}hi{% else %}en{% endif %}">
+      
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: bold;">
+            
+              <button type="submit" style="
+                  background: none; 
+                  border: 1px solid #ccc; 
+                  padding: 5px 12px; 
+                  border-radius: 15px; 
+                  cursor: pointer; 
+                  font-size: 14px;">
+              {% if request.LANGUAGE_CODE == 'en' %}🇬🇧 English{% else %}🇮🇳 हिंदी{% endif %}
             </button>
-            <div class="logo1" style="font-family: Lato, sans-serif; font-size: 100%;">
-                <span class="large-M">M</span>ukesh & <span class="brothers">Brothers</span>
-            </div>
-            <span class="since">Since1992</span>
-            
-            <div class="search mx-auto">
-                <form action="{% url 'search_results' %}" method="get" id="search-form" class="d-flex" style="width:100%;display:None;border:None;">
-                    <select name="search_type" id="search-type" class="form-select me-2" aria-label="Search Type" style="width: 120px;">
-                        <option value="product" class="bold-and-animated">Category</option>
-                        <option value="subproduct" class="bold-and-animated">Product</option>
-                    </select>
-                    <input type="text" name="q" id="search-input" class="form-control me-2" placeholder="Search for Category or Products" autocomplete="off">
-                    <button type="submit">
-                        <i class="fa-solid fa-magnifying-glass" style="font-size: 19px; margin-top:15px; margin-right:9px;"></i>
-                    </button>
-                    
-                    <!-- Recent Searches Section -->
-                    <div class="recent_search">
-                        <h6 class="mt-3 mb-2">Recent Searches:</h6>
-                  <div class="list-group" id="recent-searches">
-                      <!-- Recent searches will be populated dynamically using JavaScript -->
-                  </div>
-                        <div class="scrolling-list">
-                      <!-- Scrolling list content goes here -->
-                      <div class="scrolling-content">
-                          <!-- Content to scroll through, dynamically populated -->
-                      </div>
-                  </div>
-                        </div>
-                    </div>
-                </form>
-                
-                <!-- Language Toggle Button -->
-                <button id="toggleLanguage" class="btn btn-outline-secondary" style="margin-left: 10px;">Switch to Hindi</button>
-                
-                <ul class="navbar-nav1">
-                    <li class="nav-items">
-                        <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-links"> 
-                            <i class="fa fa-shopping-cart"></i> 
-                        </a>
-                    </li>
-                    <li class="nav-items">
-                        <button class="loginbutton"> 
-                  <a href="/Login" class="nav-links">
-                      login
-                  </a> 
-                        </button> 
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav2 ml-auto" style="margin-top:20px;">
-                    {% if user.is_authenticated %}
-                        <li class="dropdown nav-item1">
-                            <a href="#" id="profileDropdown" role="button" aria-haspopup="true" aria-expanded="false" class="nav-link1">
-                                <i class="fas fa-user"></i>
-                                <span>Profile</span>
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-                                <li><a href="{% url 'account' %}"><i class="fas fa-user"></i> My Account ({{ user.username }})</a></li>
-                                <li><a href="/my_orders"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
-                                <li><a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item1">
-                            <a href="/Login" class="nav-link1"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
-                        </li>
-                    {% endif %}
-                    
-                    {% block cart %}
-                    <li class="nav-item1">
-                        <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-link1 position-relative">
-                            <i class="fa fa-shopping-cart"></i>
-                            <span id="cart-count" class="cart-count-badge"></span> 
-                            <span>Cart</span>
-                        </a>
-                    </li>
-                    {% endblock cart %}
-                    
-                    <li class="nav-item1 active">
-                        <a href="/" class="nav-link1">
-                            <img src="{% static 'home.png' %}" alt="Home Icon" style="width:20.25px;height:18px;">
-                            <span>Home</span>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item1">
-                        <a href="/contact" class="nav-link1">
-                            <i class="fas fa-address-book"></i>
-                            <span>Contact</span>
-                        </a>
-                    </li>
-                </ul>
+          </div>
+          </form>
 
+          <!-- User Icon -->
+          <a href="{% url 'navbar' %}" class="navbar-toggler">
+            <span id="user-icon">
+              {% if user.is_authenticated %}
+                {{ user.username|first|upper }}
+              {% else %}
+                👤
+              {% endif %}
+            </span>
+          </a>
+        </div>
 
+        <!-- Seasonal Essentials Button -->
+         <div class="seasonal">
+          <a href="{% url 'seasonal_essentials' %}" class="seasonal-btn">🌦️ Seasonal Essentials</a>
+        </div>
 
-<div class="collapse navbar-collapse " id="navbarnav">
+          
     
-   
-    <ul class="navbar-nav  d-lg-none">
-        <li class="nav-item special-list-item"><a id="login-link" class="nav-link" href="#" onclick="toggleLogin()"><i class="fa fa-user-plus"></i> 
-        LOGIN</a></li>
-        <li class="nav-item">
-            <a href="#" class="nav-link">
-            <i class="fa-solid fa-envelope"></i>My Orders</a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link"><i class="fas fa-ticket"></i>Coupons</a>
-            
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link"><i class="fa-solid fa-cart-shopping"></i>My Cart</a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link"><i class="fas fa-bell"></i>Notifications</a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link"><i class="fas fa-arrow-up"></i>Trending</a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link"><i class="fas fa-address-book"></i>Contact</a>
-        </li>
-    </ul>
+    
+              <ul class="navbar-nav2 ml-auto" style="margin-top:20px;">
+          {% if user.is_authenticated %}
+          <li class="dropdown nav-item1">
+                          <a href="#" id="profileDropdown" role="button" aria-haspopup="true" aria-expanded="false" class="nav-link1">
+              <i class="fas fa-user"></i>
+              <span>{% trans 'Profile' %}</span>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+              <li><a href="{% url 'account' %}"><i class="fas fa-user"></i> {% trans 'My Account' %} ({{ user.username }})</a></li>
+              <li><a href="/my_orders"><i class="fas fa-shopping-bag"></i> {% trans 'My Orders' %}</a></li>
+              <li><a href="#" id="logoutLink"><i class="fas fa-sign-out-alt"></i> {% trans 'Logout' %}</a></li>
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item1">
+            <a href="/Login" class="nav-link1"><i class="fas fa-sign-in-alt"></i> <span>{% trans 'Login' %}</span></a>
+          </li>
+          {% endif %}
+
+          <!-- Cart -->
+          {% block cart %}
+          <li class="nav-item1">
+            <a href="{% url 'cart_view' unit='default_unit' subproduct_id=1 unit_price='default_price' %}" class="nav-link1 position-relative">
+              <i class="fa fa-shopping-cart"></i>
+              <span id="cart-count" class="cart-count-badge"></span>
+              <span>{% trans 'Cart' %}</span>
+            </a>
+          </li>
+          {% endblock cart %}
+
+          <!-- Home -->
+          <li class="nav-item1 active">
+            <a href="/" class="nav-link1">
+                          <img src="{% static 'home.png' %}" alt="Home Icon" style="width:20.25px;height:18px;">
+              <span>{% trans 'Home' %}</span>
+            </a>
+          </li>
+
+          <!-- Contact -->
+          <li class="nav-item1">
+            <a href="/contact" class="nav-link1">
+              <i class="fas fa-address-book"></i>
+              <span>{% trans 'Contact' %}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+<div class="search mx-auto">
+      <div class="operational-notice">
+        📍 Currently serving: <strong>Shivpuri & All Towns in MP</strong>
+      </div>
+
+      <form action="{% url 'search_results' %}" method="get" id="search-form" class="d-flex">
+        <div class="search-container">
+          <input type="text" name="q" id="search-input" class="form-control"
+            placeholder="{% trans 'Search for Products or Subproducts' %}" autocomplete="off">
+          <button type="submit" class="search-button">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+      </form>
+
+      <!-- Recent Searches -->
+      <div class="recent_search">
+        <h6 class="mt-3 mb-2">{% trans 'Recent Searches:' %}</h6>
+        <div class="list-group" id="recent-searches"></div>
+        <div class="scrolling-list">
+          <div class="scrolling-content"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
 </div>
 
-</div>
-<!-- </div> -->
-</div>
-
-</nav>
-
-
+<!-- Category Dropdown -->
 {% block content %}
-{# Default content for base.html #}
 <div class="product dropdown" id="product_special" style="margin-top: 20px;">
-  <button class="toggle-button dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 20px;">
-    Categories
-</button>
+<button class="toggle-button dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left: 20px;">
+    {% trans 'Categories' %}
+  </button>
+  </div>
+
 
   <div class="dropdown-menu product-dropdown-menu" aria-labelledby="dropdownMenuButton" style="margin-top: 17px; background-color:#ffcad4">
     <div class="container-fluid">
       <div class="row">
         {% for prod in products %}
-          <div class="col-md-4">
+        <div class="col-md-4">
             <a href="{% url 'subproduct1' product_id=prod.id %}" class="dropdown-item card-link" style="list-style: none; text-decoration: none;">
-              <div class="card product-card_p">
-                <div style="height: 200px; max-width: 100%;">
-                  <img src="{{ prod.image.url }}" alt="{{ prod.name }}" style="height: 70px; width: 70px;">
-                </div>
+            <div class="card product-card_p">
+              <div style="height: 200px; max-width: 100%;">
+                <img src="{{ prod.image.url }}" alt="{{ prod.name }}" style="height: 70px; width: 70px;">
+              </div>
                 <div class="card-body text-center" style="margin-left:5px;">
                   <h5 class="card-title" style="margin-right:5px; padding-right:8px;">{{ prod.name }}</h5>
                   <!-- Include the product_id parameter -->
-                </div>
               </div>
-            </a>
-          </div>
+            </div>
+          </a>
+        </div>
         {% endfor %}
       </div>
     </div>
   </div>
 </div>
-
-
 {% endblock content %}
+
+
 <script>
  
     // Modal Control
@@ -474,8 +536,7 @@
   // success: function(response) {
   //     handleLoginSuccess();
   // }
-  const recentSearchesProduct = {{ recent_searches_product|safe }};
-  const recentSearchesSubproduct = {{ recent_searches_subproduct|safe }};
+ 
 </script>
 {% comment %} 
 <script>
@@ -501,7 +562,11 @@
 
 {% block body %} {% endblock body %}
 
-<footer>
+
+
+
+<footer class="{% if request.resolver_match.view_name == 'subproduct1' or request.path == '/Login/' %}hide-on-mobile{% endif %} d-none d-md-block">
+
 
 <div class="row" style="width: 100%;
 height:100%;
@@ -583,122 +648,110 @@ overflow:hidden;
 </footer>
     	 
   {% block footer %}   {% endblock footer %}
+  <script src="{% static 'javascript.js' %}"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const recentSearchesDiv = document.getElementById('recent-searches');
-      const searchForm = document.getElementById('search-form');
-      const searchInput = document.getElementById('search-input');
-      const MAX_RECENT_SEARCHES = 10;
   
-      // Function to load recent searches and handle click events
-      function loadRecentSearches(type) {
-          // Clear the current recent searches
-          recentSearchesDiv.innerHTML = '';
-  
-          // Fetch recent searches from localStorage
-          const recentSearchesKey = type === 'product' ? 'recent_searches_product' : 'recent_searches_subproduct';
-          let recentSearches = JSON.parse(localStorage.getItem(recentSearchesKey)) || [];
-  
-          // Display recent searches
-          recentSearches.forEach(search => {
-              const item = document.createElement('a');
-              item.href = "#";
-              item.classList.add('list-group-item', 'list-group-item-action');
-              item.textContent = search;
-              item.addEventListener('click', function (event) {
-                  event.preventDefault();
-                  searchInput.value = search;
-                  searchForm.submit();
-              });
-              recentSearchesDiv.appendChild(item);
-          });
-  
-          // Fetch items based on search input if present
-          if (searchInput.value.trim()) {
-              fetchSearchSuggestions(searchInput.value.trim(), type);
-          }
-      }
-  
-      // Function to fetch search suggestions dynamically
-      function fetchSearchSuggestions(query, type) {
-          const fetchUrl = type === 'product' ? '{% url "get_products" %}' : '{% url "get_subproducts" %}?q=' + query;
-  
-          fetch(fetchUrl)
-              .then(response => response.json())
-              .then(items => {
-                  items.forEach(item => {
-                      const itemElement = document.createElement('a');
-                      itemElement.href = "#";
-                      itemElement.classList.add('list-group-item', 'list-group-item-action');
-                      itemElement.textContent = item;
-                      itemElement.addEventListener('click', function (event) {
-                          event.preventDefault();
-                          searchInput.value = item;
-                          searchForm.submit();
-                      });
-                      recentSearchesDiv.appendChild(itemElement);
-                  });
-  
-                  // Initialize scrolling animation
-                  initializeScrolling();
-              })
-              .catch(error => {
-                  console.error(`Error fetching ${type}s:`, error);
-              });
-      }
-  
-      // Function to save recent search in localStorage
-      function saveRecentSearch(type, query) {
-          const recentSearchesKey = type === 'product' ? 'recent_searches_product' : 'recent_searches_subproduct';
-          let recentSearches = JSON.parse(localStorage.getItem(recentSearchesKey)) || [];
-  
-          if (recentSearches.includes(query)) {
-              recentSearches = recentSearches.filter(item => item !== query);
-          }
-          recentSearches.unshift(query);
-          if (recentSearches.length > MAX_RECENT_SEARCHES) {
-              recentSearches.pop();
-          }
-          localStorage.setItem(recentSearchesKey, JSON.stringify(recentSearches));
-          loadRecentSearches(type);
-      }
-  
-      // Initial load with 'product' type
-      loadRecentSearches('product');
-  
-      // Event listeners
-      searchInput.addEventListener('input', function () {
-          const searchType = document.getElementById('search-type').value;
-          fetchSearchSuggestions(this.value.trim(), searchType);
-      });
-  
-      searchInput.addEventListener('keypress', function (event) {
-          if (event.key === 'Enter') {
-              event.preventDefault(); // Prevent form submission
-              const searchType = document.getElementById('search-type').value;
-              const query = searchInput.value.trim();
-              if (query) {
-                  saveRecentSearch(searchType, query);
-                  searchForm.submit();
-              }
-          }
-      });
-  
-      searchForm.addEventListener('submit', function (event) {
-          event.preventDefault(); // Prevent default form submission
-          // Handle form submission as needed
-      });
-  
-      document.getElementById('search-type').addEventListener('change', function () {
-          loadRecentSearches(this.value);
-      });
-  });
-  
+     searchInput = document.getElementById("search-input");
+     searchForm = document.getElementById("search-form"); // ✅ Ensure form has an ID
+     recentSearchesDiv = document.getElementById("recent-searches");
+     var  debounceTimer;
     
-
-  const productDropdown = document.getElementById('product_special');
-  const carousel = document.querySelector('.xyz');
-  let dropdownOpen = false;
+    // ✅ Fetch search suggestions when typing
+    function fetchSearchSuggestions(query) {
+        if (!query) return; // Skip empty queries
+    
+        fetch(`/search/?q=${query}`)
+            .then(response => response.json())
+            .then(items => {
+                recentSearchesDiv.innerHTML = ""; // Clear old items
+                if (items.length === 0) {
+                    recentSearchesDiv.innerHTML = "<p class='text-muted'>No suggestions</p>";
+                    return;
+                }
+    
+                items.forEach(item => {
+                    const itemElement = document.createElement("a");
+                    itemElement.href = "#";
+                    itemElement.classList.add("list-group-item", "list-group-item-action");
+                    itemElement.textContent = item;
+                    itemElement.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        searchInput.value = item;
+                        searchForm.submit(); // ✅ Trigger search
+                        saveFinalSearch(item);  // ✅ Save final search
+                    });
+                    recentSearchesDiv.appendChild(itemElement);
+                });
+            })
+            .catch(error => console.error("Error fetching search suggestions:", error));
+    }
+    
+    // ✅ Save only the final searched term when Enter is pressed
+    function saveFinalSearch(query) {
+        if (!query) return;
+    
+        fetch("/recent-searches/save/", {  // ✅ Ensure correct URL
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: query }),
+        }).catch(error => console.error("Error saving recent search:", error));
+    }
+    
+    // ✅ Debounce function to prevent excessive API calls
+    function debounceSearch(query) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => fetchSearchSuggestions(query), 300);
+    }
+    
+    // ✅ Fetch suggestions when typing
+    searchInput.addEventListener("input", function () {
+        debounceSearch(this.value.trim());
+    });
+    
+    // ✅ Fetch recent searches on focus
+    searchInput.addEventListener("focus", function () {
+        fetch("/recent-searches/")
+            .then(response => response.json())
+            .then(items => {
+                recentSearchesDiv.innerHTML = "";
+                if (items.length === 0) {
+                    recentSearchesDiv.innerHTML = "<p class='text-muted'>No recent searches</p>";
+                    return;
+                }
+    
+                items.forEach(item => {
+                    const itemElement = document.createElement("a");
+                    itemElement.href = "#";
+                    itemElement.classList.add("list-group-item", "list-group-item-action");
+                    itemElement.textContent = item;
+                    itemElement.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        searchInput.value = item;
+                    });
+                    recentSearchesDiv.appendChild(itemElement);
+                });
+            })
+            .catch(error => console.error("Error fetching recent searches:", error));
+    });
+    
+    // ✅ Save only final search when user presses Enter
+    searchInput.addEventListener("keydown", function (event) {  // ✅ Use `keydown` instead of `keypress`
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent default form submission
+            const query = searchInput.value.trim();
+            if (query) {
+                searchForm.submit(); // ✅ Submit the search
+                saveFinalSearch(query); // ✅ Save the final search term
+            }
+        }
+    });
+    
+  
+  
+   
+   productDropdown = document.getElementById('product_special');
+  var carousel = document.querySelector('.xyz');
+  var dropdownOpen = false;
   
   productDropdown.addEventListener('click', function() {
     if (!dropdownOpen) {
@@ -711,6 +764,14 @@ overflow:hidden;
       dropdownOpen = false;
     }
   });
+
+ 
+  document.getElementById('toggleLanguage').addEventListener('change', function() {
+    let languageInput = document.getElementById('languageInput');
+    languageInput.value = this.checked ? 'hi' : 'en';
+    document.getElementById('language-toggle-form').submit();
+});
+  
 
   
 </script>

@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('home.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
-    path('Login/',views.login_view,name="login"),
+    path('Login/',views.login_view,name="Login"),
     path('Logout/',auth_views.LogoutView.as_view(),name="logout"),
     path('social-auth/', include('social_django.urls', namespace='social')),
     path("",views.Home,name="Home"),

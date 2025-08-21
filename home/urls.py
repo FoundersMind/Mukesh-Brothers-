@@ -10,11 +10,16 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, register_converter
 from . import views
 from .converters import FloatConverter
+from django.views.i18n import set_language
 
 # Register the custom converter
 register_converter(FloatConverter, 'float')
 urlpatterns = [
     path('', views.index, name='home'),
+   
+    path('navbar/', views.navbar_view, name='navbar'),
+    path('seasonal-essentials/', views.seasonal_essentials, name='seasonal_essentials'),
+
     path('chatbot/', views.chatbot_view, name='chatbot'),  # Add this line
     path('submit-video-request/', views.submit_video_request, name='submit_video_request'),
     path('invoice/<str:custom_order_id>/', views.view_invoice, name='view_invoice'),
@@ -35,7 +40,7 @@ urlpatterns = [
     path('my_orders/', views.my_orders, name='my_orders'),
     path('Login/', views.login_view, name='Login'),
     path('account/', views.account, name='account'),
-    path('subproduct/<int:product_id>/', views.subproduct1, name='subproduct1'),
+     path('subproduct_view/', views.subproduct_view, name='subproduct_view'),
     path('add_to_cart/', views.add_to_cart, name='add_to_cart'),
     path('add_to_cart_index/', views.add_to_cart_index, name='add_to_cart_index'),
     path('add_to_bucket/', views.add_to_bucket, name='add_to_bucket'),
@@ -58,12 +63,18 @@ urlpatterns = [
     path('apply_coupon/', views.apply_coupon, name='apply_coupon'),
     path('remove_coupon_discount/', views.remove_coupon_discount, name='remove_coupon_discount'),
     path('search/', views.search_results, name='search_results'),
-    path('get_products/', views.get_products, name='get_products'),
-    path('get_subproducts/', views.get_subproducts, name='get_subproducts'),
+   path('search/', views.get_search_suggestions, name='get_search_suggestions'),
+    path("recent-searches/", views.get_recent_searches, name="recent_searches"),
+    path("recent-searches/save/", views.save_recent_search, name="save_recent_search"),
     path('contact/', views.contact_us, name='contact_us'),
-    path('translate/', views.translate_text, name='translate_text'),
+   
     path('generate-qr/<str:model_name>/<int:pk>/', views.generate_qr_code, name='generate_qr_code'),
     path('scan-qr/', views.scan_qr_code, name='scan_qr_code'),
+    path('set-language/', set_language, name='set_language'),
+ path('product/<int:product_id>/subproducts/', views.subproduct1, name='subproduct1'),
+path('product/<int:product_id>/subproduct/<int:subproduct_id>/', views.subproduct1, name='subproduct_detail'),
+
+
 
 ]
 

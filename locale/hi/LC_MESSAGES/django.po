@@ -1,0 +1,628 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-14 22:13+0530\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\home\forms.py:11 .\home\forms.py:32
+#: .\templates\order_confirmation.html:296
+msgid "Firm Name"
+msgstr "फर्म का नाम"
+
+msgid "M"
+msgstr "म"
+
+msgid "ukesh &"
+msgstr "ुकेश और"
+
+msgid "Brothers"
+msgstr "ब्रदर्स"
+
+msgid "Since 1992"
+msgstr "1992 से"
+
+
+#: .\templates\base.html
+msgid "Search Type"
+msgstr "खोज प्रकार"
+
+#: .\templates\base.html
+msgid "Category"
+msgstr "श्रेणी"
+
+#: .\templates\base.html
+msgid "Product"
+msgstr "उत्पाद"
+
+#: .\templates\base.html
+msgid "Search for Category or Products"
+msgstr "श्रेणी या उत्पाद के लिए खोजें"
+
+#: .\templates\base.html
+msgid "Recent Searches"
+msgstr "हाल की खोजें"
+
+#: .\templates\base.html
+msgid "Switch to Hindi"
+msgstr "हिंदी में स्विच करें"
+
+#: .\templates\base.html
+msgid "Switch to English"
+msgstr "अंग्रेजी में स्विच करें"
+
+#: .\templates\base.html
+msgid "login"
+msgstr "लॉगिन"
+
+#: .\templates\base.html
+msgid "Profile"
+msgstr "प्रोफ़ाइल"
+
+#: .\templates\base.html
+msgid "My Account"
+msgstr "मेरा खाता"
+
+#: .\templates\base.html
+msgid "My Orders"
+msgstr "मेरे आदेश"
+
+#: .\templates\base.html
+msgid "Logout"
+msgstr "लॉगआउट"
+
+#: .\templates\base.html
+msgid "Cart"
+msgstr "कार्ट"
+
+#: .\templates\base.html
+msgid "Home"
+msgstr "होम"
+
+#: .\templates\base.html
+msgid "Contact"
+msgstr "संपर्क करें"
+
+#: .\templates\base.html
+msgid "LOGIN"
+msgstr "लॉगिन"
+
+#: .\templates\base.html
+msgid "Coupons"
+msgstr "कूपन"
+
+#: .\templates\base.html
+msgid "My Cart"
+msgstr "मेरी कार्ट"
+
+#: .\templates\base.html
+msgid "Notifications"
+msgstr "सूचनाएँ"
+
+#: .\templates\base.html
+msgid "Trending"
+msgstr "प्रवृत्तियाँ"
+
+#: .\templates\base.html
+msgid "Categories"
+msgstr "श्रेणियाँ"
+
+
+#: .\home\forms.py:12 .\home\models.py:548
+msgid "Contact Number"
+msgstr "संपर्क नंबर"
+
+#: .\home\forms.py:13
+msgid "Description"
+msgstr "विवरण"
+
+#: .\home\forms.py:14
+#, fuzzy
+#| msgid "Product"
+msgid "Subproduct"
+msgstr "उत्पाद"
+
+#: .\home\forms.py:15 .\home\models.py:498
+msgid "Unit"
+msgstr "इकाई"
+
+#: .\home\forms.py:28
+#, fuzzy
+#| msgid "First Name *"
+msgid "First Name"
+msgstr "पहला नाम *"
+
+#: .\home\forms.py:29
+#, fuzzy
+#| msgid "Last Name *"
+msgid "Last Name"
+msgstr "अंतिम नाम *"
+
+#: .\home\forms.py:30 .\home\models.py:566
+#, fuzzy
+#| msgid "Billing Address *"
+msgid "Billing Address"
+msgstr "बिलिंग पता *"
+
+#: .\home\forms.py:31 .\home\forms.py:56 .\home\models.py:573
+#, fuzzy
+#| msgid "Location *"
+msgid "Location"
+msgstr "स्थान *"
+
+#: .\home\forms.py:33 .\home\forms.py:57 .\home\models.py:574
+#, fuzzy
+#| msgid "Postcode *"
+msgid "Postcode"
+msgstr "पिन कोड *"
+
+#: .\home\forms.py:34
+#, fuzzy
+#| msgid "Phone *"
+msgid "Phone"
+msgstr "फोन *"
+
+#: .\home\forms.py:35
+#, fuzzy
+#| msgid "Email *"
+msgid "Email"
+msgstr "ईमेल *"
+
+#: .\home\forms.py:36 .\home\models.py:538
+msgid "GST Number"
+msgstr "GST नंबर"
+
+#: .\home\forms.py:37 .\home\models.py:567
+#, fuzzy
+#| msgid "Delivery Address (if different)"
+msgid "Delivery Address"
+msgstr "वितरण पता (यदि अलग हो)"
+
+#: .\home\forms.py:38
+#, fuzzy
+#| msgid "Payment Method *"
+msgid "Payment Method"
+msgstr "भुगतान विधि *"
+
+#: .\home\forms.py:44 .\home\models.py:561
+#: .\templates\order_confirmation.html:345
+msgid "Shivpuri"
+msgstr "शिवपुरी"
+
+#: .\home\forms.py:45 .\home\models.py:562
+#: .\templates\order_confirmation.html:348
+msgid "Indore"
+msgstr "इंदौर"
+
+#: .\home\forms.py:54 .\home\models.py:571
+msgid "Address Type"
+msgstr "पते का प्रकार"
+
+#: .\home\forms.py:55 .\home\models.py:572
+msgid "Address Details"
+msgstr "पते का विवरण"
+
+#: .\home\forms.py:63
+msgid "Postcode must be a 6-digit number."
+msgstr "पिन कोड 6 अंकों का होना चाहिए।"
+
+#: .\home\models.py:43 .\home\models.py:91 .\home\models.py:282
+msgid "None"
+msgstr "कोई नहीं"
+
+#: .\home\models.py:44 .\home\models.py:92 .\home\models.py:283
+#: .\templates\index.html:487
+msgid "New"
+msgstr "नया"
+
+#: .\home\models.py:45 .\home\models.py:93 .\home\models.py:284
+#: .\templates\index.html:491
+msgid "Best Seller"
+msgstr "सर्वश्रेष्ठ विक्रेता"
+
+#: .\home\models.py:94 .\home\models.py:285
+msgid "Combo"
+msgstr ""
+
+#: .\home\models.py:134
+msgid "10 Grams"
+msgstr "10 ग्राम"
+
+#: .\home\models.py:135
+msgid "50 Grams"
+msgstr "50 ग्राम"
+
+#: .\home\models.py:136
+msgid "100 Grams"
+msgstr "100 ग्राम"
+
+#: .\home\models.py:137
+msgid "250 Grams"
+msgstr "250 ग्राम"
+
+#: .\home\models.py:138
+msgid "500 Grams"
+msgstr "500 ग्राम"
+
+#: .\home\models.py:139
+msgid "1 Kilogram"
+msgstr "1 किलो"
+
+#: .\home\models.py:140
+msgid "10 Kilogram"
+msgstr "10 किलो"
+
+#: .\home\models.py:141
+msgid "50 Kilogram"
+msgstr "50 किलो"
+
+#: .\home\models.py:142
+msgid "100 Kilogram"
+msgstr "100 किलो"
+
+#: .\home\models.py:171
+msgid "Category 1"
+msgstr "श्रेणी 1"
+
+#: .\home\models.py:172
+msgid "Category 2"
+msgstr "श्रेणी 2"
+
+#: .\home\models.py:173
+msgid "Category 3"
+msgstr "श्रेणी 3"
+
+#: .\home\models.py:181
+msgid "Grams"
+msgstr "ग्राम"
+
+#: .\home\models.py:182
+msgid "Kilograms"
+msgstr "किलो"
+
+#: .\home\models.py:196
+msgid "5kg"
+msgstr "5 किलो"
+
+#: .\home\models.py:197
+msgid "10kg"
+msgstr "10 किलो"
+
+#: .\home\models.py:198
+msgid "20kg"
+msgstr "20 किलो"
+
+
+#: .\home\models.py:309 .\home\models.py:499
+#: .\templates\order_confirmation.html:390
+msgid "Unit Price"
+msgstr "यूनिट मूल्य"
+
+#: .\home\models.py:348
+#, fuzzy
+#| msgid "No products found."
+msgid "No Subproduct"
+msgstr "कोई उत्पाद नहीं मिला।"
+
+#: .\home\models.py:359
+msgid "Pending"
+msgstr "लंबित"
+
+#: .\home\models.py:360
+msgid "Paid"
+msgstr "भुगतान किया गया"
+
+#: .\home\models.py:361 .\home\models.py:396
+msgid "Cancelled"
+msgstr "रद्द"
+
+#: .\home\models.py:393
+msgid "Placed"
+msgstr "आदेशित"
+
+#: .\home\models.py:394
+msgid "Shipped"
+msgstr "भेजा गया"
+
+
+#: .\home\models.py:395
+#, fuzzy
+#| msgid "Delivery Address (if different)"
+msgid "Delivered"
+msgstr "वितरण पता (यदि अलग हो)"
+#: .\home\models.py:400
+msgid "Cash"
+msgstr "नकद"
+
+#: .\home\models.py:401
+msgid "Online"
+msgstr "ऑनलाइन"
+
+#: .\home\models.py:405
+msgid "Normal"
+msgstr "सामान्य"
+
+#: .\home\models.py:406
+msgid "Credit"
+msgstr "क्रेडिट"
+
+
+#: .\home\models.py:500 .\templates\order_confirmation.html:391
+msgid "Quantity"
+msgstr "मात्रा"
+
+#: .\home\models.py:501 .\templates\order_confirmation.html:392
+msgid "Total Price"
+msgstr "कुल मूल्य"
+
+#: .\home\models.py:502
+#, fuzzy
+#| msgid "Image"
+msgid "Image URL"
+msgstr "चित्र"
+
+#: .\home\models.py:503
+#, fuzzy
+#| msgid "Quantity"
+msgid "Unit Quantity (kg)"
+msgstr "मात्रा"
+
+#: .\home\models.py:504
+msgid "Price Before GST"
+msgstr "GST से पहले की कीमत"
+
+#: .\home\models.py:505
+msgid "GST Rate"
+msgstr "GST दर"
+
+#: .\home\models.py:519
+msgid "Enter the bank account number."
+msgstr "बैंक खाता संख्या दर्ज करें।"
+
+#: .\home\models.py:520
+msgid "Account Number"
+msgstr "खाता संख्या"
+
+#: .\home\models.py:525
+msgid "Enter the IFSC code (e.g., KKBR2345677)."
+msgstr "IFSC कोड दर्ज करें (जैसे, KKBR2345677)।"
+
+#: .\home\models.py:526
+msgid "IFSC Code"
+msgstr "IFSC कोड"
+
+#: .\home\models.py:531
+msgid "Enter the UPI ID (e.g., 8770500434@ybl)."
+msgstr "UPI ID दर्ज करें (जैसे, 8770500434@ybl)।"
+
+#: .\home\models.py:532
+msgid "UPI ID"
+msgstr "UPI ID"
+
+#: .\home\models.py:537
+msgid "Enter the GST number."
+msgstr "GST संख्या दर्ज करें।"
+
+#: .\home\models.py:541
+msgid "Enter the owner's address."
+msgstr "स्वामी का पता दर्ज करें।"
+
+#: .\home\models.py:542
+#, fuzzy
+#| msgid "Billing Address *"
+msgid "Address"
+msgstr "बिलिंग पता *"
+
+#: .\home\models.py:547
+msgid "Enter the contact number."
+msgstr "संपर्क नंबर दर्ज करें।"
+
+#: .\home\models.py:555
+msgid "Owner Detail"
+msgstr "स्वामी विवरण"
+
+#: .\home\models.py:556
+msgid "Owner Details"
+msgstr "स्वामी विवरण"
+
+
+#: .\templates\Cart.html:163
+msgid "Your Cart"
+msgstr "आपकी कार्ट"
+
+#: .\templates\account.html:171 .\templates\order_confirmation.html:310
+msgid "Phone *"
+msgstr "फोन *"
+
+#: .\templates\index.html:334
+msgid "Chatbot Icon"
+msgstr "चैटबोट आइकन"
+
+#: .\templates\index.html:339
+msgid "Sale ends in"
+msgstr "बिक्री खत्म हो रही है"
+
+#: .\templates\index.html:355
+msgid "Product Image"
+msgstr "उत्पाद छवि"
+
+#: .\templates\index.html:359 .\templates\index.html:362
+#: .\templates\index.html:363
+msgid "ON SALE!"
+msgstr "बिक्री पर!"
+
+#: .\templates\index.html:370
+msgid "No Coupon Available"
+msgstr "कोई कूपन उपलब्ध नहीं"
+
+#: .\templates\index.html:374
+msgid "USE THIS COUPON"
+msgstr "इस कूपन का उपयोग करें"
+
+#: .\templates\index.html:389
+msgid "ADD TO CART"
+msgstr "कार्ट में जोड़ें"
+
+#: .\templates\index.html:405
+msgid "Dry Fruits Banner"
+msgstr "सूखा मेवा बैनर"
+
+#: .\templates\index.html:414
+msgid "bucket_avail"
+msgstr "बाल्टी उपलब्ध"
+
+
+#: .\templates\index.html:419
+msgid "Choose Buckets"
+msgstr "बाल्टियाँ चुनें"
+
+#: .\templates\index.html:429
+#, fuzzy
+#| msgid "Bucket Discount"
+msgid "Discount"
+msgstr "बाल्टी छूट"
+
+#: .\templates\index.html:440
+msgid "Selected Bucket"
+msgstr "चुना हुआ बाल्टी"
+
+#: .\templates\index.html:444
+msgid "Fix this Bucket"
+msgstr "इस बाल्टी को ठीक करें"
+
+#: .\templates\index.html:445
+msgid "Your bucket has been sent to the cart!"
+msgstr "आपकी बाल्टी को कार्ट में भेज दिया गया है!"
+
+#: .\templates\index.html:475
+msgid "No products found."
+msgstr "कोई उत्पाद नहीं मिला।"
+
+#: .\templates\index.html:482
+msgid "Filter by Tag"
+msgstr "टैग द्वारा छानें"
+
+#: .\templates\index.html:487
+msgid "Daal"
+msgstr "दाल"
+
+#: .\templates\index.html:494
+msgid "Apply Filters"
+msgstr "फिल्टर लागू करें"
+
+#: .\templates\order_confirmation.html:254
+msgid "Order Confirmation"
+msgstr "आदेश पुष्टि"
+
+#: .\templates\order_confirmation.html:269
+msgid "Billing and Checkout Information"
+msgstr "बिलिंग और चेकआउट जानकारी"
+
+#: .\templates\order_confirmation.html:275
+msgid "First Name *"
+msgstr "पहला नाम *"
+
+#: .\templates\order_confirmation.html:280
+msgid "Last Name *"
+msgstr "अंतिम नाम *"
+
+#: .\templates\order_confirmation.html:288
+msgid "Billing Address *"
+msgstr "बिलिंग पता *"
+
+#: .\templates\order_confirmation.html:304
+msgid "Postcode *"
+msgstr "पिन कोड *"
+
+#: .\templates\order_confirmation.html:318
+msgid "Email *"
+msgstr "ईमेल *"
+
+#: .\templates\order_confirmation.html:326
+msgid "Enter GST No. (if any)"
+msgstr "GST नंबर दर्ज करें (यदि कोई हो)"
+
+#: .\templates\order_confirmation.html:334
+msgid "Delivery Address (if different)"
+msgstr "वितरण पता (यदि अलग हो)"
+
+#: .\templates\order_confirmation.html:342
+msgid "Location *"
+msgstr "स्थान *"
+
+#: .\templates\order_confirmation.html:354
+msgid "Payment Method *"
+msgstr "भुगतान विधि *"
+
+#: .\templates\order_confirmation.html:366
+msgid "Cash on Delivery Options *"
+msgstr "कैश ऑन डिलीवरी विकल्प *"
+
+#: .\templates\order_confirmation.html:384
+msgid "Order Items"
+msgstr "आदेश आइटम्स"
+
+#: .\templates\order_confirmation.html:388
+msgid "Image"
+msgstr "चित्र"
+
+
+
+#: .\templates\order_confirmation.html:403
+msgid "No Image Available"
+msgstr "कोई चित्र उपलब्ध नहीं है"
+
+#: .\templates\order_confirmation.html:418
+msgid "Total Items"
+msgstr "कुल आइटम्स"
+
+#: .\templates\order_confirmation.html:424
+msgid "Price"
+msgstr "मूल्य"
+
+#: .\templates\order_confirmation.html:427
+#: .\templates\order_confirmation.html:429
+#: .\templates\order_confirmation.html:686
+msgid "Bucket Discount"
+msgstr "बाल्टी छूट"
+
+#: .\templates\order_confirmation.html:432
+msgid "Coupon Discount Applied"
+msgstr "कूपन छूट लागू हुई"
+
+#: .\templates\order_confirmation.html:433
+msgid "Total Amount"
+msgstr "कुल राशि"
+
+#: .\templates\order_confirmation.html:436
+msgid "Enter Coupon Code"
+msgstr "कूपन कोड दर्ज करें"
+
+#: .\templates\order_confirmation.html:437
+msgid "Apply Coupon"
+msgstr "कूपन लागू करें"
+
+#: .\templates\order_confirmation.html:438
+msgid "Remove Coupon"
+msgstr "कूपन हटाएं"
+
+#: .\templates\order_confirmation.html:447
+msgid "Proceed to Payments"
+msgstr "भुगतान की ओर बढ़ें"
+
+#: .\templates\order_confirmation.html:448
+msgid "Confirm Your Order"
+msgstr "अपने आदेश की पुष्टि करें"

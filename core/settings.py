@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from decouple import config
-
+from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 USE_X_FORWARDED_HOST = True
@@ -28,6 +28,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social_django',
      'channels',
+    
+    'pwa',
+
+
 
 ]
 
@@ -80,10 +84,25 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('redis', 64921)],
+            "hosts": ["redis://redis:64921/0"],  # WebSockets use Redis DB 0
         },
     },
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis:64921/0",  # Use same DB as WebSockets
+        "KEY_PREFIX": "cache_"
+    }
+}
+
+
+DEBUG = True
+
+
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -110,16 +129,18 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
 LANGUAGES = [
     ('en', 'English'),
     ('hi', 'Hindi'),
 ]
 
-TIME_ZONE = 'Asia/Kolkata'
+
+SITE_URL = "http://192.168.31.156:8000"  # Change this to your actual domain or localhost
+
+LANGUAGE_CODE = 'en'  # Default language
 USE_I18N = True
 USE_L10N = True
-USE_TZ = False
+USE_TZ = True
 
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale'),
@@ -143,11 +164,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication URLs
-LOGIN_URL = 'login'
+LOGIN_URL = 'Login'
 LOGIN_REDIRECT_URL = 'Home'
 LOGOUT_URL = 'logout'
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'Login'
 CSRF_TRUSTED_ORIGINS = ['https://mukesh-brothers.com']
+CSRF_TRUSTED_ORIGINS += ['http://127.0.0.1:8000']
 
 # Social Auth (Google OAuth2) settings
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
@@ -328,3 +350,37 @@ JAZZMIN_SETTINGS = {
 }
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+
+
+
+PWA_APP_NAME = "My E-commerce Store"
+PWA_APP_DESCRIPTION = "A Django-based e-commerce website as a PWA."
+PWA_APP_THEME_COLOR = "#000000"
+PWA_APP_BACKGROUND_COLOR = "#ffffff"
+PWA_APP_DISPLAY = "standalone"
+PWA_APP_SCOPE = "/"
+PWA_APP_ORIENTATION = "portrait"
+PWA_APP_START_URL = "/"
+PWA_APP_STATUS_BAR_COLOR = "black"
+PWA_APP_ICONS = [
+    {
+        "src": "/static/logo.png",
+        "sizes": "192x192",
+        "type": "image/png",
+    },
+    {
+         "src": "/static/logo.png",
+        "sizes": "512x512",
+        "type": "image/png",
+    },
+]
+PWA_APP_ICONS_APPLE = [
+    {
+        "src": "/static/logo.png",
+        "sizes": "192x192",
+        "type": "image/png",
+    }
+]
+PWA_SERVICE_WORKER_PATH = "/static/js/serviceworker.js"
+TIME_ZONE = 'Asia/Kolkata'

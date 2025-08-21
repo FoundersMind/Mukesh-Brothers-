@@ -2,6 +2,7 @@
 
 {% block body %}
     {% load static %}
+    
         <head>
             <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,6 +58,7 @@
             object-fit: cover;
             top:0;
         }
+        @media screen and (max-width: 1366px) { 
         .btn-google {
             display: inline-flex;
             align-items: center;
@@ -80,6 +82,7 @@
             background-color: black;
             color: white;
         }
+    }
 
         @keyframes backgroundAnimation {
             0% {
@@ -93,16 +96,23 @@
         }
     
         .container {
-            height: 600px;
-        
-            background-image: url('/static/order.jpeg');
-            background-size: 100%;
-            background-position: center;
-            background-repeat: no-repeat;
-            border-radius:20px;
-            margin-top: -70px;
-            animation: backgroundAnimation 3s ease-in-out;
+            height: 400px;
+            width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
+        .background-image {
+            margin-top:60px;
+            width: 100%;
+            height: 80%;
+           
+            border-radius: 15px;
+        }
+        
         .modal {
             position: fixed;
             left: 0;
@@ -383,7 +393,7 @@
                 height: 15px; /* Adjust the height of the checkbox if needed */
                 margin-right: 10px; /* Adjusts space between checkbox and label */
             }
-            .logo-container {
+            .logo-container-login {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -424,14 +434,116 @@
                 font-family: 'Times New Roman', Times, serif; /* Example of a decorative font */
                 font-size: 20px; /* Adjust font size as needed */
             }
-        @media(max-width: 750px) {
-          .modal-container {
-            width: 90%;
-          }
-          .modal-right {
-            display: none;
-          }
-        }
+
+
+            @media (max-width: 750px) {
+              
+                .login-photo{
+                    display:None;
+                }
+                .container {
+                    height: 600px;
+                    width: 100%;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            
+                .background-image {
+                    width: 100%;
+                    height: 70%;
+                    border-radius: 20px;
+                }
+            
+                .modal {
+                    position: fixed;
+                    left: 0;
+                    bottom: 0;
+                    margin-top: 70px;
+                    width: 100%;
+                    height: 60px;
+                    background: rgba(51, 51, 51, 0.5);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background 0.4s;
+                    padding-bottom: 10px; /* Added padding to prevent overlapping */
+                }
+            
+                .modal-container {
+                    width: 90%;
+                    height: 72%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+            #initial-form{
+                height:60%;
+            }
+                /* Hide old divider */
+                .divider-container {
+                    display: none;
+                }
+            
+                .left-line, .right-line {
+                    display: none;
+                }
+            
+                /* New divider - horizontally aligned with "or" in the center */
+                .dividerhorizontal-container {
+                    margin-top:100px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    
+                }
+            
+                .divider-line {
+                    width: 40%; /* Reduced width for better spacing */
+                    border: none;
+                    height: 1px;
+                    background-color: black;
+                }
+            
+                .divider-text {
+                    margin: 0 8px; /* Reduced space between "or" and lines */
+                    font-weight: bold;
+                    color: black;
+                    white-space: nowrap;
+                }
+            
+                /* Adjust Google button position */
+                .btn-google {
+                    margin-left:10px;
+                    display: flex;
+                    justify-content: center;
+                    width: 90%; /* Adjusted width to center better */
+                   
+                }
+            
+                .btn-google img {
+                    margin-right: 8px; /* Reduce spacing in the button */
+                    
+                }
+            
+                .modal-right {
+                    width:80%;
+                   margin-top:-16px;
+                    
+                }
+            
+                .close-button {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                }
+            }
+            
+            
     </style>
     {% comment %} <div class="scroll-down">SCROLL DOWN
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
@@ -442,80 +554,91 @@
     
 {% endblock content %}
 
-    <div class="container"></div>
-    
+
+
+<a href="javascript:history.back()" class="back-btn">&#x2190;</a>
+<div class="container">
+    <img src="/static/order.jpeg" class="background-image" alt="Order Image">
+</div>
+
     <div class="modal">
        
-            {% csrf_token %}
-            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-        <div class="modal-container">
-            <div class="modal-left" id="initial-form">
-                <div class="logo-container">
-                    <div class="logo-title">स्वागत है! (Welcome)</div>
-                    <div class="logo-desc"><span style="color: black;">Aapki shuddhta ab hamare haatho mein.</span></div>
-                    <div class="logo-text">Jai Jinendra</div>
-                </div>
-                
-                
-                <!-- Firm or Personal Name -->
-                <div class="input-block">
-                    <label for="firm-name" class="input-label">Firm or Personal Name</label>
-                    <input type="text" id="firm-name" name="firm-name" placeholder="Enter Firm or Personal Name" required>
-                </div>
-                
-                <!-- Mobile Number -->
-                <div class="input-block">
-                    <label for="mobile-number" class="input-label">Mobile Number</label>
-                    <input type="tel" id="mobile-number" name="mobile-number" placeholder="Mobile Number" required>
-                </div>
-               
-                <div class="terms-condition">
-                    <input type="checkbox" id="terms-checkbox" required>
-                    <label for="terms-checkbox">I agree to the <a href="#">Terms and Conditions</a></label>
-                </div> 
-                    
-                <div class="modal-buttons">
-                    <button type="button" class="input-button" id="request-otp" disabled>Request OTP</button>
-                </div>
+    {% csrf_token %}
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    
+    <div class="modal-container">
+        <div class="modal-left" id="initial-form">
+            <div class="logo-container-login">
+                <div class="logo-title">स्वागत है! (Welcome)</div>
+                <div class="logo-desc"><span style="color: black;">Aapki shuddhta ab hamare haatho mein.</span></div>
+                <div class="logo-text">Jai Jinendra</div>
             </div>
-    
-                <div class="modal-left" id="otp-container" style="display: none; margin-top:80px;">
-                    <!-- OTP Entry Form -->
-                <div class="input-block">
-                        <label for="otp" class="input-label">Enter OTP</label>
-                        <input type="text" id="otp" name="otp" placeholder="OTP" required>
-                    </div>
-                    
-                    <div class="modal-buttons">
-                        <button type="button" class="input-button "style="margin-left:110px;" id="submit-otp" disabled>Login</button>
-                    </div>
-                </div>
-                
-                <div class="divider-container">
-                    <hr class="left-line"/>
-                    <span>or</span>
-                    <hr class="right-line"/>
-                </div>
 
-                <div class="modal-right">
-                    <img src="{% static 'login_photo_2.png' %}" alt="Login Photo">
+            <!-- Firm or Personal Name -->
+            <div class="input-block">
+                <label for="firm-name" class="input-label">Firm or Personal Name</label>
+                <input type="text" id="firm-name" name="firm-name" placeholder="Enter Firm or Personal Name" required>
+            </div>
 
-                    <a class="btn btn-google" href="{% url 'social:begin' 'google-oauth2' %}">
-                        <img src="{% static "google_logo.png" %}" alt="Google Logo"> Sign in using Google
-                    </a>
-           
-    
-            <!-- Close Button -->
-            <button class="icon-button close-button">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
-                    <path d="M 25 3 C 12.86158 3 3 12.86158 3 25 C 3 37.13842 12.86158 47 25 47 C 37.13842 47 47 37.13842 47 25 C 47 12.86158 37.13842 3 25 3 z M 25 5 C 36.05754 5 45 13.94246 45 25 C 45 36.05754 36.05754 45 25 45 C 13.94246 45 5 36.05754 5 25 C 5 13.94246 13.94246 5 25 5 z M 16.990234 15.990234 A 1.0001 1.0001 0 0 0 16.292969 17.707031 L 23.585938 25 L 16.292969 32.292969 A 1.0001 1.0001 0 1 0 17.707031 33.707031 L 25 26.414062 L 32.292969 33.707031 A 1.0001 1.0001 0 1 0 33.707031 32.292969 L 26.414062 25 L 33.707031 17.707031 A 1.0001 1.0001 0 0 0 32.980469 15.990234 A 1.0001 1.0001 0 0 0 32.292969 16.292969 L 25 23.585938 L 17.707031 16.292969 A 1.0001 1.0001 0 0 0 16.990234 15.990234 z"></path>
-                </svg> 
-            </button> 
-             </div>
+            <!-- Mobile Number -->
+            <div class="input-block">
+                <label for="mobile-number" class="input-label">Mobile Number</label>
+                <input type="tel" id="mobile-number" name="mobile-number" placeholder="Mobile Number" required>
+            </div>
+
+            <div class="terms-condition">
+                <input type="checkbox" id="terms-checkbox" required>
+                <label for="terms-checkbox">I agree to the <a href="#">Terms and Conditions</a></label>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="input-button" id="request-otp" disabled>Request OTP</button>
+            </div>
         </div>
+
+        <div class="modal-left" id="otp-container" style="display: none; margin-top:80px;">
+            <!-- OTP Entry Form -->
+            <div class="input-block">
+                <label for="otp" class="input-label">Enter OTP</label>
+                <input type="text" id="otp" name="otp" placeholder="OTP" required>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="input-button" style="margin-left:110px;" id="submit-otp" disabled>Login</button>
+            </div>
+        </div>
+
+        <div class="divider-container">
+            <hr class="left-line"/>
+            <span>or</span>
+            <hr class="right-line"/>
+        </div>
+
+       <div class="dividerhorizontal-container">
+    <hr class="divider-line"/>
+    <span class="divider-text">or</span>
+    <hr class="divider-line"/>
+</div>
+
+        <div class="modal-right">
+            <img src="{% static 'login_photo_2.png' %}" alt="Login photo" class="login-photo">
+
+            <a class="btn btn-google" href="{% url 'social:begin' 'google-oauth2' %}">
+                <img src="{% static 'google_logo.png' %}" alt="Google Logo"> Sign in using Google
+            </a>
+           
+
+        <!-- Close Button -->
+        <button class="icon-button close-button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                <path d="M 25 3 C 12.86158 3 3 12.86158 3 25 C 3 37.13842 12.86158 47 25 47 C 37.13842 47 47 37.13842 47 25 C 47 12.86158 37.13842 3 25 3 z M 25 5 C 36.05754 5 45 13.94246 45 25 C 45 36.05754 36.05754 45 25 45 C 13.94246 45 5 36.05754 5 25 C 5 13.94246 13.94246 5 25 5 z M 16.990234 15.990234 A 1.0001 1.0001 0 0 0 16.292969 17.707031 L 23.585938 25 L 16.292969 32.292969 A 1.0001 1.0001 0 1 0 17.707031 33.707031 L 25 26.414062 L 32.292969 33.707031 A 1.0001 1.0001 0 1 0 33.707031 32.292969 L 26.414062 25 L 33.707031 17.707031 A 1.0001 1.0001 0 0 0 32.980469 15.990234 A 1.0001 1.0001 0 0 0 32.292969 16.292969 L 25 23.585938 L 17.707031 16.292969 A 1.0001 1.0001 0 0 0 16.990234 15.990234 z"></path>
+            </svg>
+        </button>
+    </div>
+</div>
        <button class="modal-button">Click here to login</button>
     </div>
-    <div id="message-container"></div>
+<div id="message-container"></div>
 
    
     <script>

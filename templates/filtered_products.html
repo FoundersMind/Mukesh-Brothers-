@@ -1,0 +1,28 @@
+ 
+    {% for prod in products %}
+    <div class="col-4 mb-3">
+      <a href="{% url 'subproduct1' product_id=prod.id %}" class="card-link">
+        <div class="card product-card">
+  
+          <!-- Seamless Image Container -->
+          <div class="image-wrapper">
+            <div class="image-container-product">
+              <img src="{{ prod.image.url }}" alt="{% trans prod.name %}">
+            </div>
+          </div>
+  
+          <div class="card-body">
+            <h5 class="product-name">{% trans prod.name %}</h5>
+            {% if prod.tag %}
+            <div class="product-tag">{{ prod.tag }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    </div>
+  {% empty %}
+    <div class="col-md-12">
+      <p>{% trans 'No products found.' %}</p>
+    </div>
+  {% endfor %}
+  

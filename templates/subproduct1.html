@@ -1,13 +1,16 @@
 
-
 {% extends 'base.html' %}
+
 {% block body %}
 {% load custom_filter %}
 
 <head>
+    {% load static %}
     <meta charset="utf-8">
     <title>{% block title %} {% endblock title %}Mukesh & Brothers</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script> 
+  
     {% comment %} <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
@@ -19,6 +22,77 @@
 </head>
 
 <style>
+    /* Mobile Version - Horizontal Filters */
+    /* General Filter Form Styling */
+    #filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px; /* Spacing between elements */
+        align-items: center;
+    }
+    
+    /* Make the Filter Tags Appear in a Row */
+    .filter-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-left:10px;
+    }
+    
+    /* Ensure 'Filter:' text stays in one line */
+    .filter-label {
+        font-weight: bold;
+        font-size: 16px;
+        white-space: nowrap;
+    }
+    
+    /* Style the Filter Buttons */
+    .filter-btn {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+    }
+    
+    /* Active (selected) Filter Button */
+    .filter-btn.active {
+        background-color: #ff5a5f; /* Zomato Red */
+        color: white;
+        border-color: #ff5a5f;
+    }
+    
+    /* Input fields inside Price Filter */
+    #price-min,
+    #price-max {
+        width: 100px;
+        text-align: center;
+    }
+    
+    /* Ensure "Subproduct" and "Price Range" labels align properly */
+    .form-group {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        #filter-form {
+            flex-direction: column;
+            align-items: center;
+        }
+    
+        .filter-container {
+            justify-content: center;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+    }
+    
     .modal-body form {
         display: flex;
         flex-direction: column;
@@ -99,56 +173,8 @@
         object-fit: cover;
         border-radius:20px;
     }
-    /* Custom styling for the filter section */
-    .filter-section {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        padding: 10px;
-        background-color: #f9f9f9;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
+   
     
-    /* Adjust the spacing between filter form elements */
-    .filter-section .form-group {
-        margin-right: 15px;
-        margin-bottom: 10px; /* Adjusted for better spacing in horizontal layout */
-        display: flex;
-        align-items: center;
-    }
-    
-    .filter-section .form-group label {
-        margin-right: 10px;
-        margin-bottom: 0; /* Remove margin for horizontal layout */
-    }
-    
-    .filter-section .form-group input,
-    .filter-section .form-group select {
-        max-width: 150px;
-    }
-    
-    .filter-section .btn-primary {
-        margin-top: 0; /* Adjusted for horizontal layout */
-        height: fit-content; /* Make button height fit content */
-    }
-    
-    /* Ensure the filter section is responsive */
-    @media (max-width: 768px) {
-        .filter-section {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-    
-        .filter-section .form-group {
-            margin-right: 0;
-            margin-bottom: 10px;
-        }
-    
-        .filter-section .btn-primary {
-            margin-top: 10px;
-        }
-    }
     
     </style>
     
@@ -159,178 +185,82 @@
     
 {% endblock content %}
 
-<!-- subproduct1.html -->
+
 <div class="container-fluid">
+    <a href="javascript:void(0);" class="back-btn" onclick="handleBack()">&#x2190;</a>
+
+   
+
     <!-- Filter Section -->
     <div class="row mb-4">
-        <form id="filter-form" action="{% if product %}{% url 'filtered_subproducts' product.id %}{% else %}{% url 'filtered_subproducts_without_product' %}{% endif %}" method="get" class="d-flex flex-wrap justify-content-center">
-            <!-- Subproduct Filter -->
-            <div class="form-group mx-6 text-center">
-                <label for="subproduct" class="mb-3">Subproduct</label>
-                <select class="form-control mx-auto" id="subproduct" name="subproduct">
-                    <option value="">All Subproducts</option>
-                    {% for subproduct in subproduct_data %}
-                    <option value="{{ subproduct.subproduct.id }}">{{ subproduct.subproduct.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+        <form id="filter-form" style="all: unset; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; justify-content: center;">
+            
+            <!-- Combined Filter and Sorting Section -->
+            <div class="filter-container d-flex flex-wrap gap-2 align-items-center justify-content-start">
+                
+                <!-- Sort By Price -->
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="filter-label">Sort By Price:</span>
+                    <button type="button" class="filter-btn btn btn-outline-secondary"
+                        hx-get="{% if subproduct_data and subproduct_data.0.product_id %}{% url 'filtered_subproducts' subproduct_data.0.product_id %}{% else %}{% url 'filtered_subproducts_without_product' %}{% endif %}?sort=min_price"
+                        hx-target="#subproduct-list"
+                        hx-swap="innerHTML">
+                        Min Price 
+                    </button>
+                    <button type="button" class="filter-btn btn btn-outline-secondary"
+                        hx-get="{% if subproduct_data and subproduct_data.0.product_id %}{% url 'filtered_subproducts' subproduct_data.0.product_id %}{% else %}{% url 'filtered_subproducts_without_product' %}{% endif %}?sort=max_price"
+                        hx-target="#subproduct-list"
+                        hx-swap="innerHTML">
+                        Max Price
+                    </button>
+                </div>
 
-            <!-- Price Range Filter -->
-            <div class="form-group mx-4 text-center">
-                <label for="price-min" class="mb-3">Price Range</label>
-                <div class="row justify-content-center">
-                    <div class="col-md-5">
-                        <input type="number" class="form-control" id="price-min" name="price_min" placeholder="Min" min="0">
-                    </div>
-                    <div class="col-md-1"></div> <!-- Spacer column -->
-                    <div class="col-md-5">
-                        <input type="number" class="form-control" id="price-max" name="price_max" placeholder="Max" min="0">
-                    </div>
+                <!-- Tag Filter -->
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="filter-label">Filter:</span>
+                    <button type="button"
+                            hx-get="{% if subproduct_data and subproduct_data.0.product_id %}{% url 'filtered_subproducts' subproduct_data.0.product_id %}{% else %}{% url 'filtered_subproducts_without_product' %}{% endif %}?tags=new"
+                            hx-target="#subproduct-list"
+                            hx-swap="innerHTML"
+                            class="btn btn-outline-primary">
+                        New
+                    </button>
+                    <button type="button"
+                            hx-get="{% if subproduct_data and subproduct_data.0.product_id %}{% url 'filtered_subproducts' subproduct_data.0.product_id %}{% else %}{% url 'filtered_subproducts_without_product' %}{% endif %}?tags=best_seller"
+                            hx-target="#subproduct-list"
+                            hx-swap="innerHTML"
+                            class="btn btn-outline-primary">
+                        Best Seller
+                    </button>
+                    <button type="button"
+                            hx-get="{% if subproduct_data and subproduct_data.0.product_id %}{% url 'filtered_subproducts' subproduct_data.0.product_id %}{% else %}{% url 'filtered_subproducts_without_product' %}{% endif %}?tags=combo"
+                            hx-target="#subproduct-list"
+                            hx-swap="innerHTML"
+                            class="btn btn-outline-primary">
+                        Combo
+                    </button>
+                    <button type="button"
+                            hx-get="{% if subproduct_data and subproduct_data.0.product_id %}{% url 'filtered_subproducts' subproduct_data.0.product_id %}{% else %}{% url 'filtered_subproducts_without_product' %}{% endif %}"
+                            hx-target="#subproduct-list"
+                            hx-swap="innerHTML"
+                            class="btn btn-outline-secondary">
+                        Reset
+                    </button>
                 </div>
-            </div>
-
-            <!-- Tag Filter -->
-            <div class="form-group mx-2">
-                <label>Tags:</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tag-new" name="tags" value="new">
-                    <label class="form-check-label" for="tag-new">New</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tag-bestseller" name="tags" value="bestseller">
-                    <label class="form-check-label" for="tag-bestseller">Best Seller</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="tag-combo" name="tags" value="combo">
-                    <label class="form-check-label" for="tag-combo">Combo</label>
-                </div>
-            </div>
-            <!-- Apply Filters Button -->
-            <div class="form-group mx-2 align-self-end">
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
             </div>
         </form>
     </div>
-   
-    <!-- Product Section -->
-    <div class="row product-section">
-        {% for product in subproduct_data %}
-        <div class="col-md-4 mb-4">
-            <div class="card product-card">
-                <div style="height: 200px; max-width: 100%;">
-                    {% if product.image %}
-                    <img src="{{ product.image }}" alt="{{ product.subproduct.name }}" style="height: 200px; width: 100%;">
-                    {% else %}
-                    <img src="{% static 'default_image.jpg' %}" alt="Default Image" style="height: 200px; width: 100%;">
-                    {% endif %}
-                </div>
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ product.subproduct.name }}</h5>
-                    <p>Price Range: ₹{{ product.min_price }} - ₹{{ product.max_price }}</p>
-                    {% if product.subproduct.tag %}
-                    <div class="product-tag">{{ product.subproduct.get_tag_display }}</div>
-                    {% endif %}
-                    <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#videoRequestModal_{{ product.subproduct.id }}">
-                        <i class="fas fa-video"></i> Live Video on Request
-                    </a>
-                </div>
-            </div>
-            <!-- Dropdown and form for net weight selection -->
-            <div class="dropdown">
-                <button class="btn btn-sm dropdown-toggle" style="margin-left: 20px; width: 150px;" type="button" id="netweightDropdown_{{ product.subproduct.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                    Net.Wt
-                </button>
-                <form id="add-to-cart-form_{{ product.subproduct.id }}" method="post" action="{% url 'add_to_cart' %}"style="border:None;">
-                    {% csrf_token %}
-                    <input type="hidden" name="subproduct_id" value="{{ product.subproduct.id }}">
-                    <input type="hidden" name="subproduct_name" value="{{ product.subproduct.name }}">
-                    <input type="hidden" name="tag" value="{{ product.subproduct.tag }}">
-                    <input type="hidden" name="unit" id="selected-unit-id_{{ product.subproduct.id }}" value="">
-                    <label for="quantity">Quantity:</label>
-                    <div class="input-group">
-                        <button class="btn btn-light quantity-btn" data-cart-item-id="{{ product.subproduct.id }}" data-operation="decrement" data-selected-unit="{{ product.selected_unit }}">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <input type="text" name="quantity" value="1" id="selected-quantity_{{ product.subproduct.id }}" class="form-control quantity-input">
-                        <button class="btn btn-light quantity-btn" data-cart-item-id="{{ product.subproduct.id }}" data-operation="increment" data-selected-unit="{{ product.selected_unit }}">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                    <button type="submit" id="add-to-cart-btn_{{ product.subproduct.id }}" class="btn btn-primary btn-sm add-to-cart-btn" data-unit-id="{{ product.subproduct.id }}" style="margin-top: 10px; width: 100px; text-align: center;">Add to Cart</button>
-                    <div class="dropdown-menu custom-dropdown-menu" style="padding: 2px; text-align: center;" aria-labelledby="netweightDropdown_{{ product.subproduct.id }}">
-                        <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_10gm" data-unit="10gm">10gm</a>
-                        <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_50gm" data-unit="50gm">50gm</a>
-                        <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_100gm" data-unit="100gm">100gm</a>
-                        <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_250gm" data-unit="250gm">250gm</a>
-                        <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_500gm" data-unit="500gm">500gm</a>
-                        <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_1kg" data-unit="1kg">1Kg</a>
-                        <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_10kg" data-unit="10kg">10Kg</a>
-                        <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_50kg" data-unit="50kg">50kg</a>
-                        <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_100kg" data-unit="100kg">100kg</a>
-                        <!-- Add more items here for other unit options -->
-                    </div>
-                </form>
-            </div>
-            <div><span id="selected-unit-price_{{ product.subproduct.id }}"></span></div>
-            <div class="notification-container" id="notification-container"></div>
-        </div>
-
-        <div class="modal fade" id="videoRequestModal_{{ product.subproduct.id }}" tabindex="-1" aria-labelledby="videoRequestModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="videoRequestModalLabel">Request Live Video</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form id="video-request-form_{{ product.subproduct.id }}">
-                        <div class="modal-body">
-                            <p>This feature is available for registered firms only.</p>
-                            {% csrf_token %}
-                            <input type="hidden" name="subproduct" value="{{ product.subproduct.id }}">
-                            <div class="mb-3">
-                                <label for="firm_name" class="form-label">Firm Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="firm_name" name="firm_name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="contact_no" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text">+91</span>
-                                    <input type="text" class="form-control" id="contact_no" name="contact_no" required placeholder="Enter mobile number">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="unit" class="form-label">Unit</label>
-                                <select class="form-control" id="unit" name="unit" required>
-                                    <option value="">Select Unit</option>
-                                    <option value="10gm">10gm</option>
-                                    <option value="50gm">50gm</option>
-                                    <option value="100gm">100gm</option>
-                                    <!-- Add more units here -->
-                                </select>
-                            </div>
-                            <button type="button" class="btn btn-primary submit-video-request" data-subproduct-id="{{ product.subproduct.id }}">Submit Request</button>
-                        </div>
-                    </form>
-                    <!-- Toast container for notifications -->
-                    <div class="toast-container position-fixed top-0 end-0 p-3" id="toast-container_{{ product.subproduct.id }}">
-                        <!-- Toast will be added dynamically -->
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        
-        {% endfor %}
+ <h3>Subproducts</h3>
+    <!-- Filtered Subproducts Section -->
+    <div id="subproduct-list">
+        {% include 'subproduct_list.html' %}
     </div>
 </div>
-
 <script>
     // -*- coding: utf-8 -*-
     document.addEventListener('DOMContentLoaded', function() {
+      
+
         document.querySelectorAll(".submit-video-request").forEach(button => {
             button.addEventListener("click", function() {
                 var subproductId = this.getAttribute("data-subproduct-id");
@@ -551,21 +481,43 @@
                     },
                     body: formData,
                 })
-                .then(response => response.json())
+                .then(response => {
+                    // Check if response is a redirect (302 status)
+                    if (response.redirected || response.status === 302) {
+                        // Redirect to the login page
+                        window.location.href = response.url || '/Login/';
+                        return;
+                    }
+                    
+                    // Check if response is not JSON (like HTML login page)
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        // Redirect to login page
+                        window.location.href = '/Login/';
+                        return;
+                    }
+                    
+                    return response.json();
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         showNotification(data.success); // Show success notification
                         // Update cart count
                         const cartCountElement = document.getElementById('cart-count');
                         cartCountElement.textContent = data.cart_item_count;
                         cartCountElement.classList.add('animate__animated', 'animate__bounceIn'); // Add animation class
-                    } else if (data.error) {
+                    } else if (data && data.error) {
                         showNotification(data.error); // Show error notification
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showNotification('Please login first'); // Show generic error notification
+                    // If there's a JSON parsing error, it's likely a login redirect
+                    if (error.message.includes('Unexpected token') || error.message.includes('JSON')) {
+                        window.location.href = '/Login/';
+                    } else {
+                        showNotification('Please login first'); // Show generic error notification
+                    }
                 });
             });
         });
@@ -647,7 +599,17 @@ function updateCartCount() {
 
 
  });
+ function handleBack() {
+    var subproductContainer = document.getElementById('subproduct-container');
 
+    if (subproductContainer && subproductContainer.innerHTML.trim() !== '') {
+        // Case 1: Close the subproduct list if opened via top-nav
+        subproductContainer.innerHTML = '';
+    } else {
+        // Case 2: Go back in browser history if accessed via scrolling
+        history.back();
+    }
+}
 
 </script>
 

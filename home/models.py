@@ -27,15 +27,23 @@ from io import BytesIO
 from django.core.files import File
 from PIL import Image
 
+from django.db import models
+from django.utils.translation import gettext as _
+from django.conf import settings
+import qrcode
+from io import BytesIO
+from django.core.files import File
+from django.utils.translation import gettext as _  # Use gettext instead of gettext_lazy
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     image = models.ImageField(upload_to='product_images', null=True, blank=True)
     tag = models.CharField(
         max_length=20,
         choices=[
-            ('', 'None'),
-            ('new', 'New'),
-            ('best_seller', 'Best Seller')
+            ('', _('None')),
+            ('new', _('New')),
+            ('best_seller', _('Best Seller'))
         ],
         blank=True,
         default=''
@@ -43,7 +51,7 @@ class Product(models.Model):
     qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)  # QR code field
 
     def __str__(self):
-        return self.name
+        return str(_('' + self.name))  # Return the product's name directly as a string
 
     def save(self, *args, **kwargs):
         # Generate QR code pointing to the product's admin page
@@ -58,6 +66,7 @@ class Product(models.Model):
 
         super().save(*args, **kwargs)  # Call the real save() method
 
+
 class Coupon(models.Model):
     code = models.CharField(max_length=20, unique=True)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -65,8 +74,7 @@ class Coupon(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.code
-    
+        return (self.code)
 
 
 class SpecialProduct(models.Model):
@@ -74,16 +82,17 @@ class SpecialProduct(models.Model):
     image = models.ImageField(upload_to='product_images', null=True, blank=True)
     carousel_image = models.ImageField(upload_to='carousel_images', null=True, blank=True)
     coupons = models.ManyToManyField(Coupon, blank=True)
-    
+
     def __str__(self):
-        return self.name
-    
+        return (self.name)
+
+
 class subproduct(models.Model):
     TAG_CHOICES = [
-        ('', 'None'),
-        ('new', 'New'),
-        ('best_seller', 'Best Seller'),
-        ('combo', 'Combo')
+        ('', _('None')),
+        ('new', _('New')),
+        ('best_seller', _('Best Seller')),
+        ('combo', _('Combo'))
     ]
 
     name = models.CharField(max_length=200)
@@ -99,11 +108,11 @@ class subproduct(models.Model):
     bucket = models.ForeignKey('Bucket', on_delete=models.CASCADE, null=True, blank=True)
     qr_code = models.ImageField(upload_to='qr_codes', blank=True, null=True)  # QR code field
 
-    # New gst_rate field with default value 5%
     gst_rate = models.DecimalField(max_digits=5, decimal_places=2, default=5.00)  # Default GST 5%
 
     def __str__(self):
-        return self.name
+        return str(_(self.name))  # Ensure it returns a string
+
 
     def save(self, *args, **kwargs):
         # Generate QR code pointing to the subproduct's admin page
@@ -121,21 +130,20 @@ class subproduct(models.Model):
 
 class Unit(models.Model):
     Subproduct = models.ForeignKey(subproduct, on_delete=models.CASCADE, null=True, blank=True)
-
     special_product = models.ForeignKey(SpecialProduct, on_delete=models.CASCADE, null=True, blank=True)
-    
+
     unit_choices = (
-        ('10gm', '10 Grams'),
-        ('50gm', '50 Grams'),
-        ('100gm', '100 Grams'),
-        ('250gm', '250 Grams'),
-        ('500gm', '500 Grams'),
-        ('1kg', '1 Kilogram'),
-        ('10kg', '10 Kilogram'),
-        ('50kg', '50 Kilogram'),
-        ('100kg', '100 Kilogram'),
+        ('10gm', _('10 Grams')),
+        ('50gm', _('50 Grams')),
+        ('100gm', _('100 Grams')),
+        ('250gm', _('250 Grams')),
+        ('500gm', _('500 Grams')),
+        ('1kg', _('1 Kilogram')),
+        ('10kg', _('10 Kilogram')),
+        ('50kg', _('50 Kilogram')),
+        ('100kg', _('100 Kilogram')),
     )
-    
+
     unit_price = models.DecimalField(max_digits=20, decimal_places=2, null=True)  # Allow null for default calculation
     unit = models.CharField(max_length=20, choices=unit_choices)
     quantity = models.PositiveIntegerField(default=0, null=True)
@@ -148,7 +156,7 @@ class Unit(models.Model):
 
     def __str__(self):
         return self.get_unit_display()
-    
+
 class UnitInline(admin.TabularInline):
     model = Unit
     extra = 0
@@ -162,9 +170,9 @@ class SpecialProductAdmin(admin.ModelAdmin):
 
 class inventory(models.Model):
     CATEGORY_CHOICES = [
-        ('Category 1', 'Category 1'),
-        ('Category 2', 'Category 2'),
-        ('Category 3', 'Category 3'),
+        ('Category 1', _('Category 1')),
+        ('Category 2', _('Category 2')),
+        ('Category 3', _('Category 3')),
     ]
 
     product_name = models.CharField(max_length=100, null=False, blank=False)
@@ -172,8 +180,8 @@ class inventory(models.Model):
     cost = models.DecimalField(max_digits=20, decimal_places=3, null=False, blank=False)
     quantity_available = models.DecimalField(max_digits=10, decimal_places=3, null=False, blank=False)
     unit_choices = (
-        ('grams', 'Grams'),
-        ('kg', 'Kilograms'),
+        ('grams', _('Grams')),
+        ('kg', _('Kilograms')),
     )
 
     unit = models.CharField(max_length=20, choices=unit_choices, default='grams')
@@ -187,9 +195,9 @@ class inventory(models.Model):
 
 class Bucket(models.Model):
     size_choices = (
-        ('5kg', '5kg'),
-        ('10kg', '10kg'),
-        ('20kg', '20kg'),
+        ('5kg', _('5kg')),
+        ('10kg', _('10kg')),
+        ('20kg', _('20kg')),
     )
 
     size = models.CharField(max_length=20, choices=size_choices)
@@ -220,7 +228,6 @@ class GSTDiscountForm(forms.ModelForm):
         fields = ['gst_number', 'discount_percentage']
 
 class Cart(models.Model):
-
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
     items = models.ManyToManyField(Unit, through='CartItem')
 
@@ -272,11 +279,12 @@ class CartItem(models.Model):
     special_product = models.ForeignKey(SpecialProduct, on_delete=models.CASCADE, null=True, blank=True)
     is_combo_bundle = models.BooleanField(default=False)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    
     TAG_CHOICES = [
-        ('', 'None'),
-        ('new', 'New'),
-        ('best_seller', 'Best Seller'),
-        ('combo', 'Combo')
+        ('', _('None')),
+        ('new', _('New')),
+        ('best_seller', _('Best Seller')),
+        ('combo', _('Combo')),
     ]
     
     tag = models.CharField(
@@ -300,7 +308,7 @@ class CartItem(models.Model):
 
     def unit_price_display(self):
         return self.unit.unit_price if self.unit else None
-    unit_price_display.short_description = 'Unit Price'
+    unit_price_display.short_description = _('Unit Price')
 
 
 class CartItemForm(forms.ModelForm):
@@ -315,6 +323,7 @@ class customer(models.Model):
 
     def __str__(self):
         return self.mobile_number
+
 
 @receiver(post_save, sender=User)
 def create_user_cart(sender, instance, created, **kwargs):
@@ -338,7 +347,7 @@ class VideoRequest(models.Model):
     video = models.FileField(upload_to='videos/', null=True, blank=True)  # New field for video upload
 
     def __str__(self):
-        subproduct_name = self.subproduct.name if self.subproduct else 'No Subproduct'
+        subproduct_name = self.subproduct.name if self.subproduct else _('No Subproduct')
         return f"{self.firm_name} - {subproduct_name} - {self.submitted_at}"
 
 
@@ -380,21 +389,23 @@ class Invoice(models.Model):
     def __str__(self):
         return f"Invoice {self.invoice_number} for Order {self.order.custom_order_id}"
 
+
 class Order(models.Model):
     PROGRESS_STATUS_CHOICES = [
-        ('placed', 'Placed'),
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
-        ('cancelled', 'Cancelled'),
+        ('placed', _('Placed')),
+        ('shipped', _('Shipped')),
+        ('delivered', _('Delivered')),
+        ('cancelled', _('Cancelled')),
     ]
+    
     PAYMENT_CHOICES = [
-        ('cash', 'Cash'),
-        ('online', 'Online'),
+        ('cash', _('Cash')),
+        ('online', _('Online')),
     ]
 
     CASH_PAYMENT_CHOICES = [
-        ('normal', 'Normal'),
-        ('credit', 'Credit'),
+        ('normal', _('Normal')),
+        ('credit', _('Credit')),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -480,18 +491,20 @@ class EmailLog(models.Model):
 
     def __str__(self):
         return f'{self.subject} to {self.recipient}'
+from django.db import models
+from django.utils.translation import gettext_lazy as _  # Import translation
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(subproduct, on_delete=models.CASCADE)  # Assuming you have a Product model
-    unit = models.CharField(max_length=50, blank=True, null=True)  # Add a field for unit
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity = models.PositiveIntegerField()
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.URLField(max_length=200, blank=True, null=True)  # Add field for image URL
-    unit_quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Field for unit quantity in kg
-    price_before_gst = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # New field for price before GST
-    gst_rate = models.DecimalField(max_digits=5, decimal_places=2, default=5.00)  # Default GST 5%
+    product = models.ForeignKey(subproduct, on_delete=models.CASCADE)
+    unit = models.CharField(max_length=50, blank=True, null=True, verbose_name=_('Unit'))  # Field for unit
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Unit Price'))
+    quantity = models.PositiveIntegerField(verbose_name=_('Quantity'))
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('Total Price'))
+    image = models.URLField(max_length=200, blank=True, null=True, verbose_name=_('Image URL'))  # Field for image URL
+    unit_quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Unit Quantity (kg)'))
+    price_before_gst = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Price Before GST'))
+    gst_rate = models.DecimalField(max_digits=5, decimal_places=2, default=5.00, verbose_name=_('GST Rate'))  # Default GST 5%
 
     def __str__(self):
         return f"Item {self.product.name} for Order {self.order.id}"
@@ -505,68 +518,72 @@ class OwnerDetails(models.Model):
     account_number = models.CharField(
         max_length=20,
         validators=[MinLengthValidator(9)],
-        help_text="Enter the bank account number."
+        help_text=_("Enter the bank account number."),
+        verbose_name=_('Account Number')
     )
     ifsc_code = models.CharField(
         max_length=11,
         validators=[RegexValidator(r'^[A-Z]{4}0[A-Z0-9]{6}$')],
-        help_text="Enter the IFSC code (e.g., KKBR2345677)."
+        help_text=_("Enter the IFSC code (e.g., KKBR2345677)."),
+        verbose_name=_('IFSC Code')
     )
     upi_id = models.CharField(
         max_length=50,
         validators=[RegexValidator(r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+$')],
-        help_text="Enter the UPI ID (e.g., 8770500434@ybl)."
+        help_text=_("Enter the UPI ID (e.g., 8770500434@ybl)."),
+        verbose_name=_('UPI ID')
     )
     gst_number = models.CharField(
         max_length=15,
         validators=[RegexValidator(r'^[A-Z0-9]{15}$')],
-        help_text="Enter the GST number."
+        help_text=_("Enter the GST number."),
+        verbose_name=_('GST Number')
     )
     address = models.TextField(
-        help_text="Enter the owner's address."
+        help_text=_("Enter the owner's address."),
+        verbose_name=_('Address')
     )
     contact_number = models.CharField(
         max_length=15,
         validators=[RegexValidator(r'^\d{10,15}$')],
-        help_text="Enter the contact number."
+        help_text=_("Enter the contact number."),
+        verbose_name=_('Contact Number')
     )
 
     def __str__(self):
         return f"Owner Details ({self.account_number})"
 
     class Meta:
-        verbose_name = "Owner Detail"
-        verbose_name_plural = "Owner Details"
+        verbose_name = _("Owner Detail")
+        verbose_name_plural = _("Owner Details")
 
-
-
-# your_app/models.py
-from django.db import models
-from django.contrib.auth.models import User  # Replace with your custom user model if needed
-# models.py
-
-from django.db import models
-from django.contrib.auth.models import User  # Import the User model
 
 class Address(models.Model):
     LOCATION_CHOICES = [
-        ('Shivpuri', 'Shivpuri'),
-        ('Indore', 'Indore'),
+        ('Shivpuri', _('Shivpuri')),
+        ('Indore', _('Indore')),
     ]
 
     ADDRESS_TYPE_CHOICES = [
-        ('billing', 'Billing Address'),
-        ('delivery', 'Delivery Address'),
+        ('billing', _('Billing Address')),
+        ('delivery', _('Delivery Address')),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses', null=True, blank=True)  # Link to the User model
-    address_type = models.CharField(max_length=10, choices=ADDRESS_TYPE_CHOICES)
-    address_details = models.TextField(default='No address details provided')
-    location = models.CharField(max_length=255, choices=LOCATION_CHOICES)  # Use choices here
-    postcode = models.CharField(max_length=10)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses', null=True, blank=True)
+    address_type = models.CharField(max_length=10, choices=ADDRESS_TYPE_CHOICES, verbose_name=_('Address Type'))
+    address_details = models.TextField(default='No address details provided', verbose_name=_('Address Details'))
+    location = models.CharField(max_length=255, choices=LOCATION_CHOICES, verbose_name=_('Location'))
+    postcode = models.CharField(max_length=10, verbose_name=_('Postcode'))
     
     def __str__(self):
         return f"{self.address_type} - {self.location} ({self.user})"
+    
+from django.db import models
 
+class RecentSearch(models.Model):
+    term = models.CharField(max_length=255, unique=True)  # Avoid duplicates
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.term
 

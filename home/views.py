@@ -52,6 +52,10 @@ def logout_view(request):
     # Redirect to the homepage or login page after logout
     return redirect('home')  # Replace 'home' with the name of your homepage URL or login page URL
 
+from django.shortcuts import render
+
+def navbar_view(request):
+    return render(request, 'navbar.html')
 
 from decimal import Decimal, ROUND_DOWN
 
@@ -97,6 +101,91 @@ def index(request):
     
 def login_view(request):
     return render(request,'login.html')
+def subproduct_view(request):
+    return render(request,'subproduct1.html')
+
+from django.shortcuts import render
+from .models import Product  # Assuming Product model has a 'season' field
+from datetime import date
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Product, subproduct
+
+
+
+
+def get_season():
+    """Determine the season based on the current date."""
+    today = date.today()
+    month = today.month
+    day = today.day
+    
+    if  (month == 11 and day >= 15) or (month in [12, 1, 2, 3]):  
+        return "winter"
+    elif (month == 3 and day > 31) or (month in [4, 5, 6]) or (month == 7 and day <= 15): 
+        return "summer"
+    else:  # From mid-July to mid-November
+        return "monsoon"
+from django.shortcuts import render
+from django.db.models import Min, Max
+from .models import subproduct
+
+def seasonal_essentials(request):
+    """Fetch subproducts, categorize them into seasonal lists, and calculate discounts."""
+    
+    # Fetch all subproducts from the database
+    subproducts = subproduct.objects.all()
+
+    # Initialize seasonal lists
+    winter, summer, monsoon = [], [], []
+
+    # Categorization logic (modify this based on your products)
+    for subproducted in subproducts:
+        # Calculate min and max price
+        units = subproducted.unit_set.all()  # ✅ Use subproductp instead of subproduct
+        prices = [unit.unit_price for unit in units]
+        min_price = min(prices) if prices else 0
+        max_price = max(prices) if prices else 0
+
+        # Calculate discount if valid prices exist
+        discount = round(((max_price - min_price) / max_price) * 100, 2) if max_price > min_price > 0 else 0
+
+        subproduct_data = {
+            'name': subproducted.name,
+            'image': subproducted.image.url if subproducted.image else None,
+            'product_id': subproducted.product.id if subproducted.product else None,  # ✅ Avoid NoneType error
+            'subproduct_id': subproducted.id,  
+            'discount': f"{discount}%" if discount > 0 else "No discount",
+        }
+
+        if subproducted.name.lower() in ['kaaju', 'badam', 'badam(short)', 'puja supari']:
+            winter.append(subproduct_data)
+        elif subproducted.name.lower() in ['moong(mogar)']:
+            summer.append(subproduct_data)
+        elif subproducted.name.lower() in ['haldi ganth']:
+            monsoon.append(subproduct_data)
+
+    # Get current season
+    current_season = get_season()
+
+    # Pass seasonal data to the template
+    context = {
+        'current_season': current_season,
+        'winter_products': winter,
+        'summer_products': summer,
+        'monsoon_products': monsoon,
+    }
+    
+    return render(request, 'seasonal_essentials.html', context)
+
+
+
+
+
 
 def calculate_unit_price(subproduct_id, united):
     try:
@@ -506,34 +595,52 @@ def update_cart_item_quantity_index(request, cart_item_id):
 def Home(request):
     return render(request,'Home.html') 
 
-def subproduct1(request, product_id):
+from django.shortcuts import get_object_or_404
+
+from django.shortcuts import render, get_object_or_404
+
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+
+def subproduct1(request, product_id, subproduct_id=None):
     product = get_object_or_404(Product, pk=product_id)
-    subcategories = product.subproduct_set.all()  # Use the reverse relation here
 
-    subproduct_data = []
-    for subproduct in subcategories:
-        units = subproduct.unit_set.all()
-
-        # Calculate the price range for each subproduct
+    if subproduct_id:  
+        # Case: Show only the clicked subproduct (Detail View)
+        subproductp = get_object_or_404(subproduct, pk=subproduct_id, product=product)  # ✅ Fix variable name
+        units = subproductp.unit_set.all()  # ✅ Use subproductp instead of subproduct
         prices = [unit.unit_price for unit in units]
+        min_price = min(prices) if prices else 0
+        max_price = max(prices) if prices else 0
 
-        if prices:
-            min_price = min(prices)
-            max_price = max(prices)
-        else:
-            min_price = max_price = 0  # Or any other default values you prefer
-
-        subproduct_data.append({
-            'subproduct': subproduct,
+        subproduct_data = [{
+            'subproduct': subproductp,  # Wrapped in a list ✅
             'min_price': min_price,
             'max_price': max_price,
             'units': units,
-            'image': subproduct.image.url if subproduct.image else None,  # Include the image URL
-        })
+            'image': subproductp.image.url if subproductp.image else None,  
+        }]
+        return render(request, 'subproduct1.html', {'product': product, 'subproduct_data': subproduct_data})
+    
+    else:
+        # Case: Show all subproducts of a product (List View)
+        subcategories = product.subproduct_set.all()
+        subproduct_data = []
+        for subproducto in subcategories:
+            units = subproducto.unit_set.all()
+            prices = [unit.unit_price for unit in units]
+            min_price = min(prices) if prices else 0
+            max_price = max(prices) if prices else 0
 
-    return render(request, 'subproduct1.html', {'product': product, 'subproduct_data': subproduct_data})
-
-
+            subproduct_data.append({
+                'subproduct': subproducto,
+                'min_price': min_price,
+                'max_price': max_price,
+                'units': units,
+                'image': subproducto.image.url if subproducto.image else None,  
+            })
+        
+        return render(request, 'subproduct1.html', {'product': product, 'subproduct_data': subproduct_data})
 
 
 @require_POST
@@ -744,100 +851,164 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from .models import Product, subproduct
 
+from django.shortcuts import render
+from django.urls import reverse
+from django.shortcuts import redirect
+
+
+from django.shortcuts import render
+from django.db import connection
+
+import random
+from django.db import connection
+from django.shortcuts import render
+from .models import Product, subproduct
+
 def search_results(request):
-    query = request.GET.get('q', '')
-    search_type = request.GET.get('search_type', 'product')  # Default to 'product' if not specified
+    query = request.GET.get('q', '').strip()
+    context = {'query': query}
 
-    context = {'query': query, 'search_type': search_type}
+    # 🔹 Get recent searches from session (if available)
+    recent_searches = request.session.get('recent_searches', [])
+    if not query:
+        return JsonResponse(recent_searches, safe=False)
 
-    if search_type == 'product':
-        results = Product.objects.filter(name__icontains=query)
-        if results.exists():
-            context['products'] = results
-            template = 'index.html'
-        else:
-            # Fetch all products and subproducts for display in no_results.html
-            all_products = Product.objects.all()
-            all_subproducts = subproduct.objects.all()
-            context['all_products'] = all_products
-            context['all_subproducts'] = all_subproducts
-            template = 'no_results.html'
-    elif search_type == 'subproduct':
-        subproducts = subproduct.objects.filter(name__icontains=query)
+    if query:
+        # Store the query in recent searches (avoid duplicates, keep only last 5)
+        if query not in recent_searches:
+            recent_searches.insert(0, query)
+        recent_searches = recent_searches[:5]
+        request.session['recent_searches'] = recent_searches  # Update session
+
+        # 🔹 Using FULLTEXT search in MySQL for fast lookup
+        sql = """
+        (SELECT id, 'product' as type FROM home_product WHERE MATCH(name) AGAINST (%s IN NATURAL LANGUAGE MODE) LIMIT 10)
+        UNION
+        (SELECT id, 'subproduct' as type FROM home_subproduct WHERE MATCH(name) AGAINST (%s IN NATURAL LANGUAGE MODE) LIMIT 10)
+        """
+        
+        with connection.cursor() as cursor:
+            cursor.execute(sql, [query, query])
+            results = cursor.fetchall()
+
+        product_ids = [row[0] for row in results if row[1] == 'product']
+        subproduct_ids = [row[0] for row in results if row[1] == 'subproduct']
+
         subproduct_data = []
 
+        # 🔹 Fetch subproducts for matched products
+        if product_ids:
+            products = Product.objects.filter(id__in=product_ids)
+            subproducts = subproduct.objects.filter(product__in=products)
+        else:
+            subproducts = subproduct.objects.filter(id__in=subproduct_ids)
+
+        # 🔹 Process subproducts (get min/max price, image, etc.)
         for subproduct_item in subproducts:
             units = subproduct_item.unit_set.all()
-
-            # Calculate the price range for each subproduct
             prices = [unit.unit_price for unit in units]
-
-            if prices:
-                min_price = min(prices)
-                max_price = max(prices)
-            else:
-                min_price = max_price = 0  # Or any other default values you prefer
+            min_price = min(prices) if prices else 0
+            max_price = max(prices) if prices else 0
 
             subproduct_data.append({
                 'subproduct': subproduct_item,
                 'min_price': min_price,
                 'max_price': max_price,
                 'units': units,
-                'image': subproduct_item.image.url if subproduct_item.image else None,  # Include the image URL
+                'image': subproduct_item.image.url if subproduct_item.image else None,
             })
 
+        # 🔹 Return results if found
         if subproduct_data:
             context['subproduct_data'] = subproduct_data
-            context['products_exist'] = True  # Flag to indicate products exist
-            template = 'subproduct1.html'
-        else:
-            # Fetch all products and subproducts for display in no_results.html
-            all_products = Product.objects.all()
-            all_subproducts = subproduct.objects.all()
-            context['all_products'] = all_products
-            context['all_subproducts'] = all_subproducts
-            context['products_exist'] = False
-            template = 'no_results.html'
+            context['recent_searches'] = recent_searches
+            return render(request, 'subproduct1.html', context)
 
-    else:
-        template = 'no_results.html'
+    # 🛑 No results found, show random products in recent searches
+    if not recent_searches:
+        all_products = Product.objects.values_list('name', flat=True)
+        recent_searches = random.sample(list(all_products), min(5, len(all_products)))
 
-    # Update recent searches in session
-    if search_type == 'product':
-        recent_searches_key = 'recent_searches_product'
-    elif search_type == 'subproduct':
-        recent_searches_key = 'recent_searches_subproduct'
-    else:
-        recent_searches_key = None
-
-    if recent_searches_key:
-        recent_searches = request.session.get(recent_searches_key, [])
-        if query:
-            if query not in recent_searches:
-                recent_searches.insert(0, query)
-                if len(recent_searches) > 5:
-                    recent_searches.pop()
-                request.session[recent_searches_key] = recent_searches
-
-    # Redirect to index.html with anchor if searching for products
-    if search_type == 'product' and template == 'index.html' and '#products-section' not in request.get_full_path():
-        return redirect(f"{reverse('home')}#products-section")
-    else:
-        return render(request, template, context)
+    context['recent_searches'] = recent_searches
+    context['all_products'] = Product.objects.all()
+    context['all_subproducts'] = subproduct.objects.all()
+    return render(request, 'no_results.html', context)
 
 
+
+
+from django.db import connection
 
 import random
+from django.http import JsonResponse
+from django.db import connection
 
-def get_products(request):
-    products = list(Product.objects.values_list('name', flat=True))
-    random_products = random.sample(products, min(len(products), 5))
-    return JsonResponse(random_products, safe=False)
+import random
+from django.http import JsonResponse
+from django.db import connection
+from home.models import RecentSearch  # Import model
 
-def get_subproducts(request):
-    subproducts = list(subproduct.objects.values_list('name', flat=True))
-    random_subproducts = random.sample(subproducts, min(len(subproducts), 5))
-    return JsonResponse(random_subproducts, safe=False)
+def get_search_suggestions(request):
+    query = request.GET.get('q', '').strip()
+
+    # ✅ If query is empty, return 5 random product names from DB
+    if not query:
+        sql = """
+        (SELECT name FROM home_product ORDER BY RAND() LIMIT 5)
+        UNION
+        (SELECT name FROM home_subproduct ORDER BY RAND() LIMIT 5)
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(sql)
+            results = [row[0] for row in cursor.fetchall()]
+        return JsonResponse(results, safe=False)
+
+    # ✅ If query exists, perform FULLTEXT search
+    sql = """
+    (SELECT name FROM home_product WHERE MATCH(name) AGAINST (%s IN NATURAL LANGUAGE MODE) LIMIT 10)
+    UNION
+    (SELECT name FROM home_subproduct WHERE MATCH(name) AGAINST (%s IN NATURAL LANGUAGE MODE) LIMIT 10)
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [query, query])
+        results = [row[0] for row in cursor.fetchall()]
+
+    # ✅ Save to RecentSearch only if it's a final query
+    if query and len(query) > 2:  # Avoid short queries like "h", "ha"
+        RecentSearch.objects.get_or_create(term=query)
+
+    return JsonResponse(results, safe=False)
+
+# ✅ API to fetch recent searches
+def get_recent_searches(request):
+    recent_searches = RecentSearch.objects.order_by('-created_at')[:5].values_list('term', flat=True)
+    return JsonResponse(list(recent_searches), safe=False)
+
+
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from home.models import RecentSearch
+
+@csrf_exempt  # ✅ Allows POST request without CSRF token
+def save_recent_search(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            query = data.get("query", "").strip()
+
+            # ✅ Save only valid queries (no empty strings or single letters)
+            if query and len(query) > 2:
+                RecentSearch.objects.get_or_create(term=query)
+
+            return JsonResponse({"status": "success"}, status=201)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    return JsonResponse({"error": "Invalid request"}, status=405)
+
+
+
 # def filtered_products(request):
 #     tag = request.GET.get('tag')
 #     products = Product.objects.all()
@@ -858,48 +1029,20 @@ def get_subproducts(request):
 
 #     return render(request, 'index.html', {'products': filtered_products})
 
+from django.shortcuts import render
+from .models import Product
+
 def filtered_and_special_data(request):
-    # Fetch carousel data (special products)
-    special_products = SpecialProduct.objects.prefetch_related('coupons').all()
+    """Return only the filtered products dynamically using HTMX."""
+    tag = request.GET.get('tag', None)
+    products = Product.objects.all()
 
-    special_data = []
-    for special_product in special_products:
-        units = Unit.objects.filter(special_product=special_product)
-        
-        # Calculate the price range for each subproduct
-        prices = [unit.unit_price for unit in units if unit.unit_price is not None]
-        
-        if prices:
-            max_price = max(prices)
-            min_price = max_price * Decimal('0.95')  # Adjust as needed
-        else:
-            min_price = max_price = 0  # Or set default values
-        
-        special_data.append({
-            'special_product': special_product,
-            'min_price': min_price,
-            'max_price': max_price,
-            'units': units,
-            'coupons': special_product.coupons.all(),
-            'carousel_image_url': special_product.carousel_image.url if special_product.carousel_image else None,
-        })
+    if tag:
+        products = products.filter(tag=tag)
 
-    # Default to showing all products
-    all_products = Product.objects.all()
+    return render(request, 'filtered_products.html', {'products': products})
 
-    # Handle filtering based on tags if provided
-    tags = request.GET.getlist('tag')
-    if tags:
-        filtered_products = all_products.filter(tag__in=tags).distinct()
-    else:
-        filtered_products = all_products  # No filtering applied
 
-    # Render the template with the appropriate context
-    context = {
-        'special_data': special_data,
-        'products': filtered_products,  # Use filtered_products for the template
-    }
-    return render(request, 'index.html', context)
 
 from django.shortcuts import redirect, reverse
 from .models import subproduct
@@ -914,120 +1057,111 @@ from django.shortcuts import get_object_or_404, render
 from django.shortcuts import render, get_object_or_404
 
 
-def filtered_subproducts(request, product_id=None):
-    # If product_id is provided, fetch the product object or set product to None
-    product = get_object_or_404(Product, pk=product_id) if product_id else None
 
-    # Fetch all subproducts related to the given product or all subproducts if no product_id
+
+def filtered_subproducts(request, product_id=None):
+    product = get_object_or_404(Product, pk=product_id) if product_id else None
     subproducts = product.subproduct_set.all() if product else subproduct.objects.all()
 
-    # Get filter parameters from the request
+    # Get filter parameters
     subproduct_id = request.GET.get('subproduct')
     price_min = request.GET.get('price_min')
     price_max = request.GET.get('price_max')
-    tags = request.GET.getlist('tags')  # Get list of tags
+    tags = request.GET.getlist('tags')  
+    sort_by = request.GET.get('sort')  # Sorting filter
 
-    # Prepare subproduct data with min and max prices
+    # Prepare subproduct data with prices
     subproduct_data = []
-    for subproduct in subproducts:
-        units = subproduct.unit_set.all()
+    for subproductu in subproducts:
+        units = subproductu.unit_set.all()
         prices = [unit.unit_price for unit in units]
 
-        if prices:
-            min_price = min(prices)
-            max_price = max(prices)
-        else:
-            min_price = max_price = 0
+        min_price = min(prices) if prices else float('inf')  # Avoid error if no prices
+        max_price = max(prices) if prices else float('-inf')
 
         subproduct_data.append({
-            'subproduct': subproduct,
+            'subproduct': subproductu,
             'min_price': min_price,
             'max_price': max_price,
             'units': units,
-            'image': subproduct.image.url if subproduct.image else None,
+            'image': subproductu.image.url if subproductu.image else None,
         })
 
-    # Filter subproduct_data based on user input
+    # Apply filters
     if price_min:
         subproduct_data = [data for data in subproduct_data if data['min_price'] >= float(price_min)]
-
     if price_max:
         subproduct_data = [data for data in subproduct_data if data['max_price'] <= float(price_max)]
-
-    # Filter by subproduct_id
     if subproduct_id:
         subproduct_data = [data for data in subproduct_data if data['subproduct'].id == int(subproduct_id)]
-
-    # Filter by tags
     if tags:
-        filtered_subproduct_data = []
-        for data in subproduct_data:
-            if any(tag in data['subproduct'].tag for tag in tags):
-                filtered_subproduct_data.append(data)
-        subproduct_data = filtered_subproduct_data
+        subproduct_data = [data for data in subproduct_data if any(tag in data['subproduct'].tag for tag in tags)]
 
-    # Context for template rendering
+    # Apply sorting logic
+    if sort_by == "min_price":
+        subproduct_data.sort(key=lambda x: x['min_price'])  # Sort by lowest min price
+    elif sort_by == "max_price":
+        subproduct_data.sort(key=lambda x: x['max_price'], reverse=True)  # Sort by highest max price
+
     context = {
-        'product': product,
         'subproduct_data': subproduct_data,
     }
 
-    return render(request, 'subproduct1.html', context)
+    # If HTMX request, return only the filtered list
+    if request.headers.get('HX-Request'):
+        return render(request, 'subproduct_list.html', context)  # Partial template for HTMX
+
+    return render(request, 'subproduct1.html', context)  # Full page load
+
+
+
 def filtered_subproducts_without_product(request):
-    # Fetch all subproducts when no product_id is provided
+    # Fetch all subproducts
     subproducts = subproduct.objects.all()
 
-    # Get filter parameters from the request
+    # Get filter parameters
     subproduct_id = request.GET.get('subproduct')
     price_min = request.GET.get('price_min')
     price_max = request.GET.get('price_max')
-    tags = request.GET.getlist('tags')  # Get list of tags
+    tags = request.GET.getlist('tags')
 
     # Prepare subproduct data with min and max prices
     subproduct_data = []
-    for subproduct_obj in subproducts:
-        units = subproduct_obj.unit_set.all()
+    for subproducty in subproducts:
+        units = subproducty.unit_set.all()
         prices = [unit.unit_price for unit in units]
 
-        if prices:
-            min_price = min(prices)
-            max_price = max(prices)
-        else:
-            min_price = max_price = 0
+        min_price = min(prices) if prices else 0
+        max_price = max(prices) if prices else 0
 
         subproduct_data.append({
-            'subproduct': subproduct_obj,
+            'subproduct': subproducty,
             'min_price': min_price,
             'max_price': max_price,
             'units': units,
-            'image': subproduct_obj.image.url if subproduct_obj.image else None,
+            'image': subproducty.image.url if subproducty.image else None,
         })
 
-    # Filter subproduct_data based on user input
+    # Apply filters
     if price_min:
         subproduct_data = [data for data in subproduct_data if data['min_price'] >= float(price_min)]
-
     if price_max:
         subproduct_data = [data for data in subproduct_data if data['max_price'] <= float(price_max)]
-
-    # Filter by subproduct_id
     if subproduct_id:
         subproduct_data = [data for data in subproduct_data if data['subproduct'].id == int(subproduct_id)]
-
-    # Filter by tags
     if tags:
-        filtered_subproduct_data = []
-        for data in subproduct_data:
-            if any(tag in data['subproduct'].tag for tag in tags):
-                filtered_subproduct_data.append(data)
-        subproduct_data = filtered_subproduct_data
+        subproduct_data = [data for data in subproduct_data if any(tag in data['subproduct'].tag for tag in tags)]
 
-    # Context for template rendering
     context = {
         'subproduct_data': subproduct_data,
     }
 
-    return render(request, 'subproduct1.html', context)
+    # If HTMX request, return only the filtered list
+    if request.headers.get('HX-Request'):
+        return render(request, 'subproduct_list.html', context)  # Partial template for HTMX
+
+    return render(request, 'subproduct1.html', context)  # Full page load
+
 
 
 from django.shortcuts import redirect
@@ -1068,7 +1202,6 @@ from django.views.decorators.http import require_POST
 from .models import CartItem
 
 @login_required
-@require_POST
 def checkout_view(request):
     # Retrieve discounted total amount from POST data
     discounted_total_amount = request.POST.get('discounted_total_amount')
@@ -1805,7 +1938,7 @@ def view_invoice(request, custom_order_id):
     total_unit_quantity = 0  # Initialize total unit quantity
 
     for item in order_items:
-        print(f"Processing item with unit: {item.unit}")
+        
         
         # Match unit value and type, allowing for optional spaces
         match = re.match(r"(\d+)\s*(Grams|Kilogram)", item.unit.strip())
@@ -1813,29 +1946,28 @@ def view_invoice(request, custom_order_id):
         if match:
             unit_value = int(match.group(1))
             unit_type = match.group(2)
-            print(f"Match found: {match.groups()}")
+           
 
             # Convert to kilograms
             unit_in_kg = unit_value / 1000 if unit_type == "Grams" else unit_value
             item.unit_quantity = unit_in_kg * item.quantity
             total_unit_quantity += item.unit_quantity
-        else:
-            print(f"No match for unit: {item.unit}")
+        
 
         # Get GST rate from the corresponding subproduct
         subproduct = item.product  # Get the associated subproduct
-        print(subproduct)
+       
         
         # Ensure subproduct has a valid gst_rate before proceeding
         if hasattr(subproduct, 'gst_rate'):
             gst_rate = Decimal(subproduct.gst_rate)/100  # Convert GST rate from percentage to decimal
             item.gst_rate = subproduct.gst_rate
-            print(gst_rate)
+            
 
             # Calculate Price Before GST using the total price
             item.price_before_gst = item.total_price / (1 + gst_rate)
             item.price_before_gst = item.price_before_gst.quantize(Decimal('0.01'), rounding=ROUND_DOWN)
-            print(item.price_before_gst)
+            
 
             # Calculate the GST Amount based on the price before GST
             item.gst_amount = item.price_before_gst * gst_rate
@@ -1843,8 +1975,7 @@ def view_invoice(request, custom_order_id):
 
             # Save the updated item
             item.save()
-        else:
-            print(f"Subproduct {subproduct} does not have a gst_rate.")
+        
 
     # Update order with the total unit quantity
     order.total_unit_quantity = total_unit_quantity
@@ -2051,26 +2182,7 @@ def update_order_status(request, custom_order_id):
 
 
 from django.http import JsonResponse
-from google.cloud import translate_v2 as translate
-import os
-
-def translate_text(request):
-    if request.method == "GET":
-        text = request.GET.get('text')
-        target_language = request.GET.get('target_language')
-
-        if text and target_language:
-            translate_client = translate.Client()
-
-            # Perform the translation
-            result = translate_client.translate(text, target_language=target_language)
-
-            # Return the translated text
-            return JsonResponse({'translated_text': result['translatedText']})
-        else:
-            return JsonResponse({'error': 'Invalid parameters'}, status=400)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+import os 
     
 
 from django.shortcuts import render, get_object_or_404, redirect

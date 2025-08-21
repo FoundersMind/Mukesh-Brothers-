@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f8f8f8;
+            padding: 10px;
+        }
+
+        /* Profile Container */
+        .profile-container {
+            background: #ffffff;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-container h1 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .profile-container p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .login-btn {
+            width:100%;
+            display: inline-block;
+            font-size: 18px;
+            color: #645A48; /* Muted olive brown */
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: 2px solid #DED7C2; /* Soft muted cream */
+            background: transparent;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .login-btn:hover {
+            background: #F3E9D2; /* Light muted cream */
+            color: #4F4535; /* Darker olive */
+            border-color: #CFC4A8;
+        }
+        
+        .ecommerce-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Online Orders Heading with Left Blue Border */
+        .section-title {
+            font-size: 22px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .section-title span {
+            width: 4px;
+            height: 24px;
+            background: #007BFF; /* Blue border */
+            margin-right: 10px;
+            display: inline-block;
+        }
+        
+        /* Navigation List */
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .nav-item .icon-container {
+            margin-right:10px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background: linear-gradient(145deg, blue, white); /* Glossy black gradient */
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6), 
+                        inset -2px -2px 5px rgba(255, 255, 255, 0.2); /* Inner & outer shadow */
+        }
+        
+        .nav-item i {
+            font-size: 16px;
+            color: transparent;
+            -webkit-text-stroke: 1px white; /* White stroke for contrast */
+        }
+        
+        
+        
+        
+        .nav-item a {
+            flex-grow: 1;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        /* Arrow on the right */
+        .arrow {
+            font-size: 20px;
+            color:  linear-gradient(145deg, #2c2c2c, #000000);
+            
+        }
+        
+    </style>
+</head>
+
+<body>
+    <a href="javascript:history.back()" class="back-btn">&#x2190;</a>
+    <!-- Profile Box -->
+    <div class="profile-container">
+        <h1>Your Profile</h1>
+        <p>Log in to view your complete profile</p>
+        <a href="{% url 'Login' %}" class="login-btn">Log In</a>
+    </div>
+
+   <!-- E-commerce Options -->
+<!-- E-commerce Options -->
+<div class="ecommerce-container">
+    <!-- Heading with blue left border -->
+    <h2 class="section-title"><span></span>Online Orders</h2>
+
+    <ul class="nav-list">
+        <li class="nav-item">
+            <div class="icon-container">
+                <i class="fa-solid fa-box"></i>
+            </div>
+            <a href="{% url 'my_orders' %}">My Orders</a>
+            <span class="arrow">&gt;</span>
+        </li>
+        <li class="nav-item">
+            <div class="icon-container">
+                <i class="fa-solid fa-ticket"></i>
+            </div>
+            <a href="#">Coupons</a>
+            <span class="arrow">&gt;</span>
+        </li>
+        <li class="nav-item">
+            <div class="icon-container">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <a href="#">My Cart</a>
+            <span class="arrow">&gt;</span>
+        </li>
+        <li class="nav-item">
+            <div class="icon-container">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <a href="#">Notifications</a>
+            <span class="arrow">&gt;</span>
+        </li>
+        <li class="nav-item">
+            <div class="icon-container">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+            <a href="#">Wishlist</a>
+            <span class="arrow">&gt;</span>
+        </li>
+        <li class="nav-item">
+            <div class="icon-container">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+            <a href="#">Settings</a>
+            <span class="arrow">&gt;</span>
+        </li>
+    </ul>
+    
+</div>
+
+
+</body>
+</html>

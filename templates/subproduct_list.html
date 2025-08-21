@@ -1,0 +1,1080 @@
+ <!-- Product Section -->
+<head>
+    {% load static %} 
+ <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<style>
+    .live-video-icon {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 50%;
+  background-color: white;
+  color: #007bff;
+  text-align: center;
+  font-size: 16px;
+  border: 1px solid #007bff;
+  transition: 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.live-video-icon:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Mobile-optimized product cards */
+@media (max-width: 768px) {
+  .product-card {
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .product-card .card-body {
+    padding: 15px;
+    margin-top: 0;
+  }
+  
+  .product-card .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  
+  .product-card p {
+    font-size: 14px;
+    font-weight: 500;
+    color: #28a745;
+    margin-bottom: 12px;
+  }
+  
+  .product-tag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: #ff6b35;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    z-index: 2;
+  }
+  
+  /* Mobile-optimized quantity controls - REMOVED CONFLICTING STYLES */
+  
+  /* Mobile-optimized add to cart button */
+  .add-to-cart-btn {
+    width: 100% !important;
+    height: 48px !important;
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: white !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    transition: all 0.3s ease;
+    margin-left:15px;
+  }
+  
+  .add-to-cart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+  }
+  
+  /* Mobile-optimized dropdown */
+  .dropdown .btn {
+    width: 100% !important;
+    height: 44px !important;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    background: white;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+  
+  .dropdown-menu {
+    width: 100% !important;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dropdown-item {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid #f8f9fa;
+  }
+  
+  .dropdown-item:last-child {
+    border-bottom: none;
+  }
+  
+  /* Mobile-optimized video icon */
+  .live-video-icon {
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+    font-size: 18px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+  }
+  
+  /* Price display optimization */
+  #selected-unit-price_ {
+    font-size: 14px;
+    font-weight: 600;
+    color: #28a745;
+    text-align: center;
+    margin-top: 8px;
+  }
+}
+
+/* Clean quantity controls with blue styling - no borders */
+.quantity-btn-clean {
+  width: 28px !important;
+  height: 28px !important;
+  border: none !important;
+  background: transparent !important;
+  color: #007bff !important;
+  font-size: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  transition: all 0.2s ease !important;
+  margin: 0 !important;
+}
+
+.quantity-btn-clean:hover {
+  background: transparent !important;
+  color: #0056b3 !important;
+}
+
+.quantity-btn-clean:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.quantity-input-clean {
+  width: 40px !important;
+  height: 28px !important;
+  text-align: center !important;
+  border: none !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #007bff !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 4px !important;
+}
+
+.quantity-input-clean:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Mobile optimization for quantity controls */
+@media (max-width: 768px) {
+  .quantity-btn-clean {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 14px !important;
+    margin-left: 10px;
+  }
+  
+  .quantity-input-clean {
+    width: 45px !important;
+    height: 32px !important;
+    font-size: 16px !important;
+    margin-left:20px;
+  }
+}
+
+/* Swiggy Instamart Style Product Cards */
+.swiggy-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.swiggy-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Product Image Container */
+.product-image-container {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+  transition: transform 0.3s ease;
+}
+
+.swiggy-card:hover .product-image {
+  transform: scale(1.05);
+}
+
+/* Product Badge */
+.product-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #ff6b35;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* Video Request Icon */
+.video-request-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #007bff;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.video-request-icon:hover {
+  background: #007bff;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Product Info Section */
+.product-info {
+  padding: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 3px 0;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-price {
+  font-size: 12px;
+  font-weight: 600;
+  color: #28a745;
+  margin: 0 0 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Weight Selection */
+.weight-selection {
+  margin-bottom: 6px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.weight-btn {
+  width: 100%;
+  padding: 6px 10px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.weight-btn:hover {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.weight-text {
+  font-weight: 500;
+}
+
+.weight-btn i {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.weight-btn[aria-expanded="true"] i {
+  transform: rotate(180deg);
+}
+
+/* Quantity Section */
+.quantity-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 4px;
+  padding: 0;
+  width: 100%;
+  max-width: 90px;
+  margin: 0 auto;
+  gap: 6px;
+}
+
+.quantity-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #007bff;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+.quantity-btn:hover {
+  background: transparent;
+  color: #0056b3;
+  transform: scale(1.1);
+}
+
+.quantity-input {
+  width: 32px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #007bff;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+
+/* Weight Bottom Sheet - Mobile Only */
+@media (max-width: 768px) {
+  .weight-bottom-sheet {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .weight-bottom-sheet.show {
+    bottom: 0;
+  }
+
+  .weight-bottom-sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    position: sticky;
+    top: 0;
+    background: white;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .weight-bottom-sheet-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+
+  .weight-bottom-sheet-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+
+  .weight-bottom-sheet-close:hover {
+    background: #f5f5f5;
+    color: #333;
+  }
+
+  .weight-options {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .weight-option {
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .weight-option:hover {
+    border-color: #007bff;
+    background: #f8f9ff;
+  }
+
+  .weight-option.selected {
+    border-color: #007bff;
+    background: #e3f2fd;
+    color: #007bff;
+  }
+
+  /* Backdrop */
+  .weight-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .weight-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Desktop: Hide bottom sheet elements */
+@media (min-width: 769px) {
+  .weight-bottom-sheet,
+  .weight-backdrop {
+    display: none !important;
+  }
+}
+
+/* Desktop Dropdown Styles */
+@media (min-width: 769px) {
+  .weight-dropdown {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 4px;
+    margin-top: 4px;
+  }
+
+  .weight-dropdown .dropdown-item {
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #666;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .weight-dropdown .dropdown-item:hover {
+    background: #f8f9fa;
+    color: #007bff;
+  }
+}
+
+/* Price Display */
+.price-display {
+  margin-top: 8px;
+  text-align: center;
+  min-height: 20px;
+  padding: 4px 8px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.price-display span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #28a745;
+  display: block;
+  line-height: 1.2;
+}
+
+.price-display:empty {
+  display: none;
+}
+
+/* Price animation */
+@keyframes priceFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .swiggy-card {
+    border-radius: 8px;
+  }
+  
+  .product-image-container {
+    height: 110px;
+  }
+  
+  .product-info {
+    padding: 8px;
+  }
+  
+  .product-name {
+    font-size: 12px;
+  }
+  
+  .product-price {
+    font-size: 11px;
+  }
+  
+  .weight-btn {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+  
+  .quantity-btn {
+    width: 30px;
+    height: 26px;
+    font-size: 15px;
+    margin-left:10px;
+  }
+  
+  .quantity-input {
+    width: 30px;
+    height: 26px;
+    font-size: 15px;
+    margin-left: 10px;
+    padding-right: -5px;
+  }
+  
+ 
+  
+  .quantity-controls {
+    max-width: 90px;
+    gap: 0px;
+  }
+  
+  /* Ensure add to cart button is properly centered on mobile */
+  .quantity-section {
+    gap: 8px;
+    justify-content: center;
+  }
+  
+  
+  
+  /* Mobile price display */
+  .price-display {
+    margin-top: 6px;
+    padding: 3px 6px;
+    min-height: 18px;
+  }
+  
+  .price-display span {
+    font-size: 12px;
+  }
+}
+</style>
+
+<div class="row product-section">
+    {% for product in subproduct_data %}
+    <div class="col-4 mb-3">
+        <div class="swiggy-card">
+            <!-- Product Image Container -->
+            <div class="product-image-container">
+                {% if product.image %}
+                <img src="{{ product.image }}" alt="{{ product.subproduct.name }}" class="product-image">
+                {% else %}
+                <img src="{% static 'default_image.jpg' %}" alt="Default Image" class="product-image">
+                {% endif %}
+                
+                <!-- Product Tag -->
+                {% if product.subproduct.tag %}
+                <div class="product-badge">{{ product.subproduct.get_tag_display }}</div>
+                {% endif %}
+                
+                <!-- Video Request Icon -->
+                <a href="#" class="video-request-icon" data-bs-toggle="modal" data-bs-target="#videoRequestModal_{{ product.subproduct.id }}">
+                    <i class="fas fa-video"></i>
+                </a>
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+                <h6 class="product-name">{{ product.subproduct.name }}</h6>
+                <p class="product-price">₹{{ product.min_price }} - ₹{{ product.max_price }}</p>
+                
+                <!-- Net Weight Selection -->
+                <div class="weight-selection">
+                    <!-- Mobile: Bottom Sheet Button -->
+                    <button class="weight-btn d-md-none" type="button" id="netweightDropdown_{{ product.subproduct.id }}" onclick="openWeightBottomSheet('{{ product.subproduct.id }}')">
+                        <span class="weight-text">Net.Wt</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    
+                    <!-- Desktop: Regular Dropdown Button -->
+                    <button class="weight-btn d-none d-md-block" type="button" id="netweightDropdownDesktop_{{ product.subproduct.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="weight-text">Net.Wt</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    
+                    <form id="add-to-cart-form_{{ product.subproduct.id }}" method="post" action="{% url 'add_to_cart' %}" style="border: none;">
+                        {% csrf_token %}
+                        <input type="hidden" name="subproduct_id" value="{{ product.subproduct.id }}">
+                        <input type="hidden" name="subproduct_name" value="{{ product.subproduct.name }}">
+                        <input type="hidden" name="tag" value="{{ product.subproduct.tag }}">
+                        <input type="hidden" name="unit" id="selected-unit-id_{{ product.subproduct.id }}" value="">
+
+                        <!-- Quantity Controls -->
+                        <div class="quantity-section">
+                                                         <div class="quantity-controls">
+                                 <button class="quantity-btn" type="button"
+                                     data-cart-item-id="{{ product.subproduct.id }}"
+                                     data-operation="decrement"
+                                     data-selected-unit="{{ product.selected_unit }}">
+                                     −
+                                 </button>
+                                 <input type="text" name="quantity" value="1" 
+                                     id="selected-quantity_{{ product.subproduct.id }}" 
+                                     class="quantity-input" readonly>
+                                 <button class="quantity-btn" type="button"
+                                     data-cart-item-id="{{ product.subproduct.id }}"
+                                     data-operation="increment"
+                                     data-selected-unit="{{ product.selected_unit }}">
+                                     +
+                                 </button>
+                             </div>
+                            
+                            <!-- Add to Cart Button -->
+                            <button type="submit" id="add-to-cart-btn_{{ product.subproduct.id }}" 
+                                class="add-to-cart-btn" data-unit-id="{{ product.subproduct.id }}">
+                                ADD
+                            </button>
+                        </div>
+                        
+
+                        
+                        <!-- Desktop Dropdown Menu -->
+                        <div class="dropdown-menu weight-dropdown d-none d-md-block" aria-labelledby="netweightDropdownDesktop_{{ product.subproduct.id }}">
+                            <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_10gm" data-unit="10gm">10gm</a>
+                            <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_50gm" data-unit="50gm">50gm</a>
+                            <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_100gm" data-unit="100gm">100gm</a>
+                            <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_250gm" data-unit="250gm">250gm</a>
+                            <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_500gm" data-unit="500gm">500gm</a>
+                            <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_1kg" data-unit="1kg">1Kg</a>
+                            <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_10kg" data-unit="10kg">10Kg</a>
+                            <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_50kg" data-unit="50kg">50kg</a>
+                            <a class="dropdown-item change-price" href="#" data-product-id="{{ product.subproduct.id }}" data-unit-id="unit_id_for_100kg" data-unit="100kg">100kg</a>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Price Display -->
+                <div class="price-display">
+                    <span id="selected-unit-price_{{ product.subproduct.id }}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for video request -->
+    <div class="modal fade" id="videoRequestModal_{{ product.subproduct.id }}" tabindex="-1" aria-labelledby="videoRequestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="videoRequestModalLabel">Request Live Video</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="video-request-form_{{ product.subproduct.id }}">
+                    <div class="modal-body">
+                        <p>This feature is available for registered firms only.</p>
+                        {% csrf_token %}
+                        <input type="hidden" name="subproduct" value="{{ product.subproduct.id }}">
+                        <div class="mb-3">
+                            <label for="firm_name" class="form-label">Firm Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="firm_name" name="firm_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contact_no" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">+91</span>
+                                <input type="text" class="form-control" id="contact_no" name="contact_no" required placeholder="Enter mobile number">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="unit" class="form-label">Unit</label>
+                            <select class="form-control" id="unit" name="unit" required>
+                                <option value="">Select Unit</option>
+                                <option value="10gm">10gm</option>
+                                <option value="50gm">50gm</option>
+                                <option value="100gm">100gm</option>
+                                <!-- Add more units here -->
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-primary submit-video-request" data-subproduct-id="{{ product.subproduct.id }}">Submit Request</button>
+                    </div>
+                </form>
+                <div class="toast-container position-fixed top-0 end-0 p-3" id="toast-container_{{ product.subproduct.id }}">
+                    <!-- Toast will be added dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Global Weight Bottom Sheet (Mobile Only) -->
+<div class="weight-bottom-sheet" id="weightBottomSheet">
+    <div class="weight-bottom-sheet-header">
+        <h6 class="weight-bottom-sheet-title">Select Net Weight</h6>
+        <button class="weight-bottom-sheet-close" onclick="closeWeightBottomSheet()">&times;</button>
+    </div>
+    <div class="weight-options" id="weightOptions">
+        <!-- Weight options will be populated dynamically -->
+    </div>
+</div>
+
+<!-- Global Weight Bottom Sheet Backdrop -->
+<div class="weight-backdrop" id="weightBackdrop" onclick="closeWeightBottomSheet()"></div>
+
+<script>
+    // Global Weight Bottom Sheet Functions - Mobile Only
+    let currentSubproductId = null;
+    
+    function openWeightBottomSheet(subproductId) {
+        // Only work on mobile devices
+        if (window.innerWidth > 768) {
+            return;
+        }
+        
+        currentSubproductId = subproductId;
+        const bottomSheet = document.getElementById('weightBottomSheet');
+        const backdrop = document.getElementById('weightBackdrop');
+        const weightOptions = document.getElementById('weightOptions');
+        
+        if (bottomSheet && backdrop && weightOptions) {
+            // Get product data for this subproduct
+            const productCard = document.querySelector(`#netweightDropdown_${subproductId}`).closest('.swiggy-card');
+            const productName = productCard.querySelector('.product-name').textContent;
+            const priceText = productCard.querySelector('.product-price').textContent;
+            const minPrice = priceText.match(/₹(\d+)/)[1];
+            
+            // Populate weight options (without prices - prices will be fetched from DB)
+            weightOptions.innerHTML = `
+                <div class="weight-option change-price" data-product-id="${subproductId}" data-unit-id="unit_id_for_10gm" data-unit="10gm">
+                    <span>10gm</span>
+                </div>
+                <div class="weight-option change-price" data-product-id="${subproductId}" data-unit-id="unit_id_for_50gm" data-unit="50gm">
+                    <span>50gm</span>
+                </div>
+                <div class="weight-option change-price" data-product-id="${subproductId}" data-unit-id="unit_id_for_100gm" data-unit="100gm">
+                    <span>100gm</span>
+                </div>
+                <div class="weight-option change-price" data-product-id="${subproductId}" data-unit-id="unit_id_for_250gm" data-unit="250gm">
+                    <span>250gm</span>
+                </div>
+                <div class="weight-option change-price" data-product-id="${subproductId}" data-unit-id="unit_id_for_500gm" data-unit="500gm">
+                    <span>500gm</span>
+                </div>
+                <div class="weight-option change-price" data-product-id="${subproductId}" data-unit-id="unit_id_for_1kg" data-unit="1kg">
+                    <span>1Kg</span>
+                </div>
+                <div class="weight-option change-price" data-product-id="${subproductId}" data-unit-id="unit_id_for_10kg" data-unit="10kg">
+                    <span>10Kg</span>
+                </div>
+                <div class="weight-option change-price" data-product-id="${subproductId}" data-unit-id="unit_id_for_50kg" data-unit="50kg">
+                    <span>50kg</span>
+                </div>
+                <div class="weight-option change-price" data-product-id="${subproductId}" data-unit-id="unit_id_for_100kg" data-unit="100kg">
+                    <span>100kg</span>
+                </div>
+            `;
+            
+            // Add event listeners to the new weight options
+            weightOptions.querySelectorAll('.weight-option.change-price').forEach(function(element) {
+                element.addEventListener('click', async function(event) {
+                    event.preventDefault();
+                    await handleWeightSelection(this, event);
+                });
+            });
+            
+            bottomSheet.classList.add('show');
+            backdrop.classList.add('show');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+    }
+
+    function closeWeightBottomSheet() {
+        // Only work on mobile devices
+        if (window.innerWidth > 768) {
+            return;
+        }
+        
+        const bottomSheet = document.getElementById('weightBottomSheet');
+        const backdrop = document.getElementById('weightBackdrop');
+        
+        if (bottomSheet && backdrop) {
+            bottomSheet.classList.remove('show');
+            backdrop.classList.remove('show');
+            document.body.style.overflow = ''; // Restore scrolling
+            currentSubproductId = null;
+        }
+    }
+
+        // Global function for handling weight selection
+    async function handleWeightSelection(element, event) {
+        const selectedUnit = element.getAttribute('data-unit');
+        const selectedUnitId = element.getAttribute('data-unit-id');
+        const subproductId = element.getAttribute('data-product-id');
+
+        // Remove selected class from all mobile options
+        document.querySelectorAll('#weightBottomSheet .weight-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+
+        // Add selected class to clicked option (mobile only)
+        if (element.classList.contains('weight-option')) {
+            element.classList.add('selected');
+        }
+
+        const quantityButtons = document.querySelectorAll(`.quantity-btn[data-cart-item-id="${subproductId}"]`);
+        quantityButtons.forEach(button => {
+            button.disabled = true;
+        });
+
+        try {
+            const response = await fetch(`/get_unit_price?subproduct_id=${subproductId}&unit_received=${selectedUnit}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Requested quantity exceeds available quantity limit');
+            }
+
+            // Check if price is available
+            if (data.price) {
+                const priceElement = document.querySelector(`#selected-unit-price_${subproductId}`);
+                if (priceElement) {
+                    priceElement.textContent = `₹${data.price} incl.GST`;
+                    // Make sure the price display is visible
+                    priceElement.style.display = 'block';
+                    priceElement.style.visibility = 'visible';
+                }
+
+                const quantityField = document.querySelector(`#selected-quantity_${subproductId}`);
+                quantityField.value = data.quantity !== undefined ? data.quantity : 1;
+
+                updateUI(subproductId, data.price);
+
+                // Update both mobile and desktop buttons
+                const mobileButton = document.querySelector(`#netweightDropdown_${subproductId}`);
+                const desktopButton = document.querySelector(`#netweightDropdownDesktop_${subproductId}`);
+                
+                if (mobileButton) {
+                    const mobileWeightText = mobileButton.querySelector('.weight-text');
+                    mobileWeightText.textContent = `Net.Wt: ${selectedUnit}`;
+                }
+                
+                if (desktopButton) {
+                    const desktopWeightText = desktopButton.querySelector('.weight-text');
+                    desktopWeightText.textContent = `Net.Wt: ${selectedUnit}`;
+                }
+
+                const selectedUnitHidden = document.querySelector(`#selected-unit-id_${subproductId}`);
+                selectedUnitHidden.value = selectedUnit;
+
+                const addToCartBtn = document.querySelector(`#add-to-cart-btn_${subproductId}`);
+                addToCartBtn.disabled = false;
+
+                // Close the bottom sheet after selection (mobile only)
+                if (window.innerWidth <= 768) {
+                    closeWeightBottomSheet();
+                }
+            } else {
+                // Price not available for this unit
+                alert(`Price not available for ${selectedUnit} unit. Please select a different unit.`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert(error.message);
+        } finally {
+            quantityButtons.forEach(button => {
+                button.disabled = false;
+            });
+        }
+    }
+
+    // Global function for updating UI
+    async function updateUI(subproductId, unitPrice) {
+        const priceElement = document.querySelector(`#selected-unit-price_${subproductId}`);
+        if (priceElement) {
+            priceElement.textContent = `₹${unitPrice} incl.GST`;
+            // Ensure price display is visible
+            priceElement.style.display = 'block';
+            priceElement.style.visibility = 'visible';
+            
+            // Add a subtle animation to draw attention
+            priceElement.style.animation = 'priceFadeIn 0.3s ease-in';
+        }
+
+        const quantityInput = document.querySelector(`#selected-quantity_${subproductId}`);
+        quantityInput.style.appearance = 'none';
+        quantityInput.style.MozAppearance = 'textfield';
+    }
+
+    // Handle weight option selection (both mobile and desktop)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile bottom sheet options
+        document.querySelectorAll('.weight-option.change-price').forEach(function(element) {
+            element.addEventListener('click', async function(event) {
+                event.preventDefault();
+                await handleWeightSelection(this, event);
+            });
+        });
+
+        // Desktop dropdown options
+        document.querySelectorAll('.dropdown-item.change-price').forEach(function(element) {
+            element.addEventListener('click', async function(event) {
+                event.preventDefault();
+                await handleWeightSelection(this, event);
+            });
+        });
+
+        // Handle quantity increment/decrement
+        document.querySelectorAll('.quantity-btn').forEach(function(button) {
+            button.addEventListener('click', async function(event) {
+                event.preventDefault();
+                const operation = this.getAttribute('data-operation');
+                const subproductId = this.getAttribute('data-cart-item-id');
+                const quantityInput = document.querySelector(`#selected-quantity_${subproductId}`);
+                const selectedUnit = document.querySelector(`#selected-unit-id_${subproductId}`).value;
+
+                let currentValue = parseInt(quantityInput.value || 0, 10);
+
+                if (operation === 'increment') {
+                    currentValue++;
+                } else if (operation === 'decrement' && currentValue > 1) {
+                    currentValue--;
+                }
+
+                try {
+                    const response = await fetch(`/check_quantity/?subproduct_id=${subproductId}&quantity=${currentValue}&selectedUnit=${selectedUnit}`);
+                    const data = await response.json();
+
+                    if (!data.available) {
+                        alert(data.message);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while checking quantity. Please try again.');
+                    return;
+                }
+                quantityInput.value = currentValue;
+            });
+        });
+    });
+</script>
